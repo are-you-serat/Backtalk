@@ -59,4 +59,5 @@
     <string name="dev_click">You found me. Now go away.</string>
     <string name="license">License</string>
     <string name="mit">MIT</string>
+    <string name="navigate_up">Navigate up</string>
 </resources>
