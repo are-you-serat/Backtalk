@@ -27,8 +27,7 @@ abstract class BaseLockActivity : AppCompatActivity() {
     protected open val autoLockEnabled: Boolean = true
     protected abstract val autoLockTimeout: Long
     protected open var lockOnCreateEnabled: Boolean = true
-
-    protected open val isAnonymousMode: Boolean = true
+    protected open var isAnonymousMode: Boolean = true
 
     private val lockRunnable = Runnable { lockApp() }
 
@@ -125,5 +124,18 @@ abstract class BaseLockActivity : AppCompatActivity() {
 
     protected fun lockApp() {
         isLoggedIn = false
+    }
+
+    protected fun unlockDirectly() {
+        isLoggedIn = true
+    }
+
+    protected fun updateSystemFlags(enabled: Boolean) {
+        isAnonymousMode = enabled
+        if (isAnonymousMode) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
     }
 }

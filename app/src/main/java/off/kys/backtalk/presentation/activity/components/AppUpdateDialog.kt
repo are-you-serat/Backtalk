@@ -6,7 +6,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import off.kys.backtalk.R
-import off.kys.github_app_updater.model.updater.UpdateResult
+import off.kys.github_app_updater_lib.model.updater.UpdateResult
 
 /**
  * Composable for displaying an app update dialog.

@@ -1,9 +1,9 @@
 package off.kys.backtalk.domain.use_case
 
 import off.kys.backtalk.BuildConfig
-import off.kys.github_app_updater.checkAppUpdate
-import off.kys.github_app_updater.common.ChangelogSource
-import off.kys.github_app_updater.model.updater.UpdateResult
+import off.kys.github_app_updater_lib.checkAppUpdate
+import off.kys.github_app_updater_lib.common.ChangelogSource
+import off.kys.github_app_updater_lib.model.updater.UpdateResult
 
 class CheckAppUpdate {
 

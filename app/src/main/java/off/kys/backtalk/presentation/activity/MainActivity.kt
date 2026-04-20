@@ -8,9 +8,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.lifecycleScope
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
-import off.kys.backtalk.common.PreferenceKeys
+import kotlinx.coroutines.launch
+import off.kys.backtalk.common.BacktalkPreferences
+import off.kys.backtalk.common.ThemeMode
 import off.kys.backtalk.common.base.BaseLockActivity
 import off.kys.backtalk.presentation.activity.components.AppUpdateDialog
 import off.kys.backtalk.presentation.activity.components.LockedView
@@ -19,58 +22,78 @@ import off.kys.backtalk.presentation.screen.messages.MessagesScreen
 import off.kys.backtalk.presentation.state.MainUiState
 import off.kys.backtalk.presentation.theme.BacktalkTheme
 import off.kys.backtalk.presentation.viewmodel.MainViewModel
-import off.kys.preferences.compose.provider.PreferenceProvider
-import off.kys.preferences.compose.provider.rememberPreference
+import org.koin.android.ext.android.inject
 import org.koin.compose.viewmodel.koinViewModel
 import kotlin.time.Duration.Companion.minutes
 
 class MainActivity : BaseLockActivity() {
 
-    override val autoLockTimeout: Long
-        get() = 1.minutes.inWholeMilliseconds
+    val preferences by inject<BacktalkPreferences>()
+
+    // Change these to vars with default values
+    override var autoLockTimeout: Long = 1.minutes.inWholeMilliseconds
+    override var lockOnCreateEnabled: Boolean = preferences.lockEnabled
+    override var isAnonymousMode: Boolean = preferences.secureScreenEnabled
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        observePreferences()
         enableEdgeToEdge()
         setContent {
-            PreferenceProvider {
-                val isDarkTheme =
-                    rememberPreference(
-                        key = PreferenceKeys.DARK_MODE,
-                        initialValue = isSystemInDarkTheme()
-                    )
-                val dynamicColor = rememberPreference(
-                    key = PreferenceKeys.USE_DYNAMIC_COLOR,
-                    initialValue = true
-                )
-                val viewModel = koinViewModel<MainViewModel>()
-                val updateState by viewModel.mainUiState.collectAsState()
+            val isDarkTheme =
+                preferences.themeMode == ThemeMode.DARK || (preferences.themeMode == ThemeMode.AUTO && isSystemInDarkTheme())
+            val dynamicColor = preferences.dynamicColorEnabled
+            val viewModel = koinViewModel<MainViewModel>()
+            val updateState by viewModel.mainUiState.collectAsState()
 
-                BacktalkTheme(
-                    darkTheme = isDarkTheme,
-                    dynamicColor = dynamicColor
-                ) {
-                    Navigator(MessagesScreen()) {
-                        if (isLoggedIn) {
-                            CurrentScreen()
-                        } else {
-                            LockedView()
-                        }
+            BacktalkTheme(
+                darkTheme = isDarkTheme,
+                dynamicColor = dynamicColor
+            ) {
+                Navigator(MessagesScreen()) {
+                    if (isLoggedIn) {
+                        CurrentScreen()
+                    } else {
+                        LockedView()
+                    }
 
-                        // Trigger update check
-                        LaunchedEffect(key1 = Unit) {
-                            viewModel.onEvent(MainUiEvent.CheckUpdate)
-                        }
+                    // Trigger update check
+                    LaunchedEffect(key1 = Unit) {
+                        viewModel.onEvent(MainUiEvent.CheckUpdate)
+                    }
 
-                        // Show dialog if needed
-                        if (updateState is MainUiState.UpdateAvailable) {
-                            val result = (updateState as MainUiState.UpdateAvailable).result
-                            AppUpdateDialog(
-                                updateResult = result,
-                                onDismissRequest = { viewModel.onEvent(MainUiEvent.DismissDialog) },
-                                onUpdateClick = { viewModel.onEvent(MainUiEvent.UpdateNow(result.downloadUrls.first().browserDownloadUrl)) }
-                            )
+                    // Show dialog if needed
+                    if (updateState is MainUiState.UpdateAvailable) {
+                        val result = (updateState as MainUiState.UpdateAvailable).result
+                        AppUpdateDialog(
+                            updateResult = result,
+                            onDismissRequest = { viewModel.onEvent(MainUiEvent.DismissDialog) },
+                            onUpdateClick = { viewModel.onEvent(MainUiEvent.UpdateNow(result.downloadUrls.first().browserDownloadUrl)) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        preferences.unregisterObserver()
+    }
+
+    private fun observePreferences() {
+        lifecycleScope.launch {
+            // Observe App Lock
+            launch {
+                preferences.observeChanges { key ->
+                    when (key) {
+                        BacktalkPreferences.KEY_DYNAMIC_COLOR -> recreate()
+                        BacktalkPreferences.KEY_THEME_MODE -> recreate()
+                        BacktalkPreferences.KEY_SECURE_SCREEN -> {
+                            val enabled = preferences.secureScreenEnabled
+                            isAnonymousMode = enabled
+                            updateSystemFlags(enabled)
                         }
                     }
                 }

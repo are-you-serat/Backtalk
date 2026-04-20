@@ -16,6 +16,7 @@ android {
     defaultConfig {
         applicationId = "off.kys.backtalk"
         minSdk = 24
+        //noinspection OldTargetApi
         targetSdk = 36
         versionCode = 1
         versionName = "0.1.1"
@@ -67,9 +68,9 @@ dependencies {
     implementation(libs.bundles.room)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.core.splashscreen)
-    implementation(project(":github-app-updater"))
-    implementation(project(":preferences"))
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.lifecycle.process)
+    implementation(libs.gau)
     ksp(libs.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

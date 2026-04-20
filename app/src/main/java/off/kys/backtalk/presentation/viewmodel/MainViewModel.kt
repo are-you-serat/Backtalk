@@ -1,8 +1,6 @@
 package off.kys.backtalk.presentation.viewmodel
 
 import android.app.Application
-import android.content.Intent
-import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,6 +9,7 @@ import kotlinx.coroutines.launch
 import off.kys.backtalk.domain.use_case.CheckAppUpdate
 import off.kys.backtalk.presentation.event.MainUiEvent
 import off.kys.backtalk.presentation.state.MainUiState
+import off.kys.backtalk.util.openUrl
 
 /**
  * ViewModel for the main screen.
@@ -39,7 +38,7 @@ class MainViewModel(
         when (event) {
             is MainUiEvent.CheckUpdate -> checkForUpdate()
             is MainUiEvent.DismissDialog -> _mainUiState.value = MainUiState.Idle
-            is MainUiEvent.UpdateNow -> openUpdateUrl(event.downloadUrl)
+            is MainUiEvent.UpdateNow -> application.openUrl(event.downloadUrl)
         }
     }
 
@@ -62,15 +61,5 @@ class MainViewModel(
                 _mainUiState.value = MainUiState.Error(e.message ?: "Unknown error")
             }
         }
-    }
-
-    /**
-     * Opens the update URL.
-     *
-     * @param url The URL to open.
-     */
-    private fun openUpdateUrl(url: String) {
-        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-        application.startActivity(intent)
     }
 }

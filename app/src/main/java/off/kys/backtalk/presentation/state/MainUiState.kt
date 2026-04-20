@@ -1,6 +1,6 @@
 package off.kys.backtalk.presentation.state
 
-import off.kys.github_app_updater.model.updater.UpdateResult
+import off.kys.github_app_updater_lib.model.updater.UpdateResult
 
 /**
  * Sealed interface representing the main UI state.

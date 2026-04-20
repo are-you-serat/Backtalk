@@ -15,7 +15,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import off.kys.backtalk.presentation.event.MessagesUiEvent
 import off.kys.backtalk.presentation.screen.messages.components.MessagesContent
 import off.kys.backtalk.presentation.screen.messages.components.MessagesTopBar
-import off.kys.backtalk.presentation.screen.preferences.PreferencesScreen
+import off.kys.backtalk.presentation.screen.preferences.SettingsScreen
 import off.kys.backtalk.presentation.viewmodel.MessagesViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -53,9 +53,7 @@ class MessagesScreen : Screen {
                     onCopy = {
                         viewModel.onEvent(MessagesUiEvent.CopySelected)
                     },
-                    onSettings = {
-                        navigator += PreferencesScreen()
-                    }
+                    onSettings = { navigator += SettingsScreen() }
                 )
             }
         ) { scaffoldPadding ->

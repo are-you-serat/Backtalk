@@ -1,6 +1,7 @@
 package off.kys.backtalk.di
 
 import androidx.room.Room
+import off.kys.backtalk.common.BacktalkPreferences
 import off.kys.backtalk.common.manager.VibrationManager
 import off.kys.backtalk.data.local.dao.MessagesDao
 import off.kys.backtalk.data.local.database.MessagesDatabase
@@ -88,6 +89,7 @@ private fun Module.viewModelModule() {
  * Koin module for the system.
  */
 private fun Module.systemModule() {
+    single { BacktalkPreferences(get()) }
     single { VibrationManager(get()) }
 }
 

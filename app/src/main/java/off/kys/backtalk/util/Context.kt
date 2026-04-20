@@ -1,11 +1,15 @@
 package off.kys.backtalk.util
 
+import android.app.KeyguardManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.widget.Toast
+import androidx.annotation.StringRes
 import androidx.biometric.BiometricManager
+import androidx.core.net.toUri
 import off.kys.backtalk.R
 
 /**
@@ -16,9 +20,36 @@ import off.kys.backtalk.R
  * @param message The text to show. Can be formatted text.
  * @param duration How long to display the message. Can be [Toast.LENGTH_SHORT] or [Toast.LENGTH_LONG].
  *                 Defaults to [Toast.LENGTH_SHORT].
+ *
+ * @receiver The Context used to access system services and resources.
  */
 fun Context.toast(message: String, duration: Int = Toast.LENGTH_SHORT) =
     Toast.makeText(this, message, duration).show()
+
+/**
+ * Displays a short [Toast] message.
+ *
+ * This is an extension function on [Context] that simplifies showing a toast.
+ *
+ * @param message The resource ID of the string to show.
+ * @param duration How long to display the message. Can be [Toast.LENGTH_SHORT] or [Toast.LENGTH_LONG].
+ *                 Defaults to [Toast.LENGTH_SHORT].
+ *
+ * @receiver The Context used to access system services and resources.
+ */
+fun Context.toast(@StringRes message: Int, duration: Int = Toast.LENGTH_SHORT) =
+    Toast.makeText(this, message, duration).show()
+
+/**
+ * Opens the given URL in the default browser.
+ *
+ * @param url The URL to open.
+ * @receiver The Context used to access system services and resources.
+ */
+fun Context.openUrl(url: String) {
+    val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+    startActivity(intent)
+}
 
 /**
  * Copies the given text to the system clipboard.
@@ -48,21 +79,27 @@ fun Context.copyToClipboard(text: String) {
 
 
 /**
- * Checks if biometric authentication (like fingerprint or face recognition) is available and enrolled on the device.
+ * Checks if the user has any form of secure "gatekeeping" active.
+ * Returns true if biometrics are enrolled OR a lock screen (PIN/Pattern/Pass) is set.
  *
- * This function uses `BiometricManager` to determine the biometric capability of the device.
- * It's useful for deciding whether to show a biometric login option to the user.
- *
- * @return `true` if biometric authentication is available and at least one biometric is enrolled, `false` otherwise.
- * @see androidx.biometric.BiometricManager
+ * @receiver The Context used to access system services and resources.
+ * @return True if secure gatekeeping is enabled, false otherwise.
  */
-fun Context.isBiometricAvailable(): Boolean {
+fun Context.isSecurityEnabled(): Boolean {
     val biometricManager = BiometricManager.from(this)
-    val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG or
-            BiometricManager.Authenticators.DEVICE_CREDENTIAL
+    val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
-    return when (biometricManager.canAuthenticate(authenticators)) {
+    // Check for "Strong" Biometrics (Fingerprint, Face, etc.)
+    // or Device Credentials (PIN, Pattern, Password)
+    val canAuthenticate =
+        biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+
+    return when (canAuthenticate) {
         BiometricManager.BIOMETRIC_SUCCESS -> true
-        else -> false
+        else -> {
+            // Fallback for older APIs or specific edge cases where
+            // Keyguard might be set even if BiometricManager is being moody.
+            keyguardManager.isDeviceSecure
+        }
     }
 }
