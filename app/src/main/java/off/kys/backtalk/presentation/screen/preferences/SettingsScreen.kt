@@ -53,7 +53,7 @@ class SettingsScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
-        val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+        val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
         val navigator = LocalNavigator.currentOrThrow
         val prefs = koinInject<BacktalkPreferences>()
         val context = LocalContext.current
