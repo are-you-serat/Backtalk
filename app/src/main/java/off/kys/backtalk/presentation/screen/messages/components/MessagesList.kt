@@ -96,6 +96,7 @@ fun ColumnScope.MessagesList(
                 }
 
                 SwipeToReplyWrapper(
+                    direction = SwipeDirection.LEFT,
                     onSwipe = {
                         if (!selectionMode) {
                             onReply(current)

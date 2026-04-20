@@ -13,7 +13,7 @@ import off.kys.backtalk.presentation.state.MessagesUiState
  * @param modifier The modifier to be applied to the layout.
  * @param state The current state of the messages screen.
  * @param onReply The callback function to handle replying to a message.
- * @param onSelect The callback function to handle selecting a message.
+ * @param onToggleSelect The callback function to toggle the selection state of a message.
  * @param onSend The callback function to handle sending a message.
  */
 @Composable
