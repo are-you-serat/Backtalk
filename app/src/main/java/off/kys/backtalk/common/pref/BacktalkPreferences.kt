@@ -1,9 +1,10 @@
-package off.kys.backtalk.common
+package off.kys.backtalk.common.pref
 
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.core.content.edit
+import off.kys.backtalk.common.ThemeMode
 
 class BacktalkPreferences(context: Context) {
     private val prefs: SharedPreferences =

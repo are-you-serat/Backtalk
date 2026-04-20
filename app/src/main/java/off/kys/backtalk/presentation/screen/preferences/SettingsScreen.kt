@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import off.kys.backtalk.BuildConfig
 import off.kys.backtalk.R
-import off.kys.backtalk.common.BacktalkPreferences
+import off.kys.backtalk.common.pref.BacktalkPreferences
 import off.kys.backtalk.common.Constants
 import off.kys.backtalk.common.ThemeMode
 import off.kys.backtalk.util.isSecurityEnabled

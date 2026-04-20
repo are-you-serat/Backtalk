@@ -17,7 +17,7 @@ sealed interface MainUiState {
     object Checking : MainUiState
 
     /**
-     * Up to date state.
+     * Up-to-date state.
      */
     object UpToDate : MainUiState
 

@@ -37,16 +37,6 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
- * Enum class representing the swipe direction.
- *
- * @property LEFT Represents the left swipe direction.
- * @property RIGHT Represents the right swipe direction.
- */
-enum class SwipeDirection {
-    LEFT, RIGHT
-}
-
-/**
  * Composable function that displays a message bubble with a swipe-to-reply feature.
  *
  * @param onSwipe The callback function to handle the swipe-to-reply action with the direction.

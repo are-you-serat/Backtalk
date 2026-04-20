@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
 import kotlinx.coroutines.launch
-import off.kys.backtalk.common.BacktalkPreferences
+import off.kys.backtalk.common.pref.BacktalkPreferences
 import off.kys.backtalk.common.ThemeMode
 import off.kys.backtalk.common.base.BaseLockActivity
 import off.kys.backtalk.presentation.activity.components.AppUpdateDialog
