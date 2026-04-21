@@ -14,5 +14,7 @@ data class MessageEntity(
     val text: String,
     val timestamp: Long,
     @Embedded
-    val repliedToId: MessageId?
+    val repliedToId: MessageId?,
+    val editedText: String? = null,
+    val editedAt: Long? = null
 )

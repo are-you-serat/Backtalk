@@ -8,10 +8,12 @@ import off.kys.backtalk.domain.model.MessageId
  *
  * @param messages The list of messages to display.
  * @param replyingTo The message being replied to, if any.
+ * @param editingMessage The message being edited, if any.
  * @param selectedMessageIds The set of message IDs that are currently selected.
  */
 data class MessagesUiState(
     val messages: List<MessageEntity> = emptyList(),
     val replyingTo: MessageEntity? = null,
+    val editingMessage: MessageEntity? = null,
     val selectedMessageIds: Set<MessageId> = emptySet()
 )

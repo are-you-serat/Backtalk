@@ -12,6 +12,7 @@ import off.kys.backtalk.presentation.state.MessagesUiState
  *
  * @param modifier The modifier to be applied to the layout.
  * @param state The current state of the messages screen.
+ * @param onEditMessage The callback function to handle editing a message.
  * @param onReply The callback function to handle replying to a message.
  * @param onToggleSelect The callback function to toggle the selection state of a message.
  * @param onSend The callback function to handle sending a message.
@@ -20,6 +21,7 @@ import off.kys.backtalk.presentation.state.MessagesUiState
 fun MessagesContent(
     modifier: Modifier,
     state: MessagesUiState,
+    onEditMessage: (MessageEntity?) -> Unit,
     onReply: (MessageEntity?) -> Unit,
     onToggleSelect: (MessageId) -> Unit,
     onSend: (String) -> Unit
@@ -28,13 +30,17 @@ fun MessagesContent(
         MessagesList(
             messages = state.messages,
             selectedMessageIds = state.selectedMessageIds,
+            onEditMessage = onEditMessage,
             onReply = onReply,
             onToggleSelect = onToggleSelect
         )
 
         InputBar(
+            messageInput = state.editingMessage?.let { it.editedText ?: it.text }.orEmpty(),
             replyingTo = state.replyingTo,
+            editingMessage = state.editingMessage,
             onCancelReply = { onReply(null) },
+            onCancelEdit = { onEditMessage(null) },
             onMessageSend = onSend
         )
     }

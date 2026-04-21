@@ -38,6 +38,10 @@ class MessagesScreen : Screen {
             viewModel.onEvent(MessagesUiEvent.ReplyTo(null))
         }
 
+        BackHandler(state.editingMessage != null) {
+            viewModel.onEvent(MessagesUiEvent.EditMessage(null))
+        }
+
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
@@ -60,6 +64,7 @@ class MessagesScreen : Screen {
             MessagesContent(
                 modifier = Modifier.padding(scaffoldPadding),
                 state = state,
+                onEditMessage = { viewModel.onEvent(MessagesUiEvent.EditMessage(it)) },
                 onReply = { viewModel.onEvent(MessagesUiEvent.ReplyTo(it)) },
                 onToggleSelect = { viewModel.onEvent(MessagesUiEvent.ToggleSelection(it)) },
                 onSend = { viewModel.onEvent(MessagesUiEvent.SendMessage(it)) }

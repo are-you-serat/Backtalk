@@ -61,4 +61,8 @@
     <string name="mit">MIT</string>
     <string name="navigate_up">Navigate up</string>
     <string name="apply_system_colors_to_the_app_interface">Apply system colors to the app interface</string>
+    <string name="edit">Edit</string>
+    <string name="edited">edited</string>
+    <string name="sent_at">Sent at</string>
+    <string name="edited_at">Edited at %1$s</string>
 </resources>

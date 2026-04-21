@@ -18,6 +18,13 @@ sealed interface MessagesUiEvent {
      * @param text The text of the message to send.
      */
     data class SendMessage(val text: String) : MessagesUiEvent
+    
+    /**
+     * UI event to edit a message.
+     *
+     * @param message The message to edit, or null if no message is being edited.
+     */
+    data class EditMessage(val message: MessageEntity?) : MessagesUiEvent
 
     /**
      * UI event to reply to a message.

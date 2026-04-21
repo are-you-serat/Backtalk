@@ -30,6 +30,7 @@ import off.kys.backtalk.presentation.components.rememberPopupState
  * @param ColumnScope The scope for the column.
  * @param messages The list of messages to display.
  * @param selectedMessageIds The set of selected message IDs.
+ * @param onEditMessage The callback function to handle editing a message.
  * @param onReply The callback function to handle replying to a message.
  * @param onToggleSelect The callback function to handle toggling the selection of a message.
  */
@@ -37,6 +38,7 @@ import off.kys.backtalk.presentation.components.rememberPopupState
 fun ColumnScope.MessagesList(
     messages: List<MessageEntity>,
     selectedMessageIds: Set<MessageId>,
+    onEditMessage: (MessageEntity?) -> Unit,
     onReply: (MessageEntity?) -> Unit,
     onToggleSelect: (MessageId) -> Unit
 ) {
@@ -126,6 +128,7 @@ fun ColumnScope.MessagesList(
                                 }
                             }
                         },
+                        onEditMessageClick = { onEditMessage(it) },
                         onClick = {
                             if (selectionMode) {
                                 onToggleSelect(current.id)

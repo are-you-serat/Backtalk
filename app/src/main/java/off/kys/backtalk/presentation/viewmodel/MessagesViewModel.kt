@@ -32,6 +32,7 @@ class MessagesViewModel(
             is MessagesUiEvent.LoadMessages -> loadMessages()
             is MessagesUiEvent.SendMessage -> sendMessage(event.text)
             is MessagesUiEvent.ReplyTo -> updateReply(event.message)
+            is MessagesUiEvent.EditMessage -> updateEditingMessage(event.message)
 
             is MessagesUiEvent.ToggleSelection -> toggleSelection(event.id)
             is MessagesUiEvent.ClearSelection -> clearSelection()
@@ -55,11 +56,26 @@ class MessagesViewModel(
     }
 
     /**
-     * Sends a message with the given text.
+     * Sends a message with the given text or updates an existing message if editing.
      *
-     * @param text The text of the message to send.
+     * @param text The text of the message to send or the new text for the edited message.
      */
     private fun sendMessage(text: String) {
+        val editingMessage = _uiState.value.editingMessage
+
+        if (editingMessage != null) {
+            viewModelScope.launch {
+                useCases.insertMessage(
+                    editingMessage.copy(
+                        editedText = text,
+                        editedAt = System.currentTimeMillis()
+                    )
+                )
+            }
+            updateEditingMessage(null)
+            return
+        }
+
         val replyTo = _uiState.value.replyingTo
         viewModelScope.launch {
             useCases.insertMessage(
@@ -72,6 +88,15 @@ class MessagesViewModel(
             )
         }
         updateReply(null)
+    }
+
+    /**
+     * Updates the UI state with the given message as the editing message.
+     *
+     * @param message The message to set as the editing message.
+     */
+    private fun updateEditingMessage(message: MessageEntity?) {
+        _uiState.value = _uiState.value.copy(editingMessage = message)
     }
 
     /**

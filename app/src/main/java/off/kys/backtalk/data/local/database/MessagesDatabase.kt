@@ -10,7 +10,7 @@ import off.kys.backtalk.data.local.entity.MessageEntity
  */
 @Database(
     entities = [MessageEntity::class],
-    version = 1,
+    version = 3,
     exportSchema = false
 )
 abstract class MessagesDatabase: RoomDatabase() {

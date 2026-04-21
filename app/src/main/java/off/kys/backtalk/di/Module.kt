@@ -1,10 +1,12 @@
 package off.kys.backtalk.di
 
 import androidx.room.Room
-import off.kys.backtalk.common.pref.BacktalkPreferences
 import off.kys.backtalk.common.manager.VibrationManager
+import off.kys.backtalk.common.pref.BacktalkPreferences
 import off.kys.backtalk.data.local.dao.MessagesDao
 import off.kys.backtalk.data.local.database.MessagesDatabase
+import off.kys.backtalk.data.local.migrations.MIGRATION_1_2
+import off.kys.backtalk.data.local.migrations.MIGRATION_2_3
 import off.kys.backtalk.data.repository.MessagesRepositoryImpl
 import off.kys.backtalk.domain.repository.MessagesRepository
 import off.kys.backtalk.domain.use_case.CheckAppUpdate
@@ -42,7 +44,7 @@ private fun Module.databaseModule() {
             MessagesDatabase::class.java,
             "msgs_db"
         )
-            .fallbackToDestructiveMigration(false)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
     }
 

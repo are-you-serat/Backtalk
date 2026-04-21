@@ -41,18 +41,24 @@ import off.kys.backtalk.util.emptyString
  * Composable function that displays the input bar for sending messages.
  *
  * @param modifier The modifier to be applied to the layout.
+ * @param messageInput The current input text for the message.
  * @param replyingTo The message being replied to, if any.
+ * @param editingMessage The message being edited, if any.
  * @param onCancelReply The callback function to handle canceling the reply.
+ * @param onCancelEdit The callback function to handle canceling the edit.
  * @param onMessageSend The callback function to handle sending a message.
  */
 @Composable
 fun InputBar(
     modifier: Modifier = Modifier,
+    messageInput: String,
     replyingTo: MessageEntity?,
+    editingMessage: MessageEntity?,
     onCancelReply: () -> Unit,
+    onCancelEdit: () -> Unit,
     onMessageSend: (String) -> Unit
 ) {
-    var textState by remember { mutableStateOf("") }
+    var textState by remember(key1 = messageInput) { mutableStateOf(messageInput) }
 
     Surface(
         modifier = Modifier.imePadding(),
@@ -60,7 +66,7 @@ fun InputBar(
     ) {
         Column(modifier = modifier) {
             AnimatedVisibility(
-                visible = replyingTo != null,
+                visible = replyingTo != null || editingMessage != null,
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut()
             ) {
@@ -77,17 +83,20 @@ fun InputBar(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = stringResource(R.string.replying_to),
+                            text = stringResource(if (editingMessage != null) R.string.edit else R.string.replying_to),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            replyingTo?.text ?: emptyString(),
+                            (editingMessage ?: replyingTo)?.text ?: emptyString(),
                             maxLines = 1,
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
-                    IconButton(onClick = onCancelReply, modifier = Modifier.size(24.dp)) {
+                    IconButton(
+                        onClick = if (editingMessage != null) onCancelEdit else onCancelReply,
+                        modifier = Modifier.size(24.dp)
+                    ) {
                         Icon(
                             painter = painterResource(R.drawable.round_close_24),
                             contentDescription = stringResource(R.string.cancel)

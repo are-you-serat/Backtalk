@@ -10,8 +10,11 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +33,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
+import off.kys.backtalk.R
 import off.kys.backtalk.data.local.entity.MessageEntity
 import off.kys.backtalk.domain.model.MessageId
 import off.kys.backtalk.presentation.components.ManagedPopup
@@ -40,21 +48,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/**
- * Composable function that displays a message bubble.
- *
- * @param popupState The state of the popup.
- * @param messageEntity The message entity to display.
- * @param repliedMessageEntity The replied message entity, if any.
- * @param blinkMessageId The ID of the message to blink, if any.
- * @param isTop Whether the message is at the top of its group.
- * @param isBottom Whether the message is at the bottom of its group.
- * @param selectMode Whether select mode is enabled.
- * @param isSelected Whether the message is selected.
- * @param onReplyPreviewClick The callback function to handle clicks on the reply preview.
- * @param onClick The callback function to handle clicks on the message.
- * @param onLongClick The callback function to handle long clicks on the message.
- */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageBubble(
@@ -67,148 +60,201 @@ fun MessageBubble(
     selectMode: Boolean,
     isSelected: Boolean,
     onReplyPreviewClick: () -> Unit,
+    onEditMessageClick: (MessageEntity) -> Unit,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
-    var showTime by remember { mutableStateOf(false) }
+    var showExtraInfo by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
-
-    // Remove ripple by passing null to indication
     val interactionSource = remember { MutableInteractionSource() }
 
-    val baseBubbleColor = if (isSelected) {
-        MaterialTheme.colorScheme.primaryContainer
-    } else {
-        MaterialTheme.colorScheme.primary
-    }
-
-    val bubbleShape = RoundedCornerShape(
-        topStart = 18.dp,
-        topEnd = if (isTop) 18.dp else 4.dp,
-        bottomEnd = if (isBottom) 18.dp else 4.dp,
-        bottomStart = 18.dp
-    )
-
     val isBlinking = blinkMessageId == messageEntity.id
-    val blinkAlpha = remember { Animatable(0f) }
     val scale = remember { Animatable(1f) }
-    val blinkOverlayColor = Color.White.copy(
-        alpha = 0.35f * blinkAlpha.value
-    )
+    val blinkAlpha = remember { Animatable(0f) }
 
+    // Constants for logic
+    val oneHourInMillis = 3600000L
+    val canEdit = messageEntity.editedAt == null &&
+            (System.currentTimeMillis() - messageEntity.timestamp) < oneHourInMillis
 
-    LaunchedEffect(key1 = isBlinking) {
+    LaunchedEffect(isBlinking) {
         if (isBlinking) {
-            blinkAlpha.snapTo(0f)
-            scale.snapTo(1f)
-
             repeat(2) {
-                // Blink in + scale up
-                blinkAlpha.animateTo(
-                    targetValue = 1f,
-                    animationSpec = tween(180)
-                )
-                scale.animateTo(
-                    targetValue = 1.05f,
-                    animationSpec = tween(180)
-                )
-
-                // Blink out + scale back
-                blinkAlpha.animateTo(
-                    targetValue = 0f,
-                    animationSpec = tween(300)
-                )
-                scale.animateTo(
-                    targetValue = 1f,
-                    animationSpec = tween(300)
-                )
+                launch { scale.animateTo(1.05f, tween(180)); scale.animateTo(1f, tween(300)) }
+                blinkAlpha.animateTo(1f, tween(180))
+                blinkAlpha.animateTo(0f, tween(300))
             }
-
-            blinkAlpha.snapTo(0f)
-            scale.snapTo(1f)
         }
     }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = if (isTop) 6.dp else 0.dp),
+            .padding(top = if (isTop) 4.dp else 1.dp, bottom = if (isBottom) 4.dp else 1.dp),
         horizontalAlignment = Alignment.End
     ) {
         ManagedPopup(
             state = popupState,
             anchor = {
-                Surface(
-                    modifier = Modifier
-                        .graphicsLayer {
-                            scaleX = scale.value
-                            scaleY = scale.value
+                MessageSurface(
+                    isSelected = isSelected,
+                    isTop = isTop,
+                    isBottom = isBottom,
+                    blinkAlpha = blinkAlpha.value,
+                    scale = scale.value,
+                    modifier = Modifier.combinedClickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        onClick = {
+                            if (!selectMode) showExtraInfo = !showExtraInfo
+                            onClick()
+                        },
+                        onLongClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onLongClick()
                         }
-                        .combinedClickable(
-                            interactionSource = interactionSource,
-                            indication = null, // This removes the ripple effect
-                            onClick = {
-                                if (!selectMode) {
-                                    if (!isSelected) showTime = !showTime
-                                }
-                                onClick()
-                            },
-                            onLongClick = {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onLongClick()
-                            }
-                        ),
-                    color = baseBubbleColor,
-                    shape = bubbleShape
+                    )
                 ) {
-                    Surface(
-                        color = blinkOverlayColor,
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(
-                                horizontal = 12.dp,
-                                vertical = 8.dp
-                            )
-                        ) {
-                            if (repliedMessageEntity != null) {
-                                ReplyPreview(
-                                    text = repliedMessageEntity.text,
-                                    onPreviewClick = onReplyPreviewClick
-                                )
-                            }
-
-                            Text(
-                                text = messageEntity.text,
-                                color = contentColorFor(baseBubbleColor)
-                            )
-                        }
-                    }
+                    MessageContent(
+                        message = messageEntity,
+                        repliedMessage = repliedMessageEntity,
+                        onReplyClick = onReplyPreviewClick,
+                        showOriginal = showExtraInfo
+                    )
                 }
             }
         ) { state ->
             PopupActionItem(
-                text = "Edit",
+                text = stringResource(R.string.edit),
+                enabled = canEdit,
                 onClick = {
+                    onEditMessageClick(messageEntity)
                     state.hide()
                 }
             )
         }
 
+        MessageFooter(
+            isVisible = showExtraInfo,
+            timestamp = messageEntity.timestamp,
+            editedAt = messageEntity.editedAt
+        )
+    }
+}
 
-        AnimatedVisibility(
-            visible = showTime,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
+@Composable
+private fun MessageSurface(
+    isSelected: Boolean,
+    isTop: Boolean,
+    isBottom: Boolean,
+    blinkAlpha: Float,
+    scale: Float,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    val bubbleColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+    else MaterialTheme.colorScheme.primary
+
+    val shape = RoundedCornerShape(
+        topStart = 18.dp,
+        topEnd = if (isTop) 18.dp else 4.dp,
+        bottomEnd = if (isBottom) 18.dp else 4.dp,
+        bottomStart = 18.dp
+    )
+
+    Surface(
+        modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale },
+        color = bubbleColor,
+        shape = shape,
+        shadowElevation = 1.dp
+    ) {
+        Box {
+            Surface(
+                color = Color.White.copy(alpha = 0.3f * blinkAlpha),
+                modifier = Modifier.matchParentSize()
+            ) {}
+            Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+private fun MessageContent(
+    message: MessageEntity,
+    repliedMessage: MessageEntity?,
+    onReplyClick: () -> Unit,
+    showOriginal: Boolean
+) {
+    val contentColor = contentColorFor(MaterialTheme.colorScheme.primary)
+
+    if (repliedMessage != null) {
+        ReplyPreview(text = repliedMessage.text, onPreviewClick = onReplyClick)
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+
+    if (message.editedText != null && showOriginal) {
+        Text(
+            text = message.text,
+            style = MaterialTheme.typography.bodySmall,
+            color = contentColor.copy(alpha = 0.6f),
+            textDecoration = TextDecoration.LineThrough
+        )
+    }
+
+    Text(
+        text = message.editedText ?: message.text,
+        color = contentColor,
+        style = MaterialTheme.typography.bodyLarge
+    )
+
+    if (message.editedText != null) {
+        Text(
+            text = stringResource(R.string.edited),
+            style = MaterialTheme.typography.labelSmall,
+            fontStyle = FontStyle.Italic,
+            color = contentColor.copy(alpha = 0.7f),
+            modifier = Modifier.padding(top = 2.dp)
+        )
+    }
+}
+
+@Composable
+private fun MessageFooter(
+    isVisible: Boolean,
+    timestamp: Long,
+    editedAt: Long?
+) {
+    val timeFormat = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn() + expandVertically(),
+        exit = fadeOut() + shrinkVertically()
+    ) {
+        Column(
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier.padding(end = 8.dp, top = 2.dp)
         ) {
             Text(
-                text = SimpleDateFormat(
-                    "h:mm a",
-                    Locale.getDefault()
-                ).format(Date(messageEntity.timestamp)),
+                text = "${if (editedAt != null) stringResource(R.string.sent_at) else ""} ${
+                    timeFormat.format(
+                        Date(
+                            timestamp
+                        )
+                    )
+                }".trim(),
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.padding(top = 4.dp, bottom = 4.dp, end = 4.dp)
+                color = MaterialTheme.colorScheme.outline
             )
+            editedAt?.let {
+                Text(
+                    text = stringResource(R.string.edited_at, timeFormat.format(Date(it))),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
         }
     }
 }
