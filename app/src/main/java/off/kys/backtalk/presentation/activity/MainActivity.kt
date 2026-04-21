@@ -23,12 +23,13 @@ import off.kys.backtalk.presentation.state.MainUiState
 import off.kys.backtalk.presentation.theme.BacktalkTheme
 import off.kys.backtalk.presentation.viewmodel.MainViewModel
 import org.koin.android.ext.android.inject
-import org.koin.compose.viewmodel.koinViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.time.Duration.Companion.minutes
 
 class MainActivity : BaseLockActivity() {
 
-    val preferences by inject<BacktalkPreferences>()
+    private val viewModel by viewModel<MainViewModel>()
+    private val preferences by inject<BacktalkPreferences>()
 
     override var autoLockTimeout: Long = 1.minutes.inWholeMilliseconds
     override var lockOnCreateEnabled: Boolean = preferences.lockEnabled
@@ -43,7 +44,7 @@ class MainActivity : BaseLockActivity() {
             val isDarkTheme =
                 preferences.themeMode == ThemeMode.DARK || (preferences.themeMode == ThemeMode.AUTO && isSystemInDarkTheme())
             val dynamicColor = preferences.dynamicColorEnabled
-            val viewModel = koinViewModel<MainViewModel>()
+            val autoUpdateEnabled = preferences.autoUpdateEnabled
             val updateState by viewModel.mainUiState.collectAsState()
 
             BacktalkTheme(
@@ -58,7 +59,9 @@ class MainActivity : BaseLockActivity() {
                     }
 
                     LaunchedEffect(key1 = Unit) {
-                        viewModel.onEvent(MainUiEvent.CheckUpdate)
+                        if (autoUpdateEnabled) {
+                            viewModel.onEvent(MainUiEvent.CheckUpdate)
+                        }
                     }
 
                     if (updateState is MainUiState.UpdateAvailable) {
@@ -77,6 +80,12 @@ class MainActivity : BaseLockActivity() {
     override fun onDestroy() {
         super.onDestroy()
         preferences.unregisterObserver()
+    }
+
+    fun checkForUpdates() {
+        lifecycleScope.launch {
+            viewModel.onEvent(MainUiEvent.CheckUpdate)
+        }
     }
 
     private fun observePreferences() {

@@ -65,4 +65,11 @@
     <string name="edited">edited</string>
     <string name="sent_at">Sent at</string>
     <string name="edited_at">Edited at %1$s</string>
+    <string name="updates">Updates</string>
+    <string name="auto_check_updates">Check for updates automatically</string>
+    <string name="auto_check_updates_desc">Periodically check if a newer version is available</string>
+    <string name="check_for_updates_now">Check for updates now</string>
+    <string name="tap_to_check_latest_version">See if you are running the latest build</string>
+    <string name="checking_for_updates">Checking for updates…</string>
+    <string name="app_up_to_date">You are already on the latest version</string>
 </resources>

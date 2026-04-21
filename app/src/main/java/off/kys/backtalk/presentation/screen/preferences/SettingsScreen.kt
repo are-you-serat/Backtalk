@@ -1,5 +1,6 @@
 package off.kys.backtalk.presentation.screen.preferences
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -40,6 +41,7 @@ import off.kys.backtalk.R
 import off.kys.backtalk.common.Constants
 import off.kys.backtalk.common.ThemeMode
 import off.kys.backtalk.common.pref.BacktalkPreferences
+import off.kys.backtalk.presentation.activity.MainActivity
 import off.kys.backtalk.util.isSecurityEnabled
 import off.kys.backtalk.util.openUrl
 import off.kys.backtalk.util.toast
@@ -50,6 +52,7 @@ class SettingsScreen : Screen {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
+        val mainActivity = LocalActivity.current as MainActivity
         val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
         val navigator = LocalNavigator.currentOrThrow
         val prefs = koinInject<BacktalkPreferences>()
@@ -59,6 +62,7 @@ class SettingsScreen : Screen {
         var dynamicColor by remember { mutableStateOf(prefs.dynamicColorEnabled) }
         var lockEnabled by remember { mutableStateOf(prefs.lockEnabled) }
         var secureScreen by remember { mutableStateOf(prefs.secureScreenEnabled) }
+        var autoUpdate by remember { mutableStateOf(prefs.autoUpdateEnabled) }
 
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -119,6 +123,30 @@ class SettingsScreen : Screen {
                     onCheckedChange = {
                         prefs.secureScreenEnabled = it
                         secureScreen = it
+                    }
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+                PreferenceCategory(stringResource(R.string.updates))
+
+                ToggleSetting(
+                    label = stringResource(R.string.auto_check_updates),
+                    supportingText = stringResource(R.string.auto_check_updates_desc),
+                    icon = painterResource(R.drawable.round_update_24),
+                    checked = autoUpdate,
+                    onCheckedChange = {
+                        prefs.autoUpdateEnabled = it
+                        autoUpdate = it
+                    }
+                )
+
+                InfoRow(
+                    label = stringResource(R.string.check_for_updates_now),
+                    value = stringResource(R.string.tap_to_check_latest_version),
+                    icon = painterResource(R.drawable.round_refresh_24),
+                    onClick = {
+                        context.toast(R.string.checking_for_updates)
+                        mainActivity.checkForUpdates()
                     }
                 )
 
