@@ -1,12 +1,8 @@
 package off.kys.backtalk.presentation.screen.preferences
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectableGroup
@@ -16,6 +12,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -28,8 +25,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -75,12 +72,10 @@ class SettingsScreen : Screen {
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .padding(horizontal = 16.dp)
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                SettingsSectionTitle(stringResource(R.string.appearance))
+                PreferenceCategory(stringResource(R.string.appearance))
 
                 ThemeSelector(
                     selected = themeMode,
@@ -92,6 +87,8 @@ class SettingsScreen : Screen {
 
                 ToggleSetting(
                     label = stringResource(R.string.material_you_dynamic_color),
+                    supportingText = stringResource(R.string.apply_system_colors_to_the_app_interface),
+                    icon = painterResource(R.drawable.round_palette_24),
                     checked = dynamicColor,
                     onCheckedChange = {
                         prefs.dynamicColorEnabled = it
@@ -99,21 +96,25 @@ class SettingsScreen : Screen {
                     }
                 )
 
-                HorizontalDivider()
-                SettingsSectionTitle(stringResource(R.string.privacy_security))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+                PreferenceCategory(stringResource(R.string.privacy_security))
 
-                if (context.isSecurityEnabled()) ToggleSetting(
-                    label = stringResource(R.string.enable_app_lock),
-                    checked = lockEnabled,
-                    requireRestart = true,
-                    onCheckedChange = {
-                        prefs.lockEnabled = it
-                        lockEnabled = it
-                    }
-                )
+                if (context.isSecurityEnabled()) {
+                    ToggleSetting(
+                        label = stringResource(R.string.enable_app_lock),
+                        icon = painterResource(R.drawable.round_lock_24),
+                        checked = lockEnabled,
+                        requireRestart = true,
+                        onCheckedChange = {
+                            prefs.lockEnabled = it
+                            lockEnabled = it
+                        }
+                    )
+                }
 
                 ToggleSetting(
                     label = stringResource(R.string.secure_screen_block_screenshots),
+                    icon = painterResource(R.drawable.round_screen_lock_portrait_24),
                     checked = secureScreen,
                     onCheckedChange = {
                         prefs.secureScreenEnabled = it
@@ -121,23 +122,26 @@ class SettingsScreen : Screen {
                     }
                 )
 
-                HorizontalDivider()
-                SettingsSectionTitle(stringResource(R.string.about))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+                PreferenceCategory(stringResource(R.string.about))
 
                 InfoRow(
                     label = stringResource(R.string.version),
-                    value = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
+                    value = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
+                    icon = painterResource(R.drawable.round_info_24)
                 )
 
                 InfoRow(
                     label = stringResource(R.string.developer),
                     value = stringResource(R.string.dev_name),
+                    icon = painterResource(R.drawable.round_person_24),
                     onClick = { context.toast(R.string.dev_click) }
                 )
 
                 InfoRow(
                     label = stringResource(R.string.license),
                     value = stringResource(R.string.mit),
+                    icon = painterResource(R.drawable.round_description_24),
                     onClick = { context.openUrl(Constants.BACKTALK_MIT_LICENSE_RAW_URL) }
                 )
             }
@@ -146,13 +150,11 @@ class SettingsScreen : Screen {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun SettingsTopAppBar(
+    private fun SettingsTopAppBar(
         onNavigateBack: () -> Unit,
-        scrollBehavior: TopAppBarScrollBehavior,
-        modifier: Modifier = Modifier
+        scrollBehavior: TopAppBarScrollBehavior
     ) {
         LargeTopAppBar(
-            modifier = modifier,
             navigationIcon = {
                 IconButton(onClick = onNavigateBack) {
                     Icon(
@@ -161,20 +163,45 @@ class SettingsScreen : Screen {
                     )
                 }
             },
-            title = {
-                Text(text = stringResource(R.string.settings))
-            },
+            title = { Text(text = stringResource(R.string.settings)) },
             scrollBehavior = scrollBehavior
         )
     }
 
     @Composable
-    private fun SettingsSectionTitle(text: String) {
+    private fun PreferenceCategory(text: String) {
         Text(
             text = text,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
+        )
+    }
+
+    @Composable
+    private fun ToggleSetting(
+        label: String,
+        icon: Painter? = null,
+        supportingText: String? = null,
+        checked: Boolean,
+        requireRestart: Boolean = false,
+        onCheckedChange: (Boolean) -> Unit
+    ) {
+        val context = LocalContext.current
+        ListItem(
+            headlineContent = { Text(label) },
+            supportingContent = supportingText?.let { { Text(it) } },
+            leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
+            trailingContent = {
+                Switch(
+                    checked = checked,
+                    onCheckedChange = {
+                        onCheckedChange(it)
+                        if (requireRestart) context.toast(R.string.restart_app_to_apply_changes)
+                    }
+                )
+            },
+            modifier = Modifier.clickable { onCheckedChange(!checked) }
         )
     }
 
@@ -182,73 +209,33 @@ class SettingsScreen : Screen {
     private fun InfoRow(
         label: String,
         value: String,
+        icon: Painter? = null,
         onClick: (() -> Unit)? = null
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                value,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.outline
-            )
-        }
-    }
-
-    @Composable
-    private fun ToggleSetting(
-        label: String,
-        checked: Boolean,
-        requireRestart: Boolean = false,
-        onCheckedChange: (Boolean) -> Unit
-    ) {
-        val context = LocalContext.current
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-            Switch(
-                checked = checked,
-                onCheckedChange = {
-                    onCheckedChange(it)
-                    if (requireRestart) {
-                        context.toast(R.string.restart_app_to_apply_changes)
-                    }
-                }
-            )
-        }
+        ListItem(
+            headlineContent = { Text(label) },
+            supportingContent = { Text(value) },
+            leadingContent = icon?.let { { Icon(it, contentDescription = null) } },
+            modifier = Modifier.then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+        )
     }
 
     @Composable
     private fun ThemeSelector(selected: ThemeMode, onSelected: (ThemeMode) -> Unit) {
         Column(Modifier.selectableGroup()) {
             ThemeMode.entries.forEach { mode ->
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                        .clickable { onSelected(mode) },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = (mode == selected),
-                        onClick = { onSelected(mode) }
-                    )
-                    Text(
-                        text = mode.name.lowercase().replaceFirstChar { it.uppercase() },
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
-                }
+                ListItem(
+                    headlineContent = {
+                        Text(mode.name.lowercase().replaceFirstChar { it.uppercase() })
+                    },
+                    leadingContent = {
+                        RadioButton(
+                            selected = (mode == selected),
+                            onClick = null // Handled by ListItem click
+                        )
+                    },
+                    modifier = Modifier.clickable { onSelected(mode) }
+                )
             }
         }
     }

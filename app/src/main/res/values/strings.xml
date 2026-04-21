@@ -60,4 +60,5 @@
     <string name="license">License</string>
     <string name="mit">MIT</string>
     <string name="navigate_up">Navigate up</string>
+    <string name="apply_system_colors_to_the_app_interface">Apply system colors to the app interface</string>
 </resources>
