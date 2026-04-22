@@ -55,6 +55,10 @@ android {
             kotlin.directories += "build/generated/ksp/release/kotlin"
         }
     }
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
 }
 
 kotlin {
