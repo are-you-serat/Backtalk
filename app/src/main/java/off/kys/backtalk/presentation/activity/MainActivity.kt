@@ -33,7 +33,7 @@ class MainActivity : BaseLockActivity() {
     private val preferences by inject<BacktalkPreferences>()
 
     override var autoLockTimeout: Long = 1.minutes.inWholeMilliseconds
-    override var lockOnCreateEnabled: Boolean = preferences.lockEnabled
+    override var isAuthRequired: Boolean = preferences.lockEnabled
     override var isAnonymousMode: Boolean = preferences.secureScreenEnabled
 
     @OptIn(ExperimentalMaterial3Api::class)
