@@ -41,17 +41,17 @@ sealed interface MessagesUiEvent {
     data class ToggleSelection(val id: MessageId) : MessagesUiEvent
 
     /**
-     * UI event to delete a message.
+     * UI event to clear the current selection of messages.
      */
     object ClearSelection : MessagesUiEvent
 
     /**
-     * UI event to delete a message.
+     * UI event to delete the currently selected messages.
      */
     object DeleteSelected : MessagesUiEvent
 
     /**
-     * UI event to copy a message.
+     * UI event to copy the currently selected messages to the clipboard.
      */
     object CopySelected : MessagesUiEvent
 }

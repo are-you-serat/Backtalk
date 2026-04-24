@@ -41,17 +41,28 @@ import kotlinx.coroutines.launch
 import off.kys.backtalk.R
 import off.kys.backtalk.data.local.entity.MessageEntity
 import off.kys.backtalk.domain.model.MessageId
-import off.kys.backtalk.presentation.components.ManagedPopup
-import off.kys.backtalk.presentation.components.PopupActionItem
-import off.kys.backtalk.presentation.components.PopupState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/**
+ * A message bubble component that displays a message and its related metadata.
+ * Supports replying, editing history, selection, and blinking animation.
+ *
+ * @param messageEntity The message entity to be displayed.
+ * @param repliedMessageEntity The message entity that this message is replying to, if any.
+ * @param blinkMessageId The ID of the message that should perform a blink animation.
+ * @param isTop Whether this message is the first one in a consecutive group of messages from the same sender.
+ * @param isBottom Whether this message is the last one in a consecutive group of messages from the same sender.
+ * @param selectMode Whether the UI is currently in message selection mode.
+ * @param isSelected Whether this specific message is currently selected.
+ * @param onReplyPreviewClick Callback invoked when the replied message preview is clicked.
+ * @param onClick Callback invoked when the message bubble is clicked.
+ * @param onLongClick Callback invoked when the message bubble is long-pressed.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageBubble(
-    popupState: PopupState,
     messageEntity: MessageEntity,
     repliedMessageEntity: MessageEntity?,
     blinkMessageId: MessageId?,
@@ -60,7 +71,6 @@ fun MessageBubble(
     selectMode: Boolean,
     isSelected: Boolean,
     onReplyPreviewClick: () -> Unit,
-    onEditMessageClick: (MessageEntity) -> Unit,
     onClick: () -> Unit,
     onLongClick: () -> Unit
 ) {
@@ -71,11 +81,6 @@ fun MessageBubble(
     val isBlinking = blinkMessageId == messageEntity.id
     val scale = remember { Animatable(1f) }
     val blinkAlpha = remember { Animatable(0f) }
-
-    // Constants for logic
-    val oneHourInMillis = 3600000L
-    val canEdit = messageEntity.editedAt == null &&
-            (System.currentTimeMillis() - messageEntity.timestamp) < oneHourInMillis
 
     LaunchedEffect(isBlinking) {
         if (isBlinking) {
@@ -93,44 +98,31 @@ fun MessageBubble(
             .padding(top = if (isTop) 4.dp else 1.dp, bottom = if (isBottom) 4.dp else 1.dp),
         horizontalAlignment = Alignment.End
     ) {
-        ManagedPopup(
-            state = popupState,
-            anchor = {
-                MessageSurface(
-                    isSelected = isSelected,
-                    isTop = isTop,
-                    isBottom = isBottom,
-                    blinkAlpha = blinkAlpha.value,
-                    scale = scale.value,
-                    modifier = Modifier.combinedClickable(
-                        interactionSource = interactionSource,
-                        indication = null,
-                        onClick = {
-                            if (!selectMode) showExtraInfo = !showExtraInfo
-                            onClick()
-                        },
-                        onLongClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onLongClick()
-                        }
-                    )
-                ) {
-                    MessageContent(
-                        message = messageEntity,
-                        repliedMessage = repliedMessageEntity,
-                        onReplyClick = onReplyPreviewClick,
-                        showOriginal = showExtraInfo
-                    )
-                }
-            }
-        ) { state ->
-            PopupActionItem(
-                text = stringResource(R.string.edit),
-                enabled = canEdit,
+
+        MessageSurface(
+            isSelected = isSelected,
+            isTop = isTop,
+            isBottom = isBottom,
+            blinkAlpha = blinkAlpha.value,
+            scale = scale.value,
+            modifier = Modifier.combinedClickable(
+                interactionSource = interactionSource,
+                indication = null,
                 onClick = {
-                    onEditMessageClick(messageEntity)
-                    state.hide()
+                    if (!selectMode) showExtraInfo = !showExtraInfo
+                    onClick()
+                },
+                onLongClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    onLongClick()
                 }
+            )
+        ) {
+            MessageContent(
+                message = messageEntity,
+                repliedMessage = repliedMessageEntity,
+                onReplyClick = onReplyPreviewClick,
+                showOriginal = showExtraInfo
             )
         }
 
@@ -142,6 +134,17 @@ fun MessageBubble(
     }
 }
 
+/**
+ * The outer surface of the message bubble, handling background color, shape, and animations.
+ *
+ * @param isSelected Whether the message is selected, affecting the bubble color.
+ * @param isTop Used to determine the corner radius of the top-end.
+ * @param isBottom Used to determine the corner radius of the bottom-end.
+ * @param blinkAlpha The current alpha value for the highlight/blink effect.
+ * @param scale The current scale value for the bubble animation.
+ * @param modifier The modifier to be applied to the surface.
+ * @param content The composable content to be displayed inside the bubble.
+ */
 @Composable
 private fun MessageSurface(
     isSelected: Boolean,
@@ -180,6 +183,15 @@ private fun MessageSurface(
     }
 }
 
+/**
+ * Displays the main content of the message, including replied message preview,
+ * original text (if edited and expanded), the current text, and an "edited" tag.
+ *
+ * @param message The message entity containing the text and edit status.
+ * @param repliedMessage The message being replied to, if any.
+ * @param onReplyClick Callback when the reply preview is clicked.
+ * @param showOriginal Whether to show the original message text if it has been edited.
+ */
 @Composable
 private fun MessageContent(
     message: MessageEntity,
@@ -220,6 +232,14 @@ private fun MessageContent(
     }
 }
 
+/**
+ * Displays the message metadata such as timestamp and edit time.
+ * This footer is typically toggled by clicking the message bubble.
+ *
+ * @param isVisible Whether the footer is currently visible.
+ * @param timestamp The original timestamp of the message.
+ * @param editedAt The timestamp of when the message was last edited, if applicable.
+ */
 @Composable
 private fun MessageFooter(
     isVisible: Boolean,

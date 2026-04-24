@@ -11,11 +11,23 @@ import off.kys.backtalk.domain.use_case_bundle.MessagesUseCases
 import off.kys.backtalk.presentation.event.MessagesUiEvent
 import off.kys.backtalk.presentation.state.MessagesUiState
 
+/**
+ * ViewModel for the Messages screen.
+ *
+ * This ViewModel handles the UI logic and state management for displaying,
+ * sending, editing, deleting, and selecting messages.
+ *
+ * @param useCases The bundle of use cases related to messages.
+ */
 class MessagesViewModel(
     private val useCases: MessagesUseCases
 ) : ViewModel() {
 
     private val _uiState = mutableStateOf(MessagesUiState())
+
+    /**
+     * The current UI state of the Messages screen, represented as a [State] of [MessagesUiState].
+     */
     val uiState: State<MessagesUiState> = _uiState
 
     init {
@@ -26,6 +38,7 @@ class MessagesViewModel(
      * Handles UI events related to messages.
      *
      * @param event The UI event to handle.
+     * @see MessagesUiEvent
      */
     fun onEvent(event: MessagesUiEvent) {
         when (event) {
@@ -91,21 +104,21 @@ class MessagesViewModel(
     }
 
     /**
-     * Updates the UI state with the given message as the editing message.
+     * Updates the UI state with the given message as the message being edited.
      *
-     * @param message The message to set as the editing message.
+     * @param message The message to set as the editing message, or null to stop editing.
      */
     private fun updateEditingMessage(message: MessageEntity?) {
-        _uiState.value = _uiState.value.copy(editingMessage = message)
+        _uiState.value = _uiState.value.copy(editingMessage = message, replyingTo = null)
     }
 
     /**
-     * Updates the UI state with the given message as the replying to message.
+     * Updates the UI state with the given message as the message being replied to.
      *
-     * @param message The message to set as the replying to
+     * @param message The message to set as the replying to, or null to stop replying.
      */
     private fun updateReply(message: MessageEntity?) {
-        _uiState.value = _uiState.value.copy(replyingTo = message)
+        _uiState.value = _uiState.value.copy(replyingTo = message, editingMessage = null)
     }
 
     /**

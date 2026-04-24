@@ -19,10 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import off.kys.backtalk.R
 import off.kys.backtalk.common.Constants
 import off.kys.backtalk.data.local.entity.MessageEntity
 import off.kys.backtalk.domain.model.MessageId
-import off.kys.backtalk.presentation.components.rememberPopupState
 
 /**
  * Composable function that displays the messages list.
@@ -71,7 +71,6 @@ fun ColumnScope.MessagesList(
             count = reversed.size,
             key = { reversed[it].id() }
         ) { index ->
-            val popupState = rememberPopupState()
             val current = reversed[index]
             val next = reversed.getOrNull(index - 1)
             val prev = reversed.getOrNull(index + 1)
@@ -92,21 +91,32 @@ fun ColumnScope.MessagesList(
 
             val isSelected = current.id in selectedMessageIds
 
+            val oneHourInMillis = 3600000L
+            val canEdit = current.editedAt == null &&
+                    (System.currentTimeMillis() - current.timestamp) < oneHourInMillis
+
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 if (showTimestamp) {
                     TimestampHeader(current.timestamp)
                 }
 
                 SwipeToReplyWrapper(
-                    direction = SwipeDirection.LEFT,
-                    onSwipe = {
+                    onSwipeRight = if (canEdit) {
+                        {
+                            if (!selectionMode) {
+                                onEditMessage(current)
+                            }
+                        }
+                    } else null,
+                    onSwipeLeft = {
                         if (!selectionMode) {
                             onReply(current)
                         }
-                    }
+                    },
+                    leftIconRes = R.drawable.round_reply_24,
+                    rightIconRes = R.drawable.round_edit_24
                 ) {
                     MessageBubble(
-                        popupState = popupState,
                         messageEntity = current,
                         repliedMessageEntity = repliedMessage,
                         blinkMessageId = blinkMessageId,
@@ -128,14 +138,12 @@ fun ColumnScope.MessagesList(
                                 }
                             }
                         },
-                        onEditMessageClick = { onEditMessage(it) },
                         onClick = {
                             if (selectionMode) {
                                 onToggleSelect(current.id)
                             }
                         },
                         onLongClick = {
-                            popupState.toggle()
                             onToggleSelect(current.id)
                         }
                     )

@@ -8,8 +8,7 @@ plugins {
 
 android {
     namespace = "off.kys.backtalk"
-    //noinspection GradleDependency
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "off.kys.backtalk"
@@ -45,6 +44,7 @@ android {
 
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

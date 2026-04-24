@@ -1,5 +1,6 @@
 package off.kys.backtalk.presentation.screen.messages.components
 
+import androidx.annotation.DrawableRes
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -16,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -30,53 +30,58 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import off.kys.backtalk.R
 import off.kys.backtalk.common.manager.VibrationManager
 import org.koin.compose.koinInject
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
- * Composable function that displays a message bubble with a swipe-to-reply feature.
+ * A wrapper component that enables swipe-to-action (e.g., swipe-to-reply) functionality
+ * for its content. It supports both left and right swipes with customizable icons,
+ * resistance effects, and haptic feedback upon reaching the activation threshold.
  *
- * @param onSwipe The callback function to handle the swipe-to-reply action with the direction.
- * @param direction The allowed direction for the swipe.
- * @param content The content to be displayed inside the message bubble.
+ * @param onSwipeLeft Optional callback triggered when the user swipes left beyond the threshold.
+ * @param onSwipeRight Optional callback triggered when the user swipes right beyond the threshold.
+ * @param leftIconRes The drawable resource ID for the icon displayed during a left swipe.
+ * @param rightIconRes The drawable resource ID for the icon displayed during a right swipe.
+ * @param content The composable content to be wrapped and made swipeable.
  */
 @Composable
 fun SwipeToReplyWrapper(
-    onSwipe: (SwipeDirection) -> Unit,
-    direction: SwipeDirection = SwipeDirection.RIGHT,
+    onSwipeLeft: (() -> Unit)? = null,
+    onSwipeRight: (() -> Unit)? = null,
+    @DrawableRes leftIconRes: Int,
+    @DrawableRes rightIconRes: Int,
     content: @Composable () -> Unit
 ) {
     val vibrationManager = koinInject<VibrationManager>()
-    val offsetX = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
     val density = LocalDensity.current
 
-    val actionThreshold = with(density) { 60.dp.toPx() }
-    val maxDrag = with(density) { 100.dp.toPx() }
+    val actionThreshold = remember(density) { with(density) { 60.dp.toPx() } }
+    val maxDrag = remember(density) { with(density) { 100.dp.toPx() } }
+
+    val offsetX = remember { Animatable(0f) }
 
     val isPastThreshold by remember {
         derivedStateOf { abs(offsetX.value) >= actionThreshold }
+    }
+
+    val currentSwipeDirection by remember {
+        derivedStateOf {
+            when {
+                offsetX.value > 0 -> SwipeDirection.RIGHT
+                offsetX.value < 0 -> SwipeDirection.LEFT
+                else -> null
+            }
+        }
     }
 
     val iconScale by animateFloatAsState(
         targetValue = if (isPastThreshold) 1.2f else 0.8f,
         animationSpec = spring(Spring.DampingRatioHighBouncy, Spring.StiffnessMedium),
         label = "IconScale"
-    )
-
-    val iconRotation by animateFloatAsState(
-        targetValue = if (isPastThreshold) 0f else -15f,
-        animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessLow),
-        label = "IconRotation"
-    )
-
-    val iconAlpha by animateFloatAsState(
-        targetValue = (abs(offsetX.value) / actionThreshold).coerceIn(0f, 1f),
-        label = "IconAlpha"
     )
 
     val iconTint by animateColorAsState(
@@ -87,17 +92,20 @@ fun SwipeToReplyWrapper(
         label = "IconTint"
     )
 
-    val hasVibratedThreshold = remember { mutableStateOf(false) }
+    var hasVibratedThreshold = remember { false }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .pointerInput(direction) {
+            .pointerInput(onSwipeLeft, onSwipeRight) {
                 detectHorizontalDragGestures(
-                    onDragStart = { hasVibratedThreshold.value = false },
+                    onDragStart = { hasVibratedThreshold = false },
                     onDragEnd = {
                         scope.launch {
-                            if (isPastThreshold) onSwipe(direction)
+                            if (isPastThreshold) {
+                                if (offsetX.value > 0) onSwipeRight?.invoke()
+                                else onSwipeLeft?.invoke()
+                            }
                             offsetX.animateTo(
                                 0f,
                                 spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMediumLow)
@@ -106,23 +114,24 @@ fun SwipeToReplyWrapper(
                     },
                     onDragCancel = { scope.launch { offsetX.animateTo(0f) } },
                     onHorizontalDrag = { change, dragAmount ->
-                        // Apply resistance: $Drag_{new} = Drag_{old} + (Amount \times Resistance)$
-                        // Resistance increases as we approach maxDrag
-                        val dragFactor = 1f - (abs(offsetX.value) / (maxDrag * 1.5f))
+                        val currentX = offsetX.value
+                        val dragFactor = 1f - (abs(currentX) / (maxDrag * 1.5f))
                         val resistedDrag = dragAmount * dragFactor.coerceIn(0.2f, 1f)
+                        val rawNewOffset = currentX + resistedDrag
 
-                        val newOffset = if (direction == SwipeDirection.RIGHT) {
-                            (offsetX.value + resistedDrag).coerceIn(0f, maxDrag)
-                        } else {
-                            (offsetX.value + resistedDrag).coerceIn(-maxDrag, 0f)
+                        val newOffset = when {
+                            onSwipeRight != null && onSwipeLeft != null -> rawNewOffset.coerceIn(-maxDrag, maxDrag)
+                            onSwipeRight != null -> rawNewOffset.coerceIn(0f, maxDrag)
+                            onSwipeLeft != null -> rawNewOffset.coerceIn(-maxDrag, 0f)
+                            else -> 0f
                         }
 
-                        if (abs(newOffset) >= actionThreshold && !hasVibratedThreshold.value) {
+                        if (abs(newOffset) >= actionThreshold && !hasVibratedThreshold) {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             vibrationManager.vibrate(50L)
-                            hasVibratedThreshold.value = true
+                            hasVibratedThreshold = true
                         } else if (abs(newOffset) < actionThreshold) {
-                            hasVibratedThreshold.value = false
+                            hasVibratedThreshold = false
                         }
 
                         scope.launch { offsetX.snapTo(newOffset) }
@@ -131,32 +140,38 @@ fun SwipeToReplyWrapper(
                 )
             }
     ) {
-        // Background Icon Layer
-        Box(
-            modifier = Modifier
-                .align(if (direction == SwipeDirection.RIGHT) Alignment.CenterStart else Alignment.CenterEnd)
-                .padding(horizontal = 16.dp)
-                .graphicsLayer {
-                    alpha = iconAlpha
-                    scaleX = iconScale
-                    scaleY = iconScale
-                    rotationZ = if (direction == SwipeDirection.RIGHT) iconRotation else -iconRotation
-                    translationX = if (direction == SwipeDirection.RIGHT) {
-                        (offsetX.value - actionThreshold).coerceAtMost(0f) / 2f
-                    } else {
-                        (offsetX.value + actionThreshold).coerceAtLeast(0f) / 2f
+        if (currentSwipeDirection != null) {
+            val isRightSwipe = currentSwipeDirection == SwipeDirection.RIGHT
+            val currentIcon = if (isRightSwipe) rightIconRes else leftIconRes
+
+            Box(
+                modifier = Modifier
+                    .align(if (isRightSwipe) Alignment.CenterStart else Alignment.CenterEnd)
+                    .padding(horizontal = 16.dp)
+                    .graphicsLayer {
+                        alpha = (abs(offsetX.value) / actionThreshold).coerceIn(0f, 1f)
+                        scaleX = iconScale
+                        scaleY = iconScale
+                        translationX = if (isRightSwipe) {
+                            (offsetX.value - actionThreshold).coerceAtMost(0f) / 2f
+                        } else {
+                            (offsetX.value + actionThreshold).coerceAtLeast(0f) / 2f
+                        }
                     }
-                }
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.round_reply_24),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = iconTint
-            )
+            ) {
+                Icon(
+                    painter = painterResource(currentIcon),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .graphicsLayer {
+                            rotationY = if (isRightSwipe) 0f else 180f
+                        },
+                    tint = iconTint
+                )
+            }
         }
 
-        // Content Layer
         Box(
             modifier = Modifier.offset {
                 IntOffset(offsetX.value.roundToInt(), 0)
@@ -165,4 +180,11 @@ fun SwipeToReplyWrapper(
             content()
         }
     }
+}
+
+/**
+ * Internal enum to track the direction of the current swipe gesture.
+ */
+private enum class SwipeDirection {
+    LEFT, RIGHT
 }
