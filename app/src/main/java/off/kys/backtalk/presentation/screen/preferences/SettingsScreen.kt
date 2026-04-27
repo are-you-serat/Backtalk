@@ -139,10 +139,15 @@ class SettingsScreen : Screen {
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
-                SettingsTopAppBar(
-                    onNavigateBack = { navigator.pop() },
-                    scrollBehavior = scrollBehavior
-                )
+                Column {
+                    SettingsTopAppBar(
+                        onNavigateBack = { navigator.pop() },
+                        scrollBehavior = scrollBehavior
+                    )
+                    if (state.backupLoading) {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    }
+                }
             }
         ) { padding ->
             Column(
@@ -151,10 +156,6 @@ class SettingsScreen : Screen {
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                if (state.backupLoading) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                }
-
                 PreferenceCategory(stringResource(R.string.appearance))
 
                 ThemeSelector(
