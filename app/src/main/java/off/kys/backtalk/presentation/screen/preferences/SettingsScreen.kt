@@ -3,6 +3,7 @@ package off.kys.backtalk.presentation.screen.preferences
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,11 +11,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -31,7 +34,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -52,7 +57,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
@@ -65,7 +72,6 @@ import off.kys.backtalk.presentation.activity.MainActivity
 import off.kys.backtalk.presentation.event.SettingsUiEvent
 import off.kys.backtalk.presentation.state.SettingsUiState
 import off.kys.backtalk.presentation.viewmodel.SettingsViewModel
-import off.kys.backtalk.util.emptyString
 import off.kys.backtalk.util.isSecurityEnabled
 import off.kys.backtalk.util.openUrl
 import off.kys.backtalk.util.toast
@@ -328,40 +334,101 @@ class SettingsScreen : Screen {
         onConfirm: (String?) -> Unit
     ) {
         var useEncryption by remember { mutableStateOf(false) }
-        var password by remember { mutableStateOf(emptyString()) }
+        var password by remember { mutableStateOf("") }
+        var passwordVisible by remember { mutableStateOf(false) }
 
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(stringResource(R.string.export_backup)) },
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.round_file_upload_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = {
+                Text(text = stringResource(R.string.export_backup))
+            },
             text = {
-                Column {
-                    Text(stringResource(R.string.backup_password_prompt))
-                    Spacer(Modifier.height(8.dp))
-                    Row(
-                        Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.backup_password_prompt),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    // Encryption Toggle Row
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                        onClick = { useEncryption = !useEncryption }
                     ) {
-                        Text(stringResource(R.string.security))
-                        Spacer(Modifier.weight(1f))
-                        Switch(
-                            checked = useEncryption,
-                            onCheckedChange = { useEncryption = it }
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(if (useEncryption) R.drawable.round_lock_24 else R.drawable.round_lock_open_24),
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = if (useEncryption) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = stringResource(R.string.security),
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Switch(
+                                checked = useEncryption,
+                                onCheckedChange = { useEncryption = it },
+                                thumbContent = if (useEncryption) {
+                                    {
+                                        Icon(
+                                            painter = painterResource(R.drawable.round_check_24),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize)
+                                        )
+                                    }
+                                } else null
+                            )
+                        }
                     }
-                    if (useEncryption) {
+
+                    // Animated visibility for the password field
+                    AnimatedVisibility(visible = useEncryption) {
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
                             label = { Text(stringResource(R.string.enter_password)) },
-                            visualTransformation = PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            visualTransformation = if (passwordVisible) {
+                                VisualTransformation.None
+                            } else {
+                                PasswordVisualTransformation()
+                            },
+                            trailingIcon = {
+                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    Icon(
+                                        painter = painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24),
+                                        contentDescription = null
+                                    )
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
                         )
                     }
                 }
             },
             confirmButton = {
-                TextButton(onClick = { onConfirm(if (useEncryption) password else null) }) {
-                    Text(stringResource(R.string.export))
+                val isReady = !useEncryption || password.isNotBlank()
+                Button(
+                    onClick = { onConfirm(if (useEncryption) password else null) },
+                    enabled = isReady
+                ) {
+                    Text(stringResource(R.string.confirm))
                 }
             },
             dismissButton = {
@@ -474,33 +541,57 @@ class SettingsScreen : Screen {
         onDismiss: () -> Unit,
         onConfirm: (String) -> Unit
     ) {
-        var password by remember { mutableStateOf(emptyString()) }
+        var password by remember { mutableStateOf("") }
+        var passwordVisible by remember { mutableStateOf(false) }
 
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(stringResource(R.string.enter_password)) },
+            icon = {
+                Icon(
+                    painterResource(R.drawable.round_lock_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+            },
+            title = {
+                Text(text = stringResource(R.string.enter_password))
+            },
             text = {
-                Column {
-                    if (wrongPasswordError) {
-                        Text(
-                            text = stringResource(R.string.incorrect_password_please_try_again),
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.enter_password)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    isError = wrongPasswordError,
+                    supportingText = {
+                        if (wrongPasswordError) {
+                            Text(text = stringResource(R.string.incorrect_password_please_try_again))
+                        }
+                    },
+                    visualTransformation = if (passwordVisible) {
+                        VisualTransformation.None
+                    } else {
+                        PasswordVisualTransformation()
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        val image =
+                            painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24)
+                        val description =
+                            stringResource(if (passwordVisible) R.string.hide_password else R.string.show_password)
+
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(painter = image, contentDescription = description)
+                        }
                     }
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text(stringResource(R.string.enter_password)) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = wrongPasswordError
-                    )
-                }
+                )
             },
             confirmButton = {
-                TextButton(onClick = { onConfirm(password) }) {
+                Button(
+                    onClick = { onConfirm(password) },
+                    enabled = password.isNotBlank()
+                ) {
                     Text(stringResource(R.string.submit))
                 }
             },
