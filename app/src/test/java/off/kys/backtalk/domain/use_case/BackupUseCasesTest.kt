@@ -1,4 +1,4 @@
-package off.kys.backtalk
+package off.kys.backtalk.domain.use_case
 
 import android.net.Uri
 import kotlinx.coroutines.flow.flowOf
@@ -12,16 +12,12 @@ import off.kys.backtalk.domain.model.BackupData
 import off.kys.backtalk.domain.model.MessageId
 import off.kys.backtalk.domain.repository.BackupRepository
 import off.kys.backtalk.domain.repository.MessagesRepository
-import off.kys.backtalk.domain.use_case.ExportBackup
-import off.kys.backtalk.domain.use_case.ImportBackup
-import org.junit.Assert.assertTrue
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
+import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 
@@ -46,7 +42,7 @@ class BackupUseCasesTest {
     private val testMessages = listOf(
         MessageEntity(id = MessageId(1), text = "Hello", timestamp = 1000, repliedToId = null)
     )
-    private val testUri = mock(Uri::class.java)
+    private val testUri = Mockito.mock(Uri::class.java)
 
     @Before
     fun setup() {
@@ -56,14 +52,14 @@ class BackupUseCasesTest {
 
     @Test
     fun exportBackupSerializesDataCorrectly() = runTest {
-        `when`(messagesRepository.getAllMessages()).thenReturn(flowOf(testMessages))
-        `when`(preferences.themeMode).thenReturn(ThemeMode.DARK)
-        `when`(backupRepository.writeBackup(any(), any())).thenReturn(Result.success(Unit))
+        Mockito.`when`(messagesRepository.getAllMessages()).thenReturn(flowOf(testMessages))
+        Mockito.`when`(preferences.themeMode).thenReturn(ThemeMode.DARK)
+        Mockito.`when`(backupRepository.writeBackup(any(), any())).thenReturn(Result.success(Unit))
 
         val result = exportBackup(testUri, null)
 
-        assertTrue(result.isSuccess)
-        verify(backupRepository).writeBackup(any(), any())
+        Assert.assertTrue(result.isSuccess)
+        Mockito.verify(backupRepository).writeBackup(any(), any())
     }
 
     @Test
@@ -74,12 +70,12 @@ class BackupUseCasesTest {
         )
         val json = Json.encodeToString(backupData)
 
-        `when`(backupRepository.readBackup(testUri)).thenReturn(Result.success(json))
+        Mockito.`when`(backupRepository.readBackup(testUri)).thenReturn(Result.success(json))
 
         val result = importBackup(testUri, null, clearExisting = true)
 
-        assertTrue(result.isSuccess)
-        verify(messagesDao).deleteAllMessages()
-        verify(messagesDao).insertMessage(testMessages[0])
+        Assert.assertTrue(result.isSuccess)
+        Mockito.verify(messagesDao).deleteAllMessages()
+        Mockito.verify(messagesDao).insertMessage(testMessages[0])
     }
 }

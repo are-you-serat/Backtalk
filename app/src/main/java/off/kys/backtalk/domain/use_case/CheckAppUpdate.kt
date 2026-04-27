@@ -11,7 +11,10 @@ import off.kys.github_app_updater_lib.model.updater.UpdateResult
  * This use case uses the `github_app_updater_lib` to check for new releases on GitHub.
  * It skips the check if the app is an F-Droid build, as F-Droid manages its own updates.
  */
-class CheckAppUpdate {
+class CheckAppUpdate(
+    private val currentVersion: String = BuildConfig.VERSION_NAME,
+    private val isFdroid: Boolean = BuildConfig.IS_FDROID
+) {
 
     /**
      * Checks for updates and invokes the appropriate callback.
@@ -25,14 +28,14 @@ class CheckAppUpdate {
         onUpToDate: () -> Unit
     ) {
 
-        if (BuildConfig.IS_FDROID) {
+        if (isFdroid) {
             onUpToDate()
             return
         }
 
         checkAppUpdate {
             githubRepo("kys0ff/Backtalk")
-            currentVersion(BuildConfig.VERSION_NAME)
+            currentVersion(this@CheckAppUpdate.currentVersion)
             changelogSource(ChangelogSource.COMMITS)
 
             onUpdateAvailable { result ->
