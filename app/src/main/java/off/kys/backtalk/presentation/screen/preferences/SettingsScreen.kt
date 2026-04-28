@@ -1,5 +1,6 @@
 package off.kys.backtalk.presentation.screen.preferences
 
+import android.provider.DocumentsContract
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -72,6 +73,7 @@ import off.kys.backtalk.presentation.activity.MainActivity
 import off.kys.backtalk.presentation.event.SettingsUiEvent
 import off.kys.backtalk.presentation.state.SettingsUiState
 import off.kys.backtalk.presentation.viewmodel.SettingsViewModel
+import off.kys.backtalk.util.emptyString
 import off.kys.backtalk.util.isSecurityEnabled
 import off.kys.backtalk.util.openUrl
 import off.kys.backtalk.util.toast
@@ -272,7 +274,15 @@ class SettingsScreen : Screen {
         // Dialogs
         if (showExportDialog.value) {
             ExportDialog(
-                onDismiss = { showExportDialog.value = false },
+                onDismiss = {
+                    showExportDialog.value = false
+                    selectedUri?.let { uri ->
+                        runCatching {
+                            DocumentsContract.deleteDocument(context.contentResolver, uri)
+                        }
+                    }
+                    selectedUri = null
+                },
                 onConfirm = { exportPassword ->
                     showExportDialog.value = false
                     selectedUri?.let { uri ->
@@ -280,6 +290,7 @@ class SettingsScreen : Screen {
                             SettingsUiEvent.ExportBackup(uri, exportPassword)
                         )
                     }
+                    selectedUri = null
                 }
             )
         }
@@ -542,7 +553,7 @@ class SettingsScreen : Screen {
         onDismiss: () -> Unit,
         onConfirm: (String) -> Unit
     ) {
-        var password by remember { mutableStateOf("") }
+        var password by remember { mutableStateOf(emptyString()) }
         var passwordVisible by remember { mutableStateOf(false) }
 
         AlertDialog(
@@ -593,7 +604,7 @@ class SettingsScreen : Screen {
                     onClick = { onConfirm(password) },
                     enabled = password.isNotBlank()
                 ) {
-                    Text(stringResource(R.string.submit))
+                    Text(stringResource(R.string.confirm))
                 }
             },
             dismissButton = {
