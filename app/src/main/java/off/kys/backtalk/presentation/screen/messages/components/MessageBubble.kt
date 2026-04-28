@@ -223,7 +223,7 @@ private fun MessageContent(
 
     if (message.editedText != null) {
         Text(
-            text = stringResource(R.string.edited),
+            text = stringResource(R.string.chat_status_edited),
             style = MaterialTheme.typography.labelSmall,
             fontStyle = FontStyle.Italic,
             color = contentColor.copy(alpha = 0.7f),
@@ -258,7 +258,7 @@ private fun MessageFooter(
             modifier = Modifier.padding(end = 8.dp, top = 2.dp)
         ) {
             Text(
-                text = "${if (editedAt != null) stringResource(R.string.sent_at) else ""} ${
+                text = "${if (editedAt != null) stringResource(R.string.chat_sent_at) else ""} ${
                     timeFormat.format(
                         Date(
                             timestamp
@@ -270,7 +270,7 @@ private fun MessageFooter(
             )
             editedAt?.let {
                 Text(
-                    text = stringResource(R.string.edited_at, timeFormat.format(Date(it))),
+                    text = stringResource(R.string.chat_edited_at, timeFormat.format(Date(it))),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.outline
                 )

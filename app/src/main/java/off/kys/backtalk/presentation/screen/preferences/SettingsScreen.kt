@@ -169,7 +169,7 @@ class SettingsScreen : Screen {
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                PreferenceCategory(stringResource(R.string.appearance))
+                PreferenceCategory(stringResource(R.string.settings_appearance))
 
                 ThemeSelector(
                     selected = state.themeMode,
@@ -177,19 +177,19 @@ class SettingsScreen : Screen {
                 )
 
                 ToggleSetting(
-                    label = stringResource(R.string.material_you_dynamic_color),
-                    supportingText = stringResource(R.string.apply_system_colors_to_the_app_interface),
+                    label = stringResource(R.string.settings_dynamic_color),
+                    supportingText = stringResource(R.string.settings_dynamic_color_desc),
                     icon = painterResource(R.drawable.round_palette_24),
                     checked = state.dynamicColorEnabled,
                     onCheckedChange = { viewModel.onEvent(SettingsUiEvent.OnDynamicColorToggle(it)) }
                 )
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
-                PreferenceCategory(stringResource(R.string.privacy_security))
+                PreferenceCategory(stringResource(R.string.settings_privacy_security))
 
                 if (context.isSecurityEnabled()) {
                     ToggleSetting(
-                        label = stringResource(R.string.enable_app_lock),
+                        label = stringResource(R.string.settings_enable_app_lock),
                         icon = painterResource(R.drawable.round_lock_24),
                         checked = state.lockEnabled,
                         requireRestart = true,
@@ -198,25 +198,25 @@ class SettingsScreen : Screen {
                 }
 
                 ToggleSetting(
-                    label = stringResource(R.string.secure_screen_block_screenshots),
+                    label = stringResource(R.string.settings_secure_screen_block_screenshots),
                     icon = painterResource(R.drawable.round_screen_lock_portrait_24),
                     checked = state.secureScreenEnabled,
                     onCheckedChange = { viewModel.onEvent(SettingsUiEvent.OnSecureScreenToggle(it)) }
                 )
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
-                PreferenceCategory(stringResource(R.string.backup_restore))
+                PreferenceCategory(stringResource(R.string.backup_title))
 
                 InfoRow(
-                    label = stringResource(R.string.export_backup),
-                    value = stringResource(R.string.export_backup_desc),
+                    label = stringResource(R.string.backup_export_title),
+                    value = stringResource(R.string.backup_export_desc),
                     icon = painterResource(R.drawable.round_send_24),
                     onClick = { exportLauncher.launch("backtalk_backup_${System.currentTimeMillis()}.json") }
                 )
 
                 InfoRow(
-                    label = stringResource(R.string.import_backup),
-                    value = stringResource(R.string.import_backup_desc),
+                    label = stringResource(R.string.backup_import_title),
+                    value = stringResource(R.string.backup_import_desc),
                     icon = painterResource(R.drawable.round_reply_24),
                     onClick = {
                         importLauncher.launch(
@@ -230,11 +230,11 @@ class SettingsScreen : Screen {
                 )
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
-                PreferenceCategory(stringResource(R.string.auto_export))
+                PreferenceCategory(stringResource(R.string.auto_export_title))
 
                 ToggleSetting(
-                    label = stringResource(R.string.auto_export),
-                    supportingText = stringResource(R.string.auto_export_desc),
+                    label = stringResource(R.string.auto_export_title),
+                    supportingText = stringResource(R.string.auto_export_summary),
                     icon = painterResource(R.drawable.round_update_24),
                     checked = state.autoExportEnabled,
                     onCheckedChange = { enabled ->
@@ -248,7 +248,7 @@ class SettingsScreen : Screen {
 
                 AnimatedVisibility(visible = state.autoExportEnabled) {
                     Column {
-                        val noFolderSelected = stringResource(R.string.no_folder_selected)
+                        val noFolderSelected = stringResource(R.string.auto_export_no_folder)
                         val folderName = remember(state.autoExportUri, noFolderSelected) {
                             state.autoExportUri?.let { uriString ->
                                 val uri = uriString.toUri()
@@ -257,21 +257,21 @@ class SettingsScreen : Screen {
                         }
 
                         InfoRow(
-                            label = stringResource(R.string.backup_folder),
+                            label = stringResource(R.string.auto_export_folder),
                             value = folderName,
                             icon = painterResource(R.drawable.round_description_24),
                             onClick = { folderLauncher.launch(null) }
                         )
 
                         InfoRow(
-                            label = stringResource(R.string.export_interval),
+                            label = stringResource(R.string.auto_export_interval),
                             value = stringResource(state.autoExportInterval.titleResId),
                             icon = painterResource(R.drawable.round_refresh_24),
                             onClick = { showIntervalDialog.value = true }
                         )
 
                         ToggleSetting(
-                            label = stringResource(R.string.encrypt_auto_export),
+                            label = stringResource(R.string.auto_export_encrypt),
                             icon = painterResource(if (state.autoExportEncrypted) R.drawable.round_lock_24 else R.drawable.round_lock_open_24),
                             checked = state.autoExportEncrypted,
                             onCheckedChange = { enabled ->
@@ -286,9 +286,9 @@ class SettingsScreen : Screen {
                             InfoRow(
                                 label = stringResource(R.string.auto_export_password),
                                 value = if (state.autoExportPassword.isNullOrBlank()) {
-                                    stringResource(R.string.password_not_set)
+                                    stringResource(R.string.common_not_set)
                                 } else {
-                                    stringResource(R.string.password_set)
+                                    stringResource(R.string.common_password_set)
                                 },
                                 icon = painterResource(R.drawable.round_lock_24),
                                 onClick = { showAutoExportPasswordDialog.value = true }
@@ -304,46 +304,46 @@ class SettingsScreen : Screen {
                             horizontal = 16.dp
                         )
                     )
-                    PreferenceCategory(stringResource(R.string.updates))
+                    PreferenceCategory(stringResource(R.string.settings_updates_title))
 
                     ToggleSetting(
-                        label = stringResource(R.string.auto_check_updates),
-                        supportingText = stringResource(R.string.auto_check_updates_desc),
+                        label = stringResource(R.string.settings_auto_check_updates),
+                        supportingText = stringResource(R.string.settings_auto_check_updates_desc),
                         icon = painterResource(R.drawable.round_update_24),
                         checked = state.autoUpdateEnabled,
                         onCheckedChange = { viewModel.onEvent(SettingsUiEvent.OnAutoUpdateToggle(it)) }
                     )
 
                     InfoRow(
-                        label = stringResource(R.string.check_for_updates_now),
-                        value = stringResource(R.string.tap_to_check_latest_version),
+                        label = stringResource(R.string.settings_check_updates_now),
+                        value = stringResource(R.string.settings_check_updates_desc),
                         icon = painterResource(R.drawable.round_refresh_24),
                         onClick = {
-                            context.toast(R.string.checking_for_updates)
+                            context.toast(R.string.settings_checking_updates)
                             mainActivity?.checkForUpdates()
                         }
                     )
                 }
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
-                PreferenceCategory(stringResource(R.string.about))
+                PreferenceCategory(stringResource(R.string.settings_about_title))
 
                 InfoRow(
-                    label = stringResource(R.string.version),
+                    label = stringResource(R.string.settings_version),
                     value = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})",
                     icon = painterResource(R.drawable.round_info_24)
                 )
 
                 InfoRow(
-                    label = stringResource(R.string.developer),
-                    value = stringResource(R.string.dev_name),
+                    label = stringResource(R.string.settings_developer),
+                    value = stringResource(R.string.settings_dev_name),
                     icon = painterResource(R.drawable.round_person_24),
-                    onClick = { context.toast(R.string.dev_click) }
+                    onClick = { context.toast(R.string.settings_dev_click) }
                 )
 
                 InfoRow(
-                    label = stringResource(R.string.license),
-                    value = stringResource(R.string.mit),
+                    label = stringResource(R.string.settings_license),
+                    value = stringResource(R.string.settings_mit),
                     icon = painterResource(R.drawable.round_description_24),
                     onClick = { context.openUrl(Constants.BACKTALK_MIT_LICENSE_RAW_URL) }
                 )
@@ -464,7 +464,7 @@ class SettingsScreen : Screen {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text(stringResource(R.string.enter_password)) },
+                    label = { Text(stringResource(R.string.backup_enter_password)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     visualTransformation = if (passwordVisible) {
@@ -477,7 +477,7 @@ class SettingsScreen : Screen {
                         val image =
                             painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24)
                         val description =
-                            stringResource(if (passwordVisible) R.string.hide_password else R.string.show_password)
+                            stringResource(if (passwordVisible) R.string.common_hide_password else R.string.common_show_password)
 
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(painter = image, contentDescription = description)
@@ -490,12 +490,12 @@ class SettingsScreen : Screen {
                     onClick = { onConfirm(password) },
                     enabled = password.isNotBlank()
                 ) {
-                    Text(stringResource(R.string.confirm))
+                    Text(stringResource(R.string.common_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.cancel))
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )
@@ -509,7 +509,7 @@ class SettingsScreen : Screen {
     ) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(stringResource(R.string.export_interval)) },
+            title = { Text(stringResource(R.string.auto_export_interval)) },
             text = {
                 Column(Modifier.selectableGroup()) {
                     off.kys.backtalk.common.ExportInterval.entries.forEach { interval ->
@@ -537,7 +537,7 @@ class SettingsScreen : Screen {
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.cancel))
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )
@@ -562,7 +562,7 @@ class SettingsScreen : Screen {
                 )
             },
             title = {
-                Text(text = stringResource(R.string.export_backup))
+                Text(text = stringResource(R.string.backup_export_title))
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -591,7 +591,7 @@ class SettingsScreen : Screen {
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = stringResource(R.string.security),
+                                text = stringResource(R.string.settings_security_title),
                                 style = MaterialTheme.typography.labelLarge,
                                 modifier = Modifier.weight(1f)
                             )
@@ -616,7 +616,7 @@ class SettingsScreen : Screen {
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
-                            label = { Text(stringResource(R.string.enter_password)) },
+                            label = { Text(stringResource(R.string.backup_enter_password)) },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             visualTransformation = if (passwordVisible) {
@@ -643,12 +643,12 @@ class SettingsScreen : Screen {
                     onClick = { onConfirm(if (useEncryption) password else null) },
                     enabled = isReady
                 ) {
-                    Text(stringResource(R.string.confirm))
+                    Text(stringResource(R.string.common_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.cancel))
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )
@@ -672,12 +672,12 @@ class SettingsScreen : Screen {
                 )
             },
             title = {
-                Text(text = stringResource(R.string.import_strategy))
+                Text(text = stringResource(R.string.backup_import_strategy))
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = stringResource(R.string.import_strategy_desc),
+                        text = stringResource(R.string.backup_import_strategy_desc),
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -696,7 +696,7 @@ class SettingsScreen : Screen {
                     ) {
                         RadioButton(selected = !clearData, onClick = null)
                         Text(
-                            text = stringResource(R.string.merge_data),
+                            text = stringResource(R.string.backup_merge_data),
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.padding(start = 16.dp)
                         )
@@ -722,7 +722,7 @@ class SettingsScreen : Screen {
                             )
                         )
                         Text(
-                            text = stringResource(R.string.clear_and_import),
+                            text = stringResource(R.string.backup_clear_and_import),
                             style = MaterialTheme.typography.bodyLarge,
                             color = if (clearData) MaterialTheme.colorScheme.error else Color.Unspecified,
                             modifier = Modifier.padding(start = 16.dp)
@@ -739,12 +739,12 @@ class SettingsScreen : Screen {
                         ButtonDefaults.buttonColors()
                     }
                 ) {
-                    Text(stringResource(R.string.confirm))
+                    Text(stringResource(R.string.common_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.cancel))
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )
@@ -769,19 +769,19 @@ class SettingsScreen : Screen {
                 )
             },
             title = {
-                Text(text = stringResource(R.string.enter_password))
+                Text(text = stringResource(R.string.backup_enter_password))
             },
             text = {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text(stringResource(R.string.enter_password)) },
+                    label = { Text(stringResource(R.string.backup_enter_password)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     isError = wrongPasswordError,
                     supportingText = {
                         if (wrongPasswordError) {
-                            Text(text = stringResource(R.string.incorrect_password_please_try_again))
+                            Text(text = stringResource(R.string.backup_error_incorrect_password))
                         }
                     },
                     visualTransformation = if (passwordVisible) {
@@ -794,7 +794,7 @@ class SettingsScreen : Screen {
                         val image =
                             painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24)
                         val description =
-                            stringResource(if (passwordVisible) R.string.hide_password else R.string.show_password)
+                            stringResource(if (passwordVisible) R.string.common_hide_password else R.string.common_show_password)
 
                         IconButton(onClick = { passwordVisible = !passwordVisible }) {
                             Icon(painter = image, contentDescription = description)
@@ -807,12 +807,12 @@ class SettingsScreen : Screen {
                     onClick = { onConfirm(password) },
                     enabled = password.isNotBlank()
                 ) {
-                    Text(stringResource(R.string.confirm))
+                    Text(stringResource(R.string.common_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.cancel))
+                    Text(stringResource(R.string.common_cancel))
                 }
             }
         )
@@ -829,11 +829,11 @@ class SettingsScreen : Screen {
                 IconButton(onClick = onNavigateBack) {
                     Icon(
                         painter = painterResource(R.drawable.round_arrow_back_24),
-                        contentDescription = stringResource(R.string.navigate_up)
+                        contentDescription = stringResource(R.string.common_navigate_up)
                     )
                 }
             },
-            title = { Text(text = stringResource(R.string.settings)) },
+            title = { Text(text = stringResource(R.string.settings_title)) },
             scrollBehavior = scrollBehavior
         )
     }
@@ -867,7 +867,7 @@ class SettingsScreen : Screen {
                     checked = checked,
                     onCheckedChange = {
                         onCheckedChange(it)
-                        if (requireRestart) context.toast(R.string.restart_app_to_apply_changes)
+                        if (requireRestart) context.toast(R.string.settings_restart_required)
                     }
                 )
             },

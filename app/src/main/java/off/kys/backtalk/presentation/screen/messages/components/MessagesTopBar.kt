@@ -39,9 +39,9 @@ fun MessagesTopBar(
         title = {
             Text(
                 text = if (selectionActive) {
-                    stringResource(R.string.messages_selected_count, selectedCount)
+                    stringResource(R.string.chat_selection_count, selectedCount)
                 } else {
-                    stringResource(R.string.messages)
+                    stringResource(R.string.chat_title)
                 }
             )
         },
@@ -50,7 +50,7 @@ fun MessagesTopBar(
                 IconButton(onClick = onCloseSelection) {
                     Icon(
                         painter = painterResource(R.drawable.round_close_24),
-                        contentDescription = stringResource(R.string.close)
+                        contentDescription = stringResource(R.string.common_close)
                     )
                 }
             }
@@ -60,7 +60,7 @@ fun MessagesTopBar(
                 IconButton(onClick = onDelete) {
                     Icon(
                         painter = painterResource(R.drawable.round_delete_24),
-                        contentDescription = stringResource(R.string.delete),
+                        contentDescription = stringResource(R.string.common_delete),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
@@ -68,14 +68,14 @@ fun MessagesTopBar(
                 IconButton(onClick = onCopy) {
                     Icon(
                         painter = painterResource(R.drawable.round_content_copy_24),
-                        contentDescription = stringResource(R.string.copy)
+                        contentDescription = stringResource(R.string.common_copy)
                     )
                 }
             } else {
                 IconButton(onClick = onSettings) {
                     Icon(
                         painter = painterResource(R.drawable.round_settings_24),
-                        contentDescription = stringResource(R.string.settings)
+                        contentDescription = stringResource(R.string.settings_title)
                     )
                 }
             }

@@ -83,7 +83,7 @@ fun InputBar(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = stringResource(if (editingMessage != null) R.string.edit else R.string.replying_to),
+                            text = stringResource(if (editingMessage != null) R.string.common_edit else R.string.chat_replying_to),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -99,7 +99,7 @@ fun InputBar(
                     ) {
                         Icon(
                             painter = painterResource(R.drawable.round_close_24),
-                            contentDescription = stringResource(R.string.cancel)
+                            contentDescription = stringResource(R.string.common_cancel)
                         )
                     }
                 }
@@ -115,7 +115,7 @@ fun InputBar(
                     value = textState,
                     onValueChange = { textState = it },
                     modifier = Modifier.weight(1f),
-                    placeholder = { Text(stringResource(R.string.type_a_message)) },
+                    placeholder = { Text(stringResource(R.string.chat_input_hint)) },
                     maxLines = 4,
                     keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                     colors = TextFieldDefaults.colors(
@@ -136,7 +136,7 @@ fun InputBar(
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.round_send_24),
-                        contentDescription = stringResource(R.string.send),
+                        contentDescription = stringResource(R.string.common_send),
                         tint = if (textState.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
                     )
                 }

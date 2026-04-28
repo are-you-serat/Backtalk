@@ -28,7 +28,7 @@ fun LockedView(modifier: Modifier = Modifier) {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = stringResource(R.string.the_app_is_locked),
+            text = stringResource(R.string.auth_locked_title),
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground
         )

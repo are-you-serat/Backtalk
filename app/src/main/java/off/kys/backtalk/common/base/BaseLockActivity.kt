@@ -132,12 +132,12 @@ abstract class BaseLockActivity : AppCompatActivity() {
     /**
      * Returns the title for the biometric prompt.
      */
-    protected open fun getBiometricTitle(): String = getString(R.string.is_that_you)
+    protected open fun getBiometricTitle(): String = getString(R.string.auth_title)
 
     /**
      * Returns the subtitle for the biometric prompt.
      */
-    protected open fun getBiometricSubtitle(): String = getString(R.string.log_in_using_your_biometric_credential)
+    protected open fun getBiometricSubtitle(): String = getString(R.string.auth_subtitle)
 
     /**
      * Called when the user has successfully authenticated.

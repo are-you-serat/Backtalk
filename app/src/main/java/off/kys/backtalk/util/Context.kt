@@ -66,14 +66,14 @@ fun Context.copyToClipboard(text: String) {
     val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
 
     // 2. Create a ClipData object (Label is for accessibility/system use)
-    val clip = ClipData.newPlainText(getString(R.string.copied_text), text)
+    val clip = ClipData.newPlainText(getString(R.string.chat_copy_label), text)
 
     // 3. Set the clip as the primary clipboard content
     clipboard.setPrimaryClip(clip)
 
     // Only show Toast for Android 12 (API 32) and below
     if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-        toast(getString(R.string.text_copied_to_clipboard))
+        toast(getString(R.string.chat_copy_success))
     }
 }
 

@@ -23,11 +23,11 @@ fun AppUpdateDialog(
 ) {
     AlertDialog(
         onDismissRequest = { onDismissRequest() },
-        title = { Text(stringResource(R.string.update_available)) },
+        title = { Text(stringResource(R.string.update_dialog_title)) },
         text = {
             Text(
                 stringResource(
-                    R.string.a_new_version_is_available,
+                    R.string.update_dialog_message,
                     updateResult.latestVersion,
                     updateResult.changeLog
                 )
@@ -35,12 +35,12 @@ fun AppUpdateDialog(
         },
         confirmButton = {
             TextButton(onClick = { onUpdateClick() }) {
-                Text(stringResource(R.string.update_now))
+                Text(stringResource(R.string.update_dialog_action_now))
             }
         },
         dismissButton = {
             TextButton(onClick = { onDismissRequest() }) {
-                Text(stringResource(R.string.later))
+                Text(stringResource(R.string.common_later))
             }
         }
     )

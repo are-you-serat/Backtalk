@@ -180,7 +180,7 @@ class SettingsViewModel(
                     _state.update {
                         it.copy(
                             backupLoading = false,
-                            successMessage = context.getString(R.string.backup_exported_successfully)
+                            successMessage = context.getString(R.string.backup_export_success)
                         )
                     }
                 }
@@ -189,7 +189,7 @@ class SettingsViewModel(
                         it.copy(
                             backupLoading = false,
                             error = error.message
-                                ?: context.getString(R.string.export_failed)
+                                ?: context.getString(R.string.backup_export_failed)
                         )
                     }
                 }
@@ -220,7 +220,7 @@ class SettingsViewModel(
                         it.copy(
                             backupLoading = false,
                             error = error.message
-                                ?: context.getString(R.string.failed_to_check_backup)
+                                ?: context.getString(R.string.backup_check_failed)
                         )
                     }
                 }
@@ -242,7 +242,7 @@ class SettingsViewModel(
                     _state.update {
                         it.copy(
                             backupLoading = false,
-                            successMessage = context.getString(R.string.backup_imported_successfully),
+                            successMessage = context.getString(R.string.backup_import_success),
                             themeMode = preferences.themeMode,
                             dynamicColorEnabled = preferences.dynamicColorEnabled,
                             lockEnabled = preferences.lockEnabled,
@@ -267,7 +267,7 @@ class SettingsViewModel(
                         it.copy(
                             backupLoading = false,
                             error = if (isWrongPassword) null else (error.message
-                                ?: context.getString(R.string.import_failed)),
+                                ?: context.getString(R.string.backup_import_failed)),
                             wrongPasswordError = isWrongPassword
                         )
                     }
