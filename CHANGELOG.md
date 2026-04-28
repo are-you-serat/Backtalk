@@ -44,3 +44,42 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Downgraded version name to 0.1.4 from 0.1.5 in a previous build correction.
 - Added Android Fastlane metadata and assets.
+
+---
+
+## [0.1.3] - 2026-04-20
+
+### Added
+- **Message Editing**: Users can now edit their previous messages.
+- **Swipe-to-Reply**: Enhanced `SwipeToReplyWrapper` with directional support and dynamic animations.
+- **Message Context Menu**: Long-press on messages to access more options.
+- **Back Navigation**: Added back navigation support in Settings.
+
+### Changed
+- **Settings UI**: Significant refactoring and styling updates for the Settings screen.
+- **Dependency Updates**: Updated core project dependencies and Gradle configurations.
+
+---
+
+## [0.1.1] - 2026-04-10
+
+### Added
+- **Preferences Module**: Introduced a dedicated module for app settings with a custom DSL.
+- **Security Features**: Added biometric app lock, secure screen (prevent screenshots), and auto-lock timeout.
+- **Theming**: Added support for dynamic colors and theme switching.
+- **In-App Updates**: Integrated GitHub-based update checking and dialogs.
+
+### Changed
+- **Refactoring**: Restructured preferences module packages and introduced `mainUiState`.
+
+---
+
+## [0.1.0] - 2026-04-01
+
+### Added
+- **Initial Release**: Core self-chat functionality with a clean Material 3 interface.
+- **Local Storage**: Offline-first experience using Room database.
+- **Architecture**: MVVM architecture with Koin for dependency injection.
+- **Reply System**: Ability to reply to messages and create threads.
+- **Privacy**: Local-only storage with no analytics or internet requirements.
+- **MIT License**: Project officially licensed under MIT.
