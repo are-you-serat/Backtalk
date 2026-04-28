@@ -7,7 +7,7 @@
 ![License](https://img.shields.io/badge/License-MIT-blue)
 ![Architecture](https://img.shields.io/badge/Architecture-MVVM-orange)
 ![UI](https://img.shields.io/badge/UI-Declarative-blueviolet)
-![Version](https://img.shields.io/badge/Version-0.1.0-informational)
+![Version](https://img.shields.io/badge/Version-0.1.5-informational)
 ![Maintained](https://img.shields.io/badge/Maintained-Yes-2ea44f)
 [![Liberapay](https://img.shields.io/badge/Liberapay-Support%20me-F6C915)](https://liberapay.com/kys0ff)
 
@@ -30,6 +30,18 @@ It lets you talk to yourself — reply, reflect, organize thoughts — all in a 
 - 💾 **Offline-first** with Room database
 - 🧩 **Clean architecture** using Koin for dependency injection
 - 📱 **Modern Android UI** with Material 3
+- 🔄 **Backup & Restore** — manual and automatic periodic backups
+- 👈 **Swipe actions** — swipe to edit or delete messages
+
+## 🚀 Recent Changes (v0.1.5)
+
+- ✨ **Backup & Restore** functionality with encryption.
+- 🕒 **Automatic Backups** in the background.
+- 👆 **Swipe gestures** for easier message management.
+- 🎨 **Enhanced UI** with custom Material 3 theming.
+- 📦 **F-Droid support** with a dedicated build flavor.
+
+See the full [CHANGELOG.md](./CHANGELOG.md) for more details.
 
 ## 🚀 Planned Features
 
