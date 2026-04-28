@@ -99,6 +99,7 @@ class SettingsScreen : Screen {
         val showImportStrategyDialog = remember { mutableStateOf(false) }
         val showPasswordDialog = remember { mutableStateOf(false) }
         val showIntervalDialog = remember { mutableStateOf(false) }
+        val showAutoExportPasswordDialog = remember { mutableStateOf(false) }
 
         var selectedUri by remember { mutableStateOf<android.net.Uri?>(null) }
         var isImporting by remember { mutableStateOf(false) }
@@ -273,29 +274,24 @@ class SettingsScreen : Screen {
                             label = stringResource(R.string.encrypt_auto_export),
                             icon = painterResource(if (state.autoExportEncrypted) R.drawable.round_lock_24 else R.drawable.round_lock_open_24),
                             checked = state.autoExportEncrypted,
-                            onCheckedChange = { viewModel.onEvent(SettingsUiEvent.OnAutoExportEncryptionToggle(it)) }
+                            onCheckedChange = { enabled ->
+                                viewModel.onEvent(SettingsUiEvent.OnAutoExportEncryptionToggle(enabled))
+                                if (enabled && state.autoExportPassword.isNullOrBlank()) {
+                                    showAutoExportPasswordDialog.value = true
+                                }
+                            }
                         )
 
                         AnimatedVisibility(visible = state.autoExportEncrypted) {
-                            var passwordVisible by remember { mutableStateOf(false) }
-                            OutlinedTextField(
-                                value = state.autoExportPassword ?: "",
-                                onValueChange = { viewModel.onEvent(SettingsUiEvent.OnAutoExportPasswordChange(it)) },
-                                label = { Text(stringResource(R.string.auto_export_password)) },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                                singleLine = true,
-                                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                                trailingIcon = {
-                                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                        Icon(
-                                            painter = painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24),
-                                            contentDescription = null
-                                        )
-                                    }
+                            InfoRow(
+                                label = stringResource(R.string.auto_export_password),
+                                value = if (state.autoExportPassword.isNullOrBlank()) {
+                                    stringResource(R.string.password_not_set)
+                                } else {
+                                    stringResource(R.string.password_set)
                                 },
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                                icon = painterResource(R.drawable.round_lock_24),
+                                onClick = { showAutoExportPasswordDialog.value = true }
                             )
                         }
                     }
@@ -432,6 +428,77 @@ class SettingsScreen : Screen {
                 }
             )
         }
+
+        if (showAutoExportPasswordDialog.value) {
+            AutoExportPasswordDialog(
+                onDismiss = { showAutoExportPasswordDialog.value = false },
+                onConfirm = { password ->
+                    viewModel.onEvent(SettingsUiEvent.OnAutoExportPasswordChange(password))
+                    showAutoExportPasswordDialog.value = false
+                }
+            )
+        }
+    }
+
+    @Composable
+    private fun AutoExportPasswordDialog(
+        onDismiss: () -> Unit,
+        onConfirm: (String) -> Unit
+    ) {
+        var password by remember { mutableStateOf("") }
+        var passwordVisible by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            icon = {
+                Icon(
+                    painterResource(R.drawable.round_lock_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = {
+                Text(text = stringResource(R.string.auto_export_password))
+            },
+            text = {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.enter_password)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    visualTransformation = if (passwordVisible) {
+                        VisualTransformation.None
+                    } else {
+                        PasswordVisualTransformation()
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        val image =
+                            painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24)
+                        val description =
+                            stringResource(if (passwordVisible) R.string.hide_password else R.string.show_password)
+
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(painter = image, contentDescription = description)
+                        }
+                    }
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onConfirm(password) },
+                    enabled = password.isNotBlank()
+                ) {
+                    Text(stringResource(R.string.confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     @Composable

@@ -106,10 +106,12 @@
     <string name="encrypt_auto_export">Encrypt auto export</string>
     <string name="no_folder_selected">No folder selected</string>
     <string name="folder_permission_required">Folder permission required for auto export</string>
+    <string name="password_not_set">Not set</string>
 
     <string name="submit">Submit</string>
     <string name="export">Export</string>
     <string name="confirm">Confirm</string>
     <string name="hide_password">Hide password</string>
     <string name="show_password">Show password</string>
+    <string name="password_set">••••••••</string>
 </resources>
