@@ -36,4 +36,12 @@ class BackupRepositoryImpl(private val context: Context) : BackupRepository {
             } ?: throw IllegalStateException("Could not open input stream")
         }
     }
+
+    override suspend fun createBackupFile(directoryUri: Uri, fileName: String): Result<Uri> = withContext(Dispatchers.IO) {
+        runCatching {
+            androidx.documentfile.provider.DocumentFile.fromTreeUri(context, directoryUri)
+                ?.createFile("application/json", fileName)
+                ?.uri ?: throw IllegalStateException("Could not create file")
+        }
+    }
 }

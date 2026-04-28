@@ -31,4 +31,13 @@ interface BackupRepository {
      * @return Result containing true if encrypted, false otherwise.
      */
     suspend fun isEncrypted(uri: Uri): Result<Boolean>
+
+    /**
+     * Creates a new backup file in the specified [directoryUri].
+     *
+     * @param directoryUri The parent directory Uri.
+     * @param fileName The name of the file to create.
+     * @return Result containing the Uri of the created file.
+     */
+    suspend fun createBackupFile(directoryUri: Uri, fileName: String): Result<Uri>
 }

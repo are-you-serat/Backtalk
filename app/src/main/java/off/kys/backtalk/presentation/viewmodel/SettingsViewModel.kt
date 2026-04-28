@@ -2,6 +2,7 @@ package off.kys.backtalk.presentation.viewmodel
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,7 +35,12 @@ class SettingsViewModel(
             dynamicColorEnabled = preferences.dynamicColorEnabled,
             lockEnabled = preferences.lockEnabled,
             secureScreenEnabled = preferences.secureScreenEnabled,
-            autoUpdateEnabled = preferences.autoUpdateEnabled
+            autoUpdateEnabled = preferences.autoUpdateEnabled,
+            autoExportEnabled = preferences.autoExportEnabled,
+            autoExportInterval = preferences.autoExportInterval,
+            autoExportUri = preferences.autoExportUri,
+            autoExportEncrypted = preferences.autoExportEncrypted,
+            autoExportPassword = preferences.autoExportPassword
         )
     )
     val state = _state.asStateFlow()
@@ -45,6 +51,11 @@ class SettingsViewModel(
         is SettingsUiEvent.OnLockToggle -> onLockToggle(event.enabled)
         is SettingsUiEvent.OnSecureScreenToggle -> onSecureScreenToggle(event.enabled)
         is SettingsUiEvent.OnAutoUpdateToggle -> onAutoUpdateToggle(event.enabled)
+        is SettingsUiEvent.OnAutoExportToggle -> onAutoExportToggle(event.enabled)
+        is SettingsUiEvent.OnAutoExportIntervalChange -> onAutoExportIntervalChange(event.interval)
+        is SettingsUiEvent.OnAutoExportFolderChange -> onAutoExportFolderChange(event.uri)
+        is SettingsUiEvent.OnAutoExportEncryptionToggle -> onAutoExportEncryptionToggle(event.enabled)
+        is SettingsUiEvent.OnAutoExportPasswordChange -> onAutoExportPasswordChange(event.password)
         is SettingsUiEvent.ExportBackup -> exportBackup(event.uri, event.password)
         is SettingsUiEvent.CheckBackupEncryption -> checkBackupEncryption(event.uri)
         is SettingsUiEvent.ImportBackup -> importBackup(
@@ -81,6 +92,73 @@ class SettingsViewModel(
     private fun onAutoUpdateToggle(enabled: Boolean) {
         preferences.autoUpdateEnabled = enabled
         _state.update { it.copy(autoUpdateEnabled = enabled) }
+    }
+
+    private fun onAutoExportToggle(enabled: Boolean) {
+        preferences.autoExportEnabled = enabled
+        _state.update { it.copy(autoExportEnabled = enabled) }
+        if (enabled) {
+            scheduleAutoExport()
+        } else {
+            cancelAutoExport()
+        }
+    }
+
+    private fun onAutoExportIntervalChange(interval: off.kys.backtalk.common.ExportInterval) {
+        preferences.autoExportInterval = interval
+        _state.update { it.copy(autoExportInterval = interval) }
+        if (preferences.autoExportEnabled) {
+            scheduleAutoExport()
+        }
+    }
+
+    private fun onAutoExportFolderChange(uri: Uri) {
+        val flags = (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        context.contentResolver.takePersistableUriPermission(uri, flags)
+        
+        val uriString = uri.toString()
+        preferences.autoExportUri = uriString
+        _state.update { it.copy(autoExportUri = uriString) }
+        
+        // If it was just selected, enable it automatically
+        if (!preferences.autoExportEnabled) {
+            onAutoExportToggle(true)
+        } else {
+            scheduleAutoExport()
+        }
+    }
+
+    private fun onAutoExportEncryptionToggle(enabled: Boolean) {
+        preferences.autoExportEncrypted = enabled
+        _state.update { it.copy(autoExportEncrypted = enabled) }
+    }
+
+    private fun onAutoExportPasswordChange(password: String?) {
+        preferences.autoExportPassword = password
+        _state.update { it.copy(autoExportPassword = password) }
+    }
+
+    private fun scheduleAutoExport() {
+        val interval = preferences.autoExportInterval
+        val workRequest = androidx.work.PeriodicWorkRequestBuilder<off.kys.backtalk.data.worker.AutoExportWorker>(
+            interval.days.toLong(), java.util.concurrent.TimeUnit.DAYS
+        )
+            .setConstraints(
+                androidx.work.Constraints.Builder()
+                    .setRequiresStorageNotLow(true)
+                    .build()
+            )
+            .build()
+
+        androidx.work.WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            "auto_export_work",
+            androidx.work.ExistingPeriodicWorkPolicy.UPDATE,
+            workRequest
+        )
+    }
+
+    private fun cancelAutoExport() {
+        androidx.work.WorkManager.getInstance(context).cancelUniqueWork("auto_export_work")
     }
 
     private fun exportBackup(uri: Uri, password: String?) {

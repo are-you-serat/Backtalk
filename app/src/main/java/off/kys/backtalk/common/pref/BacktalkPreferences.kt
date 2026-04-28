@@ -42,6 +42,21 @@ class BacktalkPreferences(context: Context) {
 
         /** Preference key for background update polling. */
         const val KEY_AUTO_UPDATE = "auto_update"
+
+        /** Preference key for auto export enabled. */
+        const val KEY_AUTO_EXPORT_ENABLED = "auto_export_enabled"
+
+        /** Preference key for auto export folder URI. */
+        const val KEY_AUTO_EXPORT_URI = "auto_export_uri"
+
+        /** Preference key for auto export interval. */
+        const val KEY_AUTO_EXPORT_INTERVAL = "auto_export_interval"
+
+        /** Preference key for auto export encryption enabled. */
+        const val KEY_AUTO_EXPORT_ENCRYPTED = "auto_export_encrypted"
+
+        /** Preference key for auto export encryption password. */
+        const val KEY_AUTO_EXPORT_PASSWORD = "auto_export_password"
     }
 
     /**
@@ -104,4 +119,42 @@ class BacktalkPreferences(context: Context) {
     var autoUpdateEnabled: Boolean
         get() = prefs.getBoolean(KEY_AUTO_UPDATE, false)
         set(value) = prefs.edit { putBoolean(KEY_AUTO_UPDATE, value) }
+
+    /**
+     * Whether the app should automatically export backups.
+     */
+    var autoExportEnabled: Boolean
+        get() = prefs.getBoolean(KEY_AUTO_EXPORT_ENABLED, false)
+        set(value) = prefs.edit { putBoolean(KEY_AUTO_EXPORT_ENABLED, value) }
+
+    /**
+     * The persistable URI of the directory where auto-exports are saved.
+     */
+    var autoExportUri: String?
+        get() = prefs.getString(KEY_AUTO_EXPORT_URI, null)
+        set(value) = prefs.edit { putString(KEY_AUTO_EXPORT_URI, value) }
+
+    /**
+     * The interval at which auto-exports should occur.
+     */
+    var autoExportInterval: off.kys.backtalk.common.ExportInterval
+        get() = off.kys.backtalk.common.ExportInterval.valueOf(
+            prefs.getString(KEY_AUTO_EXPORT_INTERVAL, off.kys.backtalk.common.ExportInterval.DAILY.name)
+                ?: off.kys.backtalk.common.ExportInterval.DAILY.name
+        )
+        set(value) = prefs.edit { putString(KEY_AUTO_EXPORT_INTERVAL, value.name) }
+
+    /**
+     * Whether auto-exports should be encrypted.
+     */
+    var autoExportEncrypted: Boolean
+        get() = prefs.getBoolean(KEY_AUTO_EXPORT_ENCRYPTED, false)
+        set(value) = prefs.edit { putBoolean(KEY_AUTO_EXPORT_ENCRYPTED, value) }
+
+    /**
+     * The password used for auto-export encryption.
+     */
+    var autoExportPassword: String?
+        get() = prefs.getString(KEY_AUTO_EXPORT_PASSWORD, null)
+        set(value) = prefs.edit { putString(KEY_AUTO_EXPORT_PASSWORD, value) }
 }

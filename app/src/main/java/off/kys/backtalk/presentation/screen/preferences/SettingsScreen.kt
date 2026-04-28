@@ -97,6 +97,7 @@ class SettingsScreen : Screen {
         val showExportDialog = remember { mutableStateOf(false) }
         val showImportStrategyDialog = remember { mutableStateOf(false) }
         val showPasswordDialog = remember { mutableStateOf(false) }
+        val showIntervalDialog = remember { mutableStateOf(false) }
 
         var selectedUri by remember { mutableStateOf<android.net.Uri?>(null) }
         var isImporting by remember { mutableStateOf(false) }
@@ -107,6 +108,14 @@ class SettingsScreen : Screen {
             uri?.let {
                 selectedUri = it
                 showExportDialog.value = true
+            }
+        }
+
+        val folderLauncher = rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocumentTree()
+        ) { uri ->
+            uri?.let {
+                viewModel.onEvent(SettingsUiEvent.OnAutoExportFolderChange(it))
             }
         }
 
@@ -217,6 +226,79 @@ class SettingsScreen : Screen {
                         )
                     }
                 )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+                PreferenceCategory(stringResource(R.string.auto_export))
+
+                ToggleSetting(
+                    label = stringResource(R.string.auto_export),
+                    supportingText = stringResource(R.string.auto_export_desc),
+                    icon = painterResource(R.drawable.round_update_24),
+                    checked = state.autoExportEnabled,
+                    onCheckedChange = { enabled ->
+                        if (enabled && state.autoExportUri == null) {
+                            folderLauncher.launch(null)
+                        } else {
+                            viewModel.onEvent(SettingsUiEvent.OnAutoExportToggle(enabled))
+                        }
+                    }
+                )
+
+                AnimatedVisibility(visible = state.autoExportEnabled) {
+                    Column {
+                        val noFolderSelected = stringResource(R.string.no_folder_selected)
+                        val folderName = remember(state.autoExportUri, noFolderSelected) {
+                            state.autoExportUri?.let { uriString ->
+                                val uri = android.net.Uri.parse(uriString)
+                                androidx.documentfile.provider.DocumentFile.fromTreeUri(context, uri)?.name
+                            } ?: noFolderSelected
+                        }
+
+                        InfoRow(
+                            label = stringResource(R.string.backup_folder),
+                            value = folderName,
+                            icon = painterResource(R.drawable.round_description_24),
+                            onClick = { folderLauncher.launch(null) }
+                        )
+
+                        InfoRow(
+                            label = stringResource(R.string.export_interval),
+                            value = stringResource(state.autoExportInterval.titleResId),
+                            icon = painterResource(R.drawable.round_refresh_24),
+                            onClick = { showIntervalDialog.value = true }
+                        )
+
+                        ToggleSetting(
+                            label = stringResource(R.string.encrypt_auto_export),
+                            icon = painterResource(if (state.autoExportEncrypted) R.drawable.round_lock_24 else R.drawable.round_lock_open_24),
+                            checked = state.autoExportEncrypted,
+                            onCheckedChange = { viewModel.onEvent(SettingsUiEvent.OnAutoExportEncryptionToggle(it)) }
+                        )
+
+                        AnimatedVisibility(visible = state.autoExportEncrypted) {
+                            var passwordVisible by remember { mutableStateOf(false) }
+                            OutlinedTextField(
+                                value = state.autoExportPassword ?: "",
+                                onValueChange = { viewModel.onEvent(SettingsUiEvent.OnAutoExportPasswordChange(it)) },
+                                label = { Text(stringResource(R.string.auto_export_password)) },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                singleLine = true,
+                                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                trailingIcon = {
+                                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                        Icon(
+                                            painter = painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24),
+                                            contentDescription = null
+                                        )
+                                    }
+                                },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                            )
+                        }
+                    }
+                }
 
                 if (!BuildConfig.IS_FDROID) {
                     HorizontalDivider(
@@ -338,6 +420,59 @@ class SettingsScreen : Screen {
                 }
             )
         }
+
+        if (showIntervalDialog.value) {
+            IntervalSelectionDialog(
+                selected = state.autoExportInterval,
+                onDismiss = { showIntervalDialog.value = false },
+                onSelected = {
+                    viewModel.onEvent(SettingsUiEvent.OnAutoExportIntervalChange(it))
+                    showIntervalDialog.value = false
+                }
+            )
+        }
+    }
+
+    @Composable
+    private fun IntervalSelectionDialog(
+        selected: off.kys.backtalk.common.ExportInterval,
+        onDismiss: () -> Unit,
+        onSelected: (off.kys.backtalk.common.ExportInterval) -> Unit
+    ) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(stringResource(R.string.export_interval)) },
+            text = {
+                Column(Modifier.selectableGroup()) {
+                    off.kys.backtalk.common.ExportInterval.entries.forEach { interval ->
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .selectable(
+                                    selected = (interval == selected),
+                                    onClick = { onSelected(interval) },
+                                    role = Role.RadioButton
+                                )
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(selected = (interval == selected), onClick = null)
+                            Text(
+                                text = stringResource(interval.titleResId),
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.padding(start = 16.dp)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 
     @Composable
