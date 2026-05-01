@@ -311,7 +311,7 @@ class SettingsScreen : Screen {
                 }
 
                 // Updates & About
-                SettingsSection(title = "Information") {
+                SettingsSection(title = stringResource(R.string.settings_information)) {
                     if (!BuildConfig.IS_FDROID) {
                         SettingsToggle(
                             label = stringResource(R.string.settings_auto_check_updates),
@@ -347,7 +347,7 @@ class SettingsScreen : Screen {
                         color = MaterialTheme.colorScheme.outlineVariant
                     )
                     SettingsItem(
-                        label = "Developer",
+                        label = stringResource(R.string.settings_developer),
                         value = stringResource(R.string.settings_dev_name),
                         icon = painterResource(R.drawable.round_person_24),
                         onClick = { context.toast(R.string.settings_dev_click) }
@@ -462,37 +462,472 @@ class SettingsScreen : Screen {
         onDismiss: () -> Unit,
         onSelected: (ThemeMode) -> Unit
     ) {
+        var tempSelected by remember { mutableStateOf(selected) }
+
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text("Choose Theme") },
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.round_brightness_6_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = { Text(stringResource(R.string.settings_choose_theme)) },
             text = {
-                Column(Modifier.selectableGroup()) {
+                Column(
+                    modifier = Modifier.selectableGroup(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     ThemeMode.entries.forEach { mode ->
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .selectable(
-                                    selected = (mode == selected),
-                                    onClick = { onSelected(mode) },
-                                    role = Role.RadioButton
-                                )
-                                .padding(vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                        val isSelected = mode == tempSelected
+                        Surface(
+                            selected = isSelected,
+                            onClick = { tempSelected = mode },
+                            shape = MaterialTheme.shapes.medium,
+                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            else Color.Transparent,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            RadioButton(selected = (mode == selected), onClick = null)
-                            Text(
-                                text = mode.name.lowercase().replaceFirstChar { it.uppercase() },
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.padding(start = 16.dp)
-                            )
+                            Row(
+                                Modifier
+                                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(selected = isSelected, onClick = null)
+                                Text(
+                                    text = mode.name.lowercase().replaceFirstChar { it.uppercase() },
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(start = 16.dp)
+                                )
+                            }
                         }
                     }
                 }
             },
-            confirmButton = {},
+            confirmButton = {
+                Button(onClick = { onSelected(tempSelected) }) {
+                    Text(stringResource(R.string.common_confirm))
+                }
+            },
             dismissButton = {
-                TextButton(onClick = onDismiss) { Text(stringResource(R.string.common_cancel)) }
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.common_cancel))
+                }
             }
+        )
+    }
+    @Composable
+    private fun AutoExportPasswordDialog(
+        onDismiss: () -> Unit,
+        onConfirm: (String) -> Unit
+    ) {
+        var password by remember { mutableStateOf(emptyString()) }
+        var passwordVisible by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.round_lock_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = { Text(text = stringResource(R.string.auto_export_password)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.auto_export_password_desc),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text(stringResource(R.string.backup_enter_password)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    painter = painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24),
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onConfirm(password) },
+                    enabled = password.isNotBlank()
+                ) {
+                    Text(stringResource(R.string.common_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
+    }
+
+    @Composable
+    private fun IntervalSelectionDialog(
+        selected: off.kys.backtalk.common.ExportInterval,
+        onDismiss: () -> Unit,
+        onSelected: (off.kys.backtalk.common.ExportInterval) -> Unit
+    ) {
+        var tempSelected by remember { mutableStateOf(selected) }
+
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.round_refresh_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = { Text(stringResource(R.string.auto_export_interval)) },
+            text = {
+                Column(
+                    modifier = Modifier.selectableGroup(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    off.kys.backtalk.common.ExportInterval.entries.forEach { interval ->
+                        val isSelected = interval == tempSelected
+                        Surface(
+                            selected = isSelected,
+                            onClick = { tempSelected = interval },
+                            shape = MaterialTheme.shapes.medium,
+                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            else Color.Transparent,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(selected = isSelected, onClick = null)
+                                Text(
+                                    text = stringResource(interval.titleResId),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(start = 16.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = { onSelected(tempSelected) }) {
+                    Text(stringResource(R.string.common_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
+    }
+
+    @Composable
+    private fun ExportDialog(
+        onDismiss: () -> Unit,
+        onConfirm: (String?) -> Unit
+    ) {
+        var useEncryption by remember { mutableStateOf(false) }
+        var password by remember { mutableStateOf(emptyString()) }
+        var passwordVisible by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.round_file_upload_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = {
+                Text(text = stringResource(R.string.backup_export_title))
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.backup_password_prompt),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    // Encryption Toggle Row
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                        onClick = { useEncryption = !useEncryption }
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(if (useEncryption) R.drawable.round_lock_24 else R.drawable.round_lock_open_24),
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = if (useEncryption) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = stringResource(R.string.settings_security_title),
+                                style = MaterialTheme.typography.labelLarge,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Switch(
+                                checked = useEncryption,
+                                onCheckedChange = { useEncryption = it },
+                                thumbContent = if (useEncryption) {
+                                    {
+                                        Icon(
+                                            painter = painterResource(R.drawable.round_check_24),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(SwitchDefaults.IconSize)
+                                        )
+                                    }
+                                } else null
+                            )
+                        }
+                    }
+
+                    // Animated visibility for the password field
+                    AnimatedVisibility(visible = useEncryption) {
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            label = { Text(stringResource(R.string.backup_enter_password)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            visualTransformation = if (passwordVisible) {
+                                VisualTransformation.None
+                            } else {
+                                PasswordVisualTransformation()
+                            },
+                            trailingIcon = {
+                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    Icon(
+                                        painter = painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24),
+                                        contentDescription = null
+                                    )
+                                }
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                val isReady = !useEncryption || password.isNotBlank()
+                Button(
+                    onClick = { onConfirm(if (useEncryption) password else null) },
+                    enabled = isReady
+                ) {
+                    Text(stringResource(R.string.common_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
+    }
+
+    @Composable
+    fun ImportStrategyDialog(
+        onDismiss: () -> Unit,
+        onConfirm: (Boolean) -> Unit
+    ) {
+        // Default to 'false' (Merge) to be safe
+        var clearData by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            icon = {
+                Icon(
+                    painterResource(R.drawable.round_file_download_24),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = {
+                Text(text = stringResource(R.string.backup_import_strategy))
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        text = stringResource(R.string.backup_import_strategy_desc),
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
+                    // Option 1: Merge
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = !clearData,
+                                onClick = { clearData = false },
+                                role = Role.RadioButton
+                            )
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(selected = !clearData, onClick = null)
+                        Text(
+                            text = stringResource(R.string.backup_merge_data),
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+
+                    // Option 2: Clear and Import (The "Danger" option)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = clearData,
+                                onClick = { clearData = true },
+                                role = Role.RadioButton
+                            )
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = clearData,
+                            onClick = null,
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = MaterialTheme.colorScheme.error
+                            )
+                        )
+                        Text(
+                            text = stringResource(R.string.backup_clear_and_import),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (clearData) MaterialTheme.colorScheme.error else Color.Unspecified,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onConfirm(clearData) },
+                    colors = if (clearData) {
+                        ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    } else {
+                        ButtonDefaults.buttonColors()
+                    }
+                ) {
+                    Text(stringResource(R.string.common_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
+    }
+
+    @Composable
+    private fun PasswordDialog(
+        wrongPasswordError: Boolean,
+        onDismiss: () -> Unit,
+        onConfirm: (String) -> Unit
+    ) {
+        var password by remember { mutableStateOf(emptyString()) }
+        var passwordVisible by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.round_lock_24),
+                    contentDescription = null,
+                    tint = if (wrongPasswordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                )
+            },
+            title = { Text(text = stringResource(R.string.backup_enter_password)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Text(
+                        text = stringResource(R.string.backup_encrypted_prompt),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text(stringResource(R.string.backup_enter_password)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        isError = wrongPasswordError,
+                        supportingText = {
+                            if (wrongPasswordError) {
+                                Text(text = stringResource(R.string.backup_error_incorrect_password))
+                            }
+                        },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    painter = painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24),
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onConfirm(password) },
+                    enabled = password.isNotBlank(),
+                    colors = if (wrongPasswordError) ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error) else ButtonDefaults.buttonColors()
+                ) {
+                    Text(stringResource(R.string.common_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text(stringResource(R.string.common_cancel))
+                }
+            }
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun SettingsTopAppBar(
+        onNavigateBack: () -> Unit,
+        scrollBehavior: TopAppBarScrollBehavior
+    ) {
+        LargeTopAppBar(
+            navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(
+                        painter = painterResource(R.drawable.round_arrow_back_24),
+                        contentDescription = stringResource(R.string.common_navigate_up)
+                    )
+                }
+            },
+            title = { Text(text = stringResource(R.string.settings_title)) },
+            scrollBehavior = scrollBehavior
         )
     }
 
@@ -579,400 +1014,3 @@ class SettingsScreen : Screen {
 
 }
 
-@Composable
-private fun AutoExportPasswordDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
-) {
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Icon(
-                painterResource(R.drawable.round_lock_24),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        },
-        title = {
-            Text(text = stringResource(R.string.auto_export_password))
-        },
-        text = {
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text(stringResource(R.string.backup_enter_password)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                visualTransformation = if (passwordVisible) {
-                    VisualTransformation.None
-                } else {
-                    PasswordVisualTransformation()
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    val image =
-                        painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24)
-                    val description =
-                        stringResource(if (passwordVisible) R.string.common_hide_password else R.string.common_show_password)
-
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(painter = image, contentDescription = description)
-                    }
-                }
-            )
-        },
-        confirmButton = {
-            Button(
-                onClick = { onConfirm(password) },
-                enabled = password.isNotBlank()
-            ) {
-                Text(stringResource(R.string.common_confirm))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        }
-    )
-}
-
-@Composable
-private fun IntervalSelectionDialog(
-    selected: off.kys.backtalk.common.ExportInterval,
-    onDismiss: () -> Unit,
-    onSelected: (off.kys.backtalk.common.ExportInterval) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.auto_export_interval)) },
-        text = {
-            Column(Modifier.selectableGroup()) {
-                off.kys.backtalk.common.ExportInterval.entries.forEach { interval ->
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = (interval == selected),
-                                onClick = { onSelected(interval) },
-                                role = Role.RadioButton
-                            )
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(selected = (interval == selected), onClick = null)
-                        Text(
-                            text = stringResource(interval.titleResId),
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 16.dp)
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        }
-    )
-}
-
-@Composable
-private fun ExportDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (String?) -> Unit
-) {
-    var useEncryption by remember { mutableStateOf(false) }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Icon(
-                painter = painterResource(R.drawable.round_file_upload_24),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        },
-        title = {
-            Text(text = stringResource(R.string.backup_export_title))
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text(
-                    text = stringResource(R.string.backup_password_prompt),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                // Encryption Toggle Row
-                Surface(
-                    shape = MaterialTheme.shapes.medium,
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                    onClick = { useEncryption = !useEncryption }
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(if (useEncryption) R.drawable.round_lock_24 else R.drawable.round_lock_open_24),
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp),
-                            tint = if (useEncryption) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = stringResource(R.string.settings_security_title),
-                            style = MaterialTheme.typography.labelLarge,
-                            modifier = Modifier.weight(1f)
-                        )
-                        Switch(
-                            checked = useEncryption,
-                            onCheckedChange = { useEncryption = it },
-                            thumbContent = if (useEncryption) {
-                                {
-                                    Icon(
-                                        painter = painterResource(R.drawable.round_check_24),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(SwitchDefaults.IconSize)
-                                    )
-                                }
-                            } else null
-                        )
-                    }
-                }
-
-                // Animated visibility for the password field
-                AnimatedVisibility(visible = useEncryption) {
-                    OutlinedTextField(
-                        value = password,
-                        onValueChange = { password = it },
-                        label = { Text(stringResource(R.string.backup_enter_password)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        visualTransformation = if (passwordVisible) {
-                            VisualTransformation.None
-                        } else {
-                            PasswordVisualTransformation()
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(
-                                    painter = painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24),
-                                    contentDescription = null
-                                )
-                            }
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            val isReady = !useEncryption || password.isNotBlank()
-            Button(
-                onClick = { onConfirm(if (useEncryption) password else null) },
-                enabled = isReady
-            ) {
-                Text(stringResource(R.string.common_confirm))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        }
-    )
-}
-
-@Composable
-fun ImportStrategyDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (Boolean) -> Unit
-) {
-    // Default to 'false' (Merge) to be safe
-    var clearData by remember { mutableStateOf(false) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Icon(
-                painterResource(R.drawable.round_file_download_24),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        },
-        title = {
-            Text(text = stringResource(R.string.backup_import_strategy))
-        },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    text = stringResource(R.string.backup_import_strategy_desc),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                // Option 1: Merge
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = !clearData,
-                            onClick = { clearData = false },
-                            role = Role.RadioButton
-                        )
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(selected = !clearData, onClick = null)
-                    Text(
-                        text = stringResource(R.string.backup_merge_data),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
-                }
-
-                // Option 2: Clear and Import (The "Danger" option)
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = clearData,
-                            onClick = { clearData = true },
-                            role = Role.RadioButton
-                        )
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = clearData,
-                        onClick = null,
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = MaterialTheme.colorScheme.error
-                        )
-                    )
-                    Text(
-                        text = stringResource(R.string.backup_clear_and_import),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = if (clearData) MaterialTheme.colorScheme.error else Color.Unspecified,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            Button(
-                onClick = { onConfirm(clearData) },
-                colors = if (clearData) {
-                    ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-                } else {
-                    ButtonDefaults.buttonColors()
-                }
-            ) {
-                Text(stringResource(R.string.common_confirm))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        }
-    )
-}
-
-@Composable
-private fun PasswordDialog(
-    wrongPasswordError: Boolean,
-    onDismiss: () -> Unit,
-    onConfirm: (String) -> Unit
-) {
-    var password by remember { mutableStateOf(emptyString()) }
-    var passwordVisible by remember { mutableStateOf(false) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Icon(
-                painterResource(R.drawable.round_lock_24),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.secondary
-            )
-        },
-        title = {
-            Text(text = stringResource(R.string.backup_enter_password))
-        },
-        text = {
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text(stringResource(R.string.backup_enter_password)) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                isError = wrongPasswordError,
-                supportingText = {
-                    if (wrongPasswordError) {
-                        Text(text = stringResource(R.string.backup_error_incorrect_password))
-                    }
-                },
-                visualTransformation = if (passwordVisible) {
-                    VisualTransformation.None
-                } else {
-                    PasswordVisualTransformation()
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    val image =
-                        painterResource(if (passwordVisible) R.drawable.round_visibility_24 else R.drawable.round_visibility_off_24)
-                    val description =
-                        stringResource(if (passwordVisible) R.string.common_hide_password else R.string.common_show_password)
-
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(painter = image, contentDescription = description)
-                    }
-                }
-            )
-        },
-        confirmButton = {
-            Button(
-                onClick = { onConfirm(password) },
-                enabled = password.isNotBlank()
-            ) {
-                Text(stringResource(R.string.common_confirm))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SettingsTopAppBar(
-    onNavigateBack: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior
-) {
-    LargeTopAppBar(
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    painter = painterResource(R.drawable.round_arrow_back_24),
-                    contentDescription = stringResource(R.string.common_navigate_up)
-                )
-            }
-        },
-        title = { Text(text = stringResource(R.string.settings_title)) },
-        scrollBehavior = scrollBehavior
-    )
-}
