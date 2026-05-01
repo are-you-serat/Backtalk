@@ -1,31 +1,45 @@
 package off.kys.backtalk.presentation.screen.preferences
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import off.kys.backtalk.R
+import off.kys.backtalk.data.util.LibraryProvider
+import off.kys.backtalk.domain.model.LibraryInfo
 
 class LicenseScreen : Screen {
 
@@ -40,50 +54,26 @@ class LicenseScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-        // Exhaustive list based on your TOML file
-        val libraries = listOf(
-            LibraryInfo("Activity Compose", "1.13.0", "Apache License 2.0"),
-            LibraryInfo("Biometric", "1.4.0-alpha07", "Apache License 2.0"),
-            LibraryInfo("Concurrent Futures", "1.3.0", "Apache License 2.0"),
-            LibraryInfo("Core KTX", "1.18.0", "Apache License 2.0"),
-            LibraryInfo("DataStore Preferences", "1.2.1", "Apache License 2.0"),
-            LibraryInfo("DocumentFile", "1.1.0", "Apache License 2.0"),
-            LibraryInfo("Espresso Core", "3.7.0", "Apache License 2.0"),
-            LibraryInfo("Gau", "1.0.0", "MIT License"),
-            LibraryInfo("Jetpack Compose BOM", "2026.04.01", "Apache License 2.0"),
-            LibraryInfo("JUnit", "4.13.2", "Eclipse Public License 1.0"),
-            LibraryInfo("JUnit Extension", "1.3.0", "Apache License 2.0"),
-            LibraryInfo("Koin", "4.2.1", "Apache License 2.0"),
-            LibraryInfo("Kotlinx Serialization", "1.11.0", "Apache License 2.0"),
-            LibraryInfo("Lifecycle Process", "2.10.0", "Apache License 2.0"),
-            LibraryInfo("Lifecycle Runtime KTX", "2.10.0", "Apache License 2.0"),
-            LibraryInfo("Mockito", "5.23.0", "MIT License"),
-            LibraryInfo("Mockito-Kotlin", "6.3.0", "MIT License"),
-            LibraryInfo("Room", "2.8.4", "Apache License 2.0"),
-            LibraryInfo("Splashscreen", "1.2.0", "Apache License 2.0"),
-            LibraryInfo("Voyager", "1.1.0-beta03", "MIT License"),
-            LibraryInfo("WorkManager", "2.11.2", "Apache License 2.0")
-        ).sortedBy { it.name }
-
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 LargeTopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(R.string.settings_license),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
+                    title = { Text(text = stringResource(R.string.settings_license)) },
                     navigationIcon = {
                         IconButton(onClick = { navigator.pop() }) {
                             Icon(
                                 painter = painterResource(R.drawable.round_arrow_back_24),
-                                contentDescription = stringResource(R.string.common_navigate_up)
+                                contentDescription = null
                             )
                         }
                     },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        navigationIconContentColor = Color.Unspecified,
+                        titleContentColor = Color.Unspecified,
+                        actionIconContentColor = Color.Unspecified
+                    ),
                     scrollBehavior = scrollBehavior
                 )
             }
@@ -91,53 +81,87 @@ class LicenseScreen : Screen {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.surface),
+                contentPadding = PaddingValues(
+                    top = paddingValues.calculateTopPadding() + 16.dp,
+                    bottom = 16.dp,
+                    start = 16.dp,
+                    end = 16.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                itemsIndexed(libraries) { index, library ->
-                    LicenseItem(library)
+                items(LibraryProvider.libraries) { library ->
+                    LicenseCard(library)
+                }
 
-                    if (index < libraries.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                        )
-                    }
+                item {
+                    Spacer(modifier = Modifier.padding(8.dp))
                 }
             }
         }
     }
 
     @Composable
-    private fun LicenseItem(library: LibraryInfo) {
-        ListItem(
-            headlineContent = {
+    private fun LicenseCard(library: LibraryInfo) {
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            shape = RoundedCornerShape(24.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Modern "Package" icon representation
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.round_code_24),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = library.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // The License "Tag"
+                    Surface(
+                        color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            text = library.license,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+                }
+
+                // Version Badge
                 Text(
-                    text = library.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-            },
-            supportingContent = {
-                Text(
-                    text = library.license,
+                    text = "v${library.version}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            },
-            trailingContent = {
-                Text(
-                    text = library.version,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.secondary
+                    color = MaterialTheme.colorScheme.outline,
+                    fontWeight = FontWeight.Medium
                 )
             }
-        )
+        }
     }
-
-    private data class LibraryInfo(
-        val name: String,
-        val version: String,
-        val license: String
-    )
 }
