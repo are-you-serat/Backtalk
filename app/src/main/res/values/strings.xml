@@ -71,8 +71,11 @@
     <string name="settings_developer">Developer</string>
     <string name="settings_dev_name">kys0ff</string>
     <string name="settings_dev_click">You found me. Now go away.</string>
-    <string name="settings_license">License</string>
-    <string name="settings_mit">MIT</string>
+    <string name="settings_license">Open source licenses</string>
+    <string name="settings_license_desc">Libraries used in the application</string>
+    <string name="settings_mit">MIT License</string>
+    <string name="settings_apache">Apache License 2.0</string>
+    <string name="settings_bsd">BSD License</string>
     <string name="settings_information">Information</string>
     <string name="settings_choose_theme">Choose Theme</string>
 

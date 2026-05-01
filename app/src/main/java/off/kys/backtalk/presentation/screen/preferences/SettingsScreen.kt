@@ -370,6 +370,17 @@ class SettingsScreen : Screen {
                         color = MaterialTheme.colorScheme.outlineVariant
                     )
                     SettingsItem(
+                        label = stringResource(R.string.settings_license),
+                        value = stringResource(R.string.settings_license_desc),
+                        icon = painterResource(R.drawable.round_info_24),
+                        onClick = { navigator.push(LicenseScreen()) }
+                    )
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                    SettingsItem(
                         label = stringResource(R.string.settings_developer),
                         value = stringResource(R.string.settings_dev_name),
                         icon = painterResource(R.drawable.round_person_24),
