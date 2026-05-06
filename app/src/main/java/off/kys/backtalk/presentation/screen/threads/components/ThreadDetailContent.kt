@@ -43,7 +43,9 @@ fun ThreadDetailContent(
     modifier: Modifier,
     thread: Thread,
     onCopy: (String) -> Unit,
-    onShare: (String) -> Unit
+    onShare: (String) -> Unit,
+    onReplyClick: (MessageEntity) -> Unit,
+    getReplyCount: (MessageEntity) -> Int
 ) {
     val allMessages = listOf(thread.root) + thread.replies
 
@@ -62,7 +64,9 @@ fun ThreadDetailContent(
                     message = message,
                     showConnectionLine = index < threadsSize,
                     onCopy = onCopy,
-                    onShare = onShare
+                    onShare = onShare,
+                    replyCount = getReplyCount(message),
+                    onReplyClick = { onReplyClick(message) }
                 )
             }
         }
@@ -171,7 +175,9 @@ private fun ThreadMessageItem(
     message: MessageEntity,
     showConnectionLine: Boolean,
     onCopy: (String) -> Unit,
-    onShare: (String) -> Unit
+    onShare: (String) -> Unit,
+    replyCount: Int,
+    onReplyClick: () -> Unit
 ) {
     val timeFormat = SimpleDateFormat("h:mm a", LocalLocale.current.platformLocale)
     val textToCopyOrShare = message.editedText ?: message.text
@@ -244,6 +250,11 @@ private fun ThreadMessageItem(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
+                ActionIcon(
+                    iconRes = R.drawable.round_chat_bubble_outline_24,
+                    count = stringResource(R.string.threads_replies_count, replyCount),
+                    onClick = if (replyCount > 0) onReplyClick else null
+                )
                 ActionIcon(
                     iconRes = R.drawable.round_content_copy_24,
                     count = emptyString()

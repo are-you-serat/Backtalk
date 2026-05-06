@@ -9,6 +9,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -19,8 +20,10 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import off.kys.backtalk.R
 import off.kys.backtalk.domain.model.Thread
 import off.kys.backtalk.presentation.screen.threads.components.ThreadDetailContent
+import off.kys.backtalk.presentation.viewmodel.ThreadsViewModel
 import off.kys.backtalk.util.copyToClipboard
 import off.kys.backtalk.util.shareText
+import org.koin.compose.viewmodel.koinViewModel
 
 data class ThreadDetailScreen(val thread: Thread) : Screen {
 
@@ -29,6 +32,8 @@ data class ThreadDetailScreen(val thread: Thread) : Screen {
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
         val context = LocalContext.current
+        val viewModel = koinViewModel<ThreadsViewModel>()
+        val state by viewModel.uiState
 
         Scaffold(
             topBar = {
@@ -53,6 +58,14 @@ data class ThreadDetailScreen(val thread: Thread) : Screen {
                 },
                 onShare = { text ->
                     context.shareText(text)
+                },
+                onReplyClick = { message ->
+                    state.threads.find { it.root.id() == message.id() }?.let { subThread ->
+                        navigator.push(ThreadDetailScreen(subThread))
+                    }
+                },
+                getReplyCount = { message ->
+                    state.threads.find { it.root.id() == message.id() }?.let { it.size - 1 } ?: 0
                 }
             )
         }
