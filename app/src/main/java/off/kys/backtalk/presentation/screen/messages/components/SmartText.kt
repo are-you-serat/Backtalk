@@ -8,8 +8,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.TextUnit
+import off.kys.backtalk.util.MarkdownParser
 
 /**
  * A custom [Text] composable that provides a convenient way to override specific text styles
@@ -34,14 +34,13 @@ fun SmartText(
     maxLines: Int = Int.MAX_VALUE,
 ) {
     Text(
-        text = text,
+        text = MarkdownParser.toAnnotatedString(text),
         modifier = modifier,
         maxLines = maxLines,
         style = style.copy(
             color = if (color != Color.Unspecified) color else style.color,
             fontSize = if (fontSize != TextUnit.Unspecified) fontSize else style.fontSize,
             textDecoration = textDecoration,
-            textDirection = TextDirection.Content,
             textAlign = TextAlign.Start,
         )
     )

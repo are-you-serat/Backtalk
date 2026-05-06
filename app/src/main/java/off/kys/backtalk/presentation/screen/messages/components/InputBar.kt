@@ -6,12 +6,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
@@ -22,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +34,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.dp
 import off.kys.backtalk.R
 import off.kys.backtalk.data.local.entity.MessageEntity
@@ -58,7 +66,34 @@ fun InputBar(
     onCancelEdit: () -> Unit,
     onMessageSend: (String) -> Unit
 ) {
-    var textState by remember(key1 = messageInput) { mutableStateOf(messageInput) }
+    var textValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = messageInput,
+                selection = TextRange(messageInput.length)
+            )
+        )
+    }
+
+    LaunchedEffect(key1 = messageInput) {
+        if (messageInput != textValue.text) {
+            textValue =
+                TextFieldValue(text = messageInput, selection = TextRange(messageInput.length))
+        }
+    }
+
+    fun applyStyle(startSym: String, endSym: String) {
+        val selection = textValue.selection
+        val text = textValue.text
+        val selectedText = text.substring(selection.start, selection.end)
+        val newText =
+            text.replaceRange(selection.start, selection.end, "$startSym$selectedText$endSym")
+        val newCursorPos = selection.start + startSym.length + selectedText.length + endSym.length
+        textValue = TextFieldValue(
+            text = newText,
+            selection = TextRange(newCursorPos)
+        )
+    }
 
     Surface(
         modifier = Modifier.imePadding(),
@@ -112,8 +147,9 @@ fun InputBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextField(
-                    value = textState,
-                    onValueChange = { textState = it },
+                    value = textValue,
+                    onValueChange = { textValue = it },
+                    textStyle = TextStyle(textDirection = TextDirection.Content),
                     modifier = Modifier.weight(1f),
                     placeholder = { Text(stringResource(R.string.chat_input_hint)) },
                     maxLines = 4,
@@ -127,20 +163,55 @@ fun InputBar(
 
                 IconButton(
                     onClick = {
-                        if (textState.isNotBlank()) {
-                            onMessageSend(textState)
-                            textState = emptyString()
+                        if (textValue.text.isNotBlank()) {
+                            onMessageSend(textValue.text)
+                            textValue = TextFieldValue(emptyString())
                         }
                     },
-                    enabled = textState.isNotBlank()
+                    enabled = textValue.text.isNotBlank()
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.round_send_24),
                         contentDescription = stringResource(R.string.common_send),
-                        tint = if (textState.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                        tint = if (textValue.text.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
                     )
                 }
             }
+
+            AnimatedVisibility(
+                visible = textValue.selection.length > 0,
+                enter = expandVertically(expandFrom = Alignment.Bottom) + fadeIn(),
+                exit = shrinkVertically(shrinkTowards = Alignment.Bottom) + fadeOut()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
+                        .horizontalScroll(rememberScrollState()),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    FormattingButton(label = "B") { applyStyle("**", "**") }
+                    FormattingButton(label = "I") { applyStyle("*", "*") }
+                    FormattingButton(label = "U") { applyStyle("__", "__") }
+                    FormattingButton(label = "S") { applyStyle("~~", "~~") }
+                    FormattingButton(label = "M") { applyStyle("`", "`") }
+                }
+            }
         }
+    }
+}
+
+@Composable
+private fun FormattingButton(
+    label: String,
+    onClick: () -> Unit
+) {
+    IconButton(onClick = onClick) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
