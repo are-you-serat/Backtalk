@@ -247,7 +247,7 @@ class SettingsScreen : Screen {
                     SettingsToggle(
                         label = stringResource(R.string.settings_haptic_feedback),
                         supportingText = stringResource(R.string.settings_haptic_feedback_desc),
-                        icon = painterResource(R.drawable.round_warning_24),
+                        icon = painterResource(R.drawable.round_vibration_24),
                         checked = state.hapticFeedbackEnabled,
                         onCheckedChange = {
                             viewModel.onEvent(
