@@ -1,6 +1,7 @@
 package off.kys.backtalk.presentation.screen.messages.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import off.kys.backtalk.data.local.entity.MessageEntity
@@ -21,6 +22,7 @@ import off.kys.backtalk.presentation.state.MessagesUiState
 fun MessagesContent(
     modifier: Modifier,
     state: MessagesUiState,
+    listState: LazyListState,
     onEditMessage: (MessageEntity?) -> Unit,
     onReply: (MessageEntity?) -> Unit,
     onToggleSelect: (MessageId) -> Unit,
@@ -30,6 +32,7 @@ fun MessagesContent(
         MessagesList(
             messages = state.messages,
             selectedMessageIds = state.selectedMessageIds,
+            listState = listState,
             onEditMessage = onEditMessage,
             onReply = onReply,
             onToggleSelect = onToggleSelect

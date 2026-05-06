@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,12 +38,12 @@ import off.kys.backtalk.domain.model.MessageId
 fun ColumnScope.MessagesList(
     messages: List<MessageEntity>,
     selectedMessageIds: Set<MessageId>,
+    listState: LazyListState,
     onEditMessage: (MessageEntity?) -> Unit,
     onReply: (MessageEntity?) -> Unit,
     onToggleSelect: (MessageId) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
-    val listState = rememberLazyListState()
 
     var blinkMessageId by remember { mutableStateOf<MessageId?>(null) }
 
