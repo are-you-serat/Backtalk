@@ -1,7 +1,7 @@
 package off.kys.backtalk.presentation.theme
 
+import android.app.Activity
 import android.os.Build
-import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
@@ -13,7 +13,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import cafe.adriel.voyager.navigator.currentOrThrow
 
 /**
  * Dark color scheme for the Backtalk application.
@@ -91,7 +90,6 @@ fun BacktalkTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val activity = LocalActivity.currentOrThrow
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -104,15 +102,19 @@ fun BacktalkTheme(
     // Logic to change status bar appearance
     val view = LocalView.current
     if (!view.isInEditMode) {
-        SideEffect {
-            val window = activity.window
+        val context = LocalContext.current
+        val activity = context as? Activity
+        if (activity != null) {
+            SideEffect {
+                val window = activity.window
 
-            // To force bright icons in light mode specifically:
-            val isLightMode = !darkTheme
-            if (isLightMode) {
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
-            } else {
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+                // To force bright icons in light mode specifically:
+                val isLightMode = !darkTheme
+                if (isLightMode) {
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+                } else {
+                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+                }
             }
         }
     }

@@ -50,7 +50,6 @@ fun ColumnScope.MessagesList(
 
     val selectionMode = selectedMessageIds.isNotEmpty()
 
-    // Auto-scroll when a new message is added
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(0)

@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.transitions.SlideTransition
 import kotlinx.coroutines.launch
 import off.kys.backtalk.BuildConfig
 import off.kys.backtalk.common.ThemeMode
@@ -52,9 +53,9 @@ class MainActivity : BaseLockActivity() {
                 darkTheme = isDarkTheme,
                 dynamicColor = dynamicColor
             ) {
-                Navigator(MessagesScreen()) {
+                Navigator(MessagesScreen()) { navigator ->
                     if (isLoggedIn) {
-                        CurrentScreen()
+                        SlideTransition(navigator)
                     } else {
                         LockedView()
                     }

@@ -77,6 +77,23 @@ fun Context.copyToClipboard(text: String) {
     }
 }
 
+/**
+ * Opens the system share sheet to share the given text.
+ *
+ * @receiver The Context used to start the activity.
+ * @param text The string to be shared.
+ */
+fun Context.shareText(text: String) {
+    val sendIntent: Intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, text)
+        type = "text/plain"
+    }
+
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    startActivity(shareIntent)
+}
+
 
 /**
  * Checks if the user has any form of secure "gatekeeping" active.

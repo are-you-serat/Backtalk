@@ -142,4 +142,16 @@
     <string name="auto_export_permission_required">Folder permission required for auto export</string>
     <string name="auto_export_password_desc">This password will be used to encrypt your scheduled backups.</string>
 
+    <!-- Threads -->
+    <string name="threads_title">Threads</string>
+    <string name="threads_filter_replies">Include replies</string>
+    <string name="threads_filter_time">Group by time gap</string>
+    <string name="threads_view_replies">View %1$d replies</string>
+    <string name="threads_empty">No threads found</string>
+    <string name="threads_replies_count">Replies · %1$d</string>
+    <string name="threads_you">You</string>
+    <string name="threads_at_you">\@you</string>
+    <string name="threads_at_you_timestamp">\@you · %1$s</string>
+    <string name="threads_share">Share</string>
+
 </resources>

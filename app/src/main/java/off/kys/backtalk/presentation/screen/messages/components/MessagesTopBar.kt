@@ -58,6 +58,7 @@ fun MessagesTopBar(
     onDelete: () -> Unit,
     onCopy: () -> Unit,
     onSettings: () -> Unit,
+    onThreads: () -> Unit,
     onToggleSearch: (Boolean) -> Unit,
     onSearchQueryChange: (String) -> Unit,
     onNavigateSearch: (Boolean) -> Unit
@@ -89,6 +90,7 @@ fun MessagesTopBar(
             DefaultTopBar(
                 onToggleSearch = { onToggleSearch(true) },
                 onSettings = onSettings,
+                onThreads = onThreads,
                 scrollBehavior = scrollBehavior
             )
         }
@@ -272,6 +274,7 @@ private fun SelectionTopBar(
 private fun DefaultTopBar(
     onToggleSearch: () -> Unit,
     onSettings: () -> Unit,
+    onThreads: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     TopAppBar(
@@ -281,6 +284,12 @@ private fun DefaultTopBar(
                 Icon(
                     painter = painterResource(R.drawable.round_search_24),
                     contentDescription = stringResource(R.string.common_search)
+                )
+            }
+            IconButton(onClick = onThreads) {
+                Icon(
+                    painter = painterResource(R.drawable.thread_24px),
+                    contentDescription = stringResource(R.string.threads_title)
                 )
             }
             IconButton(onClick = onSettings) {

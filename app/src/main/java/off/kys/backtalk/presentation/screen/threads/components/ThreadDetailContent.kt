@@ -1,0 +1,262 @@
+package off.kys.backtalk.presentation.screen.threads.components
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import off.kys.backtalk.R
+import off.kys.backtalk.data.local.entity.MessageEntity
+import off.kys.backtalk.domain.model.Thread
+import off.kys.backtalk.presentation.screen.messages.components.SmartText
+import off.kys.backtalk.util.emptyString
+import java.text.SimpleDateFormat
+import java.util.Date
+
+@Composable
+fun ThreadDetailContent(
+    modifier: Modifier,
+    thread: Thread,
+    onCopy: (String) -> Unit,
+    onShare: (String) -> Unit
+) {
+    val allMessages = listOf(thread.root) + thread.replies
+
+    LazyColumn(modifier = modifier) {
+        itemsIndexed(allMessages) { index, message ->
+            val threadsSize = allMessages.size - 1
+            if (index == 0) {
+                MainThreadItem(
+                    message = message,
+                    repliesCount = threadsSize,
+                    onCopy = onCopy,
+                    onShare = onShare
+                )
+            } else {
+                ThreadMessageItem(
+                    message = message,
+                    showConnectionLine = index < threadsSize,
+                    onCopy = onCopy,
+                    onShare = onShare
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MainThreadItem(
+    message: MessageEntity,
+    repliesCount: Int,
+    onCopy: (String) -> Unit,
+    onShare: (String) -> Unit
+) {
+    val fullDateFormat = SimpleDateFormat("h:mm a · MMM d, yyyy", LocalLocale.current.platformLocale)
+    val textToCopyOrShare = message.editedText ?: message.text
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Surface(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape),
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.round_person_24),
+                    contentDescription = null,
+                    modifier = Modifier.padding(10.dp),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(
+                    text = stringResource(R.string.threads_you),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = stringResource(R.string.threads_at_you),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        SmartText(
+            text = textToCopyOrShare,
+            style = MaterialTheme.typography.headlineSmall,
+            lineHeight = MaterialTheme.typography.headlineSmall.lineHeight,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = fullDateFormat.format(Date(message.timestamp)),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.outline
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 16.dp),
+            thickness = 0.5.dp,
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            ActionIcon(
+                R.drawable.round_chat_bubble_outline_24,
+                stringResource(R.string.threads_replies_count, repliesCount)
+            )
+            ActionIcon(
+                iconRes = R.drawable.round_content_copy_24,
+                count = stringResource(R.string.common_copy)
+            ) {
+                onCopy(textToCopyOrShare)
+            }
+            ActionIcon(
+                iconRes = R.drawable.round_share_24,
+                count = stringResource(R.string.threads_share)
+            ) {
+                onShare(textToCopyOrShare)
+            }
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(top = 16.dp),
+            thickness = 0.5.dp,
+            color = MaterialTheme.colorScheme.outlineVariant
+        )
+    }
+}
+
+@Composable
+private fun ThreadMessageItem(
+    message: MessageEntity,
+    showConnectionLine: Boolean,
+    onCopy: (String) -> Unit,
+    onShare: (String) -> Unit
+) {
+    val timeFormat = SimpleDateFormat("h:mm a", LocalLocale.current.platformLocale)
+    val textToCopyOrShare = message.editedText ?: message.text
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .height(IntrinsicSize.Min)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            Surface(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape),
+                color = MaterialTheme.colorScheme.secondaryContainer
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.round_person_24),
+                    contentDescription = null,
+                    modifier = Modifier.padding(8.dp),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+            if (showConnectionLine) {
+                VerticalDivider(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(2.dp)
+                        .padding(vertical = 2.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(modifier = Modifier.padding(bottom = 12.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.threads_you),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "${stringResource(R.string.threads_at_you)} · ${timeFormat.format(Date(message.timestamp))}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            SmartText(
+                text = textToCopyOrShare,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                ActionIcon(
+                    iconRes = R.drawable.round_content_copy_24,
+                    count = emptyString()
+                ) {
+                    onCopy(textToCopyOrShare)
+                }
+                ActionIcon(
+                    iconRes = R.drawable.round_share_24,
+                    count = emptyString()
+                ) {
+                    onShare(textToCopyOrShare)
+                }
+            }
+        }
+    }
+}

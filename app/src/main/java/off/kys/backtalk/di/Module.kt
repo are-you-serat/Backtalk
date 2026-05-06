@@ -24,6 +24,7 @@ import off.kys.backtalk.domain.use_case_bundle.MessagesUseCases
 import off.kys.backtalk.presentation.viewmodel.MainViewModel
 import off.kys.backtalk.presentation.viewmodel.MessagesViewModel
 import off.kys.backtalk.presentation.viewmodel.SettingsViewModel
+import off.kys.backtalk.presentation.viewmodel.ThreadsViewModel
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
@@ -118,6 +119,7 @@ private fun Module.useCaseModule() {
 private fun Module.viewModelModule() {
     viewModel { MainViewModel(get(), get()) }
     viewModel { MessagesViewModel(get()) }
+    viewModel { ThreadsViewModel(get()) }
     viewModel { SettingsViewModel(androidApplication(), get(), get()) }
 }
 

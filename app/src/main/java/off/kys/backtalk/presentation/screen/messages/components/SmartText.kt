@@ -58,6 +58,7 @@ fun SmartText(
     style: TextStyle = LocalTextStyle.current,
     textDecoration: TextDecoration = TextDecoration.None,
     maxLines: Int = Int.MAX_VALUE,
+    lineHeight: TextUnit = TextUnit.Unspecified,
     highlightQuery: String? = null
 ) {
     val uriHandler = LocalUriHandler.current
@@ -89,6 +90,7 @@ fun SmartText(
         text = annotatedString,
         modifier = modifier,
         maxLines = maxLines,
+        lineHeight = lineHeight,
         style = style.copy(
             color = if (color != Color.Unspecified) color else style.color,
             fontSize = if (fontSize != TextUnit.Unspecified) fontSize else style.fontSize,
