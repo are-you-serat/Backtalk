@@ -74,7 +74,8 @@ fun MessageBubble(
     isSelected: Boolean,
     onReplyPreviewClick: () -> Unit,
     onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onLongClick: () -> Unit,
+    highlightQuery: String? = null
 ) {
     var showExtraInfo by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
@@ -127,7 +128,8 @@ fun MessageBubble(
                 message = messageEntity,
                 repliedMessage = repliedMessageEntity,
                 onReplyClick = onReplyPreviewClick,
-                showOriginal = showExtraInfo
+                showOriginal = showExtraInfo,
+                highlightQuery = highlightQuery
             )
         }
 
@@ -202,7 +204,8 @@ private fun MessageContent(
     message: MessageEntity,
     repliedMessage: MessageEntity?,
     onReplyClick: () -> Unit,
-    showOriginal: Boolean
+    showOriginal: Boolean,
+    highlightQuery: String? = null
 ) {
     val contentColor = contentColorFor(MaterialTheme.colorScheme.primary)
 
@@ -216,14 +219,16 @@ private fun MessageContent(
             text = message.text,
             style = MaterialTheme.typography.bodySmall,
             color = contentColor.copy(alpha = 0.6f),
-            textDecoration = TextDecoration.LineThrough
+            textDecoration = TextDecoration.LineThrough,
+            highlightQuery = highlightQuery
         )
     }
 
     SmartText(
         text = message.editedText ?: message.text,
         color = contentColor,
-        style = MaterialTheme.typography.bodyLarge
+        style = MaterialTheme.typography.bodyLarge,
+        highlightQuery = highlightQuery
     )
 
     if (message.editedText != null) {

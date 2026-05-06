@@ -1,92 +1,295 @@
 package off.kys.backtalk.presentation.screen.messages.components
 
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import off.kys.backtalk.R
+import off.kys.backtalk.util.emptyString
 
 /**
  * Composable function that displays the messages top bar.
  *
  * @param scrollBehavior The scroll behavior of the top bar.
  * @param selectedCount The number of selected messages.
+ * @param isSearchActive Whether the search mode is active.
+ * @param searchQuery The current search query.
+ * @param searchResultsCount The number of search results.
+ * @param currentSearchIndex The current search result index.
  * @param onCloseSelection The callback function to handle closing the selection.
  * @param onDelete The callback function to handle deleting the selected message.
  * @param onCopy The callback function to handle copying the selected message.
  * @param onSettings The callback function to handle opening the settings screen.
+ * @param onToggleSearch The callback function to toggle search mode.
+ * @param onSearchQueryChange The callback function to update search query.
+ * @param onNavigateSearch The callback function to navigate search results.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MessagesTopBar(
     scrollBehavior: TopAppBarScrollBehavior,
     selectedCount: Int,
+    isSearchActive: Boolean,
+    searchQuery: String,
+    searchResultsCount: Int,
+    currentSearchIndex: Int,
     onCloseSelection: () -> Unit,
     onDelete: () -> Unit,
     onCopy: () -> Unit,
-    onSettings: () -> Unit
+    onSettings: () -> Unit,
+    onToggleSearch: (Boolean) -> Unit,
+    onSearchQueryChange: (String) -> Unit,
+    onNavigateSearch: (Boolean) -> Unit
 ) {
-    val selectionActive = selectedCount > 0
+    when {
+        isSearchActive -> {
+            SearchTopBar(
+                searchQuery = searchQuery,
+                searchResultsCount = searchResultsCount,
+                currentSearchIndex = currentSearchIndex,
+                onSearchQueryChange = onSearchQueryChange,
+                onNavigateSearch = onNavigateSearch,
+                onCloseSearch = { onToggleSearch(false) },
+                scrollBehavior = scrollBehavior
+            )
+        }
+
+        selectedCount > 0 -> {
+            SelectionTopBar(
+                selectedCount = selectedCount,
+                onCloseSelection = onCloseSelection,
+                onDelete = onDelete,
+                onCopy = onCopy,
+                scrollBehavior = scrollBehavior
+            )
+        }
+
+        else -> {
+            DefaultTopBar(
+                onToggleSearch = { onToggleSearch(true) },
+                onSettings = onSettings,
+                scrollBehavior = scrollBehavior
+            )
+        }
+    }
+}
+
+/**
+ * Top bar displayed when the user is actively searching through messages.
+ *
+ * @param searchQuery The current text entered in the search field.
+ * @param searchResultsCount Total number of matches found.
+ * @param currentSearchIndex The 0-based index of the currently focused result.
+ * @param onSearchQueryChange Callback for text updates.
+ * @param onNavigateSearch Callback to move between results (true for up/previous, false for down/next).
+ * @param onCloseSearch Callback to exit search mode.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SearchTopBar(
+    searchQuery: String,
+    searchResultsCount: Int,
+    currentSearchIndex: Int,
+    onSearchQueryChange: (String) -> Unit,
+    onNavigateSearch: (Boolean) -> Unit,
+    onCloseSearch: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior
+) {
+    val focusRequester = remember { FocusRequester() }
 
     TopAppBar(
         title = {
-            Text(
-                text = if (selectionActive) {
-                    stringResource(R.string.chat_selection_count, selectedCount)
-                } else {
-                    stringResource(R.string.chat_title)
+            BasicTextField(
+                value = searchQuery,
+                onValueChange = onSearchQueryChange,
+                modifier = Modifier.focusRequester(focusRequester),
+                maxLines = 1,
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = LocalContentColor.current),
+                cursorBrush = SolidColor(LocalContentColor.current),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                decorationBox = { innerTextField ->
+                    if (searchQuery.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.search_hint),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = LocalContentColor.current.copy(alpha = 0.5f)
+                        )
+                    }
+                    innerTextField()
                 }
             )
         },
         navigationIcon = {
-            if (selectionActive) {
-                IconButton(onClick = onCloseSelection) {
-                    Icon(
-                        painter = painterResource(R.drawable.round_close_24),
-                        contentDescription = stringResource(R.string.common_close)
-                    )
-                }
+            IconButton(onClick = onCloseSearch) {
+                Icon(
+                    painter = painterResource(R.drawable.round_arrow_back_24),
+                    contentDescription = stringResource(R.string.common_back)
+                )
             }
         },
         actions = {
-            if (selectionActive) {
-                IconButton(onClick = onDelete) {
-                    Icon(
-                        painter = painterResource(R.drawable.round_delete_24),
-                        contentDescription = stringResource(R.string.common_delete),
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                }
+            if (searchQuery.isNotEmpty()) {
+                SearchActions(
+                    searchResultsCount = searchResultsCount,
+                    currentSearchIndex = currentSearchIndex,
+                    onClearQuery = { onSearchQueryChange(emptyString()) },
+                    onNavigateSearch = onNavigateSearch
+                )
+            }
+        },
+        scrollBehavior = scrollBehavior
+    )
 
-                IconButton(onClick = onCopy) {
-                    Icon(
-                        painter = painterResource(R.drawable.round_content_copy_24),
-                        contentDescription = stringResource(R.string.common_copy)
-                    )
-                }
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+}
+
+/**
+ * Encapsulates the action buttons and result counter for the search mode.
+ */
+@Composable
+private fun SearchActions(
+    searchResultsCount: Int,
+    currentSearchIndex: Int,
+    onClearQuery: () -> Unit,
+    onNavigateSearch: (Boolean) -> Unit
+) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        IconButton(onClick = onClearQuery) {
+            Icon(
+                painter = painterResource(R.drawable.round_close_24),
+                contentDescription = stringResource(R.string.common_clear)
+            )
+        }
+        Text(
+            text = if (searchResultsCount > 0) {
+                stringResource(
+                    R.string.search_results_count,
+                    currentSearchIndex + 1,
+                    searchResultsCount
+                )
             } else {
-                IconButton(onClick = onSettings) {
-                    Icon(
-                        painter = painterResource(R.drawable.round_settings_24),
-                        contentDescription = stringResource(R.string.settings_title)
-                    )
-                }
+                stringResource(R.string.search_no_results)
+            },
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(horizontal = 8.dp)
+        )
+        IconButton(onClick = { onNavigateSearch(true) }, enabled = searchResultsCount > 0) {
+            Icon(
+                painter = painterResource(R.drawable.round_expand_less_24),
+                contentDescription = stringResource(R.string.search_previous)
+            )
+        }
+        IconButton(onClick = { onNavigateSearch(false) }, enabled = searchResultsCount > 0) {
+            Icon(
+                painter = painterResource(R.drawable.round_expand_more_24),
+                contentDescription = stringResource(R.string.search_next)
+            )
+        }
+    }
+}
+
+/**
+ * Top bar displayed when one or more messages are selected.
+ *
+ * @param selectedCount Number of items currently selected.
+ * @param onCloseSelection Callback to clear selection and return to default state.
+ * @param onDelete Callback to delete selected items.
+ * @param onCopy Callback to copy selected items to clipboard.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SelectionTopBar(
+    selectedCount: Int,
+    onCloseSelection: () -> Unit,
+    onDelete: () -> Unit,
+    onCopy: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior
+) {
+    TopAppBar(
+        title = { Text(stringResource(R.string.chat_selection_count, selectedCount)) },
+        navigationIcon = {
+            IconButton(onClick = onCloseSelection) {
+                Icon(
+                    painter = painterResource(R.drawable.round_close_24),
+                    contentDescription = stringResource(R.string.common_close)
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = onDelete) {
+                Icon(
+                    painter = painterResource(R.drawable.round_delete_24),
+                    contentDescription = stringResource(R.string.common_delete),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
+            IconButton(onClick = onCopy) {
+                Icon(
+                    painter = painterResource(R.drawable.round_content_copy_24),
+                    contentDescription = stringResource(R.string.common_copy)
+                )
             }
         },
         scrollBehavior = scrollBehavior,
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = if (selectionActive) {
-                TopAppBarDefaults.topAppBarColors().scrolledContainerColor
-            } else {
-                TopAppBarDefaults.topAppBarColors().containerColor
-            }
+            containerColor = TopAppBarDefaults.topAppBarColors().scrolledContainerColor
         )
+    )
+}
+
+/**
+ * The standard top bar shown during normal viewing.
+ *
+ * @param onToggleSearch Callback to enter search mode.
+ * @param onSettings Callback to navigate to settings.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DefaultTopBar(
+    onToggleSearch: () -> Unit,
+    onSettings: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior
+) {
+    TopAppBar(
+        title = { Text(stringResource(R.string.chat_title)) },
+        actions = {
+            IconButton(onClick = onToggleSearch) {
+                Icon(
+                    painter = painterResource(R.drawable.round_search_24),
+                    contentDescription = stringResource(R.string.common_search)
+                )
+            }
+            IconButton(onClick = onSettings) {
+                Icon(
+                    painter = painterResource(R.drawable.round_settings_24),
+                    contentDescription = stringResource(R.string.settings_title)
+                )
+            }
+        },
+        scrollBehavior = scrollBehavior
     )
 }

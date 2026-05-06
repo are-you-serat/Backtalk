@@ -58,6 +58,7 @@ fun SmartText(
     style: TextStyle = LocalTextStyle.current,
     textDecoration: TextDecoration = TextDecoration.None,
     maxLines: Int = Int.MAX_VALUE,
+    highlightQuery: String? = null
 ) {
     val uriHandler = LocalUriHandler.current
     val showSafetyDialog = remember { mutableStateOf(false) }
@@ -73,6 +74,7 @@ fun SmartText(
     val annotatedString = MarkdownParser.toAnnotatedString(
         text = text,
         linkStyles = linkStyles,
+        highlightQuery = highlightQuery,
         onLinkClicked = { annotation ->
             if (!clickableLink)
                 return@toAnnotatedString

@@ -15,5 +15,9 @@ data class MessagesUiState(
     val messages: List<MessageEntity> = emptyList(),
     val replyingTo: MessageEntity? = null,
     val editingMessage: MessageEntity? = null,
-    val selectedMessageIds: Set<MessageId> = emptySet()
+    val selectedMessageIds: Set<MessageId> = emptySet(),
+    val isSearchActive: Boolean = false,
+    val searchQuery: String = "",
+    val searchResults: List<MessageId> = emptyList(),
+    val currentSearchResultIndex: Int = -1
 )

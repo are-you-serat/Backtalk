@@ -54,4 +54,25 @@ sealed interface MessagesUiEvent {
      * UI event to copy the currently selected messages to the clipboard.
      */
     object CopySelected : MessagesUiEvent
+
+    /**
+     * UI event to toggle the search mode.
+     *
+     * @param active Whether the search mode should be active.
+     */
+    data class ToggleSearch(val active: Boolean) : MessagesUiEvent
+
+    /**
+     * UI event to update the search query.
+     *
+     * @param query The new search query.
+     */
+    data class UpdateSearchQuery(val query: String) : MessagesUiEvent
+
+    /**
+     * UI event to navigate through search results.
+     *
+     * @param up Whether to navigate to the previous result (up) or next result (down).
+     */
+    data class NavigateSearch(val up: Boolean) : MessagesUiEvent
 }

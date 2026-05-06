@@ -7,6 +7,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -57,16 +58,37 @@ class MessagesScreen : Screen {
             viewModel.onEvent(MessagesUiEvent.EditMessage(null))
         }
 
+        BackHandler(state.isSearchActive) {
+            viewModel.onEvent(MessagesUiEvent.ToggleSearch(false))
+        }
+
+        LaunchedEffect(state.currentSearchResultIndex) {
+            if (state.isSearchActive && state.currentSearchResultIndex != -1) {
+                val targetId = state.searchResults[state.currentSearchResultIndex]
+                val targetIndex = state.messages.reversed().indexOfFirst { it.id == targetId }
+                if (targetIndex != -1) {
+                    listState.animateScrollToItem(targetIndex)
+                }
+            }
+        }
+
         Scaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
             topBar = {
                 MessagesTopBar(
                     scrollBehavior = scrollBehavior,
                     selectedCount = state.selectedMessageIds.size,
+                    isSearchActive = state.isSearchActive,
+                    searchQuery = state.searchQuery,
+                    searchResultsCount = state.searchResults.size,
+                    currentSearchIndex = state.currentSearchResultIndex,
                     onCloseSelection = { viewModel.onEvent(MessagesUiEvent.ClearSelection) },
                     onDelete = { viewModel.onEvent(MessagesUiEvent.DeleteSelected) },
                     onCopy = { viewModel.onEvent(MessagesUiEvent.CopySelected) },
-                    onSettings = { navigator += SettingsScreen() }
+                    onSettings = { navigator += SettingsScreen() },
+                    onToggleSearch = { active: Boolean -> viewModel.onEvent(MessagesUiEvent.ToggleSearch(active)) },
+                    onSearchQueryChange = { query: String -> viewModel.onEvent(MessagesUiEvent.UpdateSearchQuery(query)) },
+                    onNavigateSearch = { up: Boolean -> viewModel.onEvent(MessagesUiEvent.NavigateSearch(up)) }
                 )
             },
             floatingActionButton = {

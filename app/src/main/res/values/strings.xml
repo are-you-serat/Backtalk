@@ -9,8 +9,11 @@
     <string name="common_exit">Exit</string>
     <string name="common_later">Later</string>
     <string name="common_close">Close</string>
+    <string name="common_clear">Clear</string>
+    <string name="common_back">Back</string>
     <string name="common_navigate_up">Navigate up</string>
     <string name="common_edit">Edit</string>
+    <string name="common_search">Search</string>
     <string name="common_daily">Daily</string>
     <string name="common_weekly">Weekly</string>
     <string name="common_monthly">Monthly</string>
@@ -38,6 +41,13 @@
     <string name="link_safety_title">External Link</string>
     <string name="link_safety_message">You are leaving the app to visit an external website. Make sure you trust this source before proceeding.</string>    <string name="link_safety_open">Open</string>
     <string name="link_safety_cancel">Cancel</string>
+
+    <!-- Search -->
+    <string name="search_hint">Search messages…</string>
+    <string name="search_previous">Previous result</string>
+    <string name="search_next">Next result</string>
+    <string name="search_results_count">%1$d of %2$d</string>
+    <string name="search_no_results">0 of 0</string>
 
     <!-- Auth -->
     <string name="auth_title">Verify your identity</string>

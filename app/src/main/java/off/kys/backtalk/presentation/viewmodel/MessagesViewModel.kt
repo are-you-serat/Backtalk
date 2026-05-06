@@ -52,6 +52,10 @@ class MessagesViewModel(
 
             is MessagesUiEvent.DeleteSelected -> deleteSelected()
             is MessagesUiEvent.CopySelected -> copySelected()
+
+            is MessagesUiEvent.ToggleSearch -> toggleSearch(event.active)
+            is MessagesUiEvent.UpdateSearchQuery -> updateSearchQuery(event.query)
+            is MessagesUiEvent.NavigateSearch -> navigateSearch(event.up)
         }
     }
 
@@ -161,5 +165,60 @@ class MessagesViewModel(
             useCases.copyMessagesByIds(selectedIds)
         }
         clearSelection()
+    }
+
+    /**
+     * Toggles the search mode.
+     *
+     * @param active Whether the search mode should be active.
+     */
+    private fun toggleSearch(active: Boolean) {
+        _uiState.value = _uiState.value.copy(
+            isSearchActive = active,
+            searchQuery = if (active) _uiState.value.searchQuery else "",
+            searchResults = if (active) _uiState.value.searchResults else emptyList(),
+            currentSearchResultIndex = if (active) _uiState.value.currentSearchResultIndex else -1
+        )
+    }
+
+    /**
+     * Updates the search query and performs a search.
+     *
+     * @param query The new search query.
+     */
+    private fun updateSearchQuery(query: String) {
+        val results = if (query.isBlank()) {
+            emptyList()
+        } else {
+            val terms = query.lowercase().split(" ").filter { it.isNotBlank() }
+            _uiState.value.messages.filter { message ->
+                val text = (message.editedText ?: message.text).lowercase()
+                terms.all { term -> text.contains(term) }
+            }.map { it.id }.reversed() // Newest first
+        }
+
+        _uiState.value = _uiState.value.copy(
+            searchQuery = query,
+            searchResults = results,
+            currentSearchResultIndex = if (results.isNotEmpty()) 0 else -1
+        )
+    }
+
+    /**
+     * Navigates through search results.
+     *
+     * @param up Whether to navigate to the previous result (up) or next result (down).
+     */
+    private fun navigateSearch(up: Boolean) {
+        val state = _uiState.value
+        if (state.searchResults.isEmpty()) return
+
+        val newIndex = if (up) {
+            (state.currentSearchResultIndex + 1) % state.searchResults.size
+        } else {
+            (state.currentSearchResultIndex - 1 + state.searchResults.size) % state.searchResults.size
+        }
+
+        _uiState.value = state.copy(currentSearchResultIndex = newIndex)
     }
 }

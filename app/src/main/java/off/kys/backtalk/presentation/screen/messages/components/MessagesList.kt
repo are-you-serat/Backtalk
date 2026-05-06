@@ -41,7 +41,8 @@ fun ColumnScope.MessagesList(
     listState: LazyListState,
     onEditMessage: (MessageEntity?) -> Unit,
     onReply: (MessageEntity?) -> Unit,
-    onToggleSelect: (MessageId) -> Unit
+    onToggleSelect: (MessageId) -> Unit,
+    searchQuery: String = ""
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -145,7 +146,8 @@ fun ColumnScope.MessagesList(
                         },
                         onLongClick = {
                             onToggleSelect(current.id)
-                        }
+                        },
+                        highlightQuery = searchQuery
                     )
                 }
             }

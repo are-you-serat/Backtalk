@@ -35,7 +35,8 @@ fun MessagesContent(
             listState = listState,
             onEditMessage = onEditMessage,
             onReply = onReply,
-            onToggleSelect = onToggleSelect
+            onToggleSelect = onToggleSelect,
+            searchQuery = if (state.isSearchActive) state.searchQuery else ""
         )
 
         InputBar(
