@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package off.kys.backtalk.util
 
 /**
@@ -8,4 +10,4 @@ package off.kys.backtalk.util
  *
  * @return An empty string ("").
  */
-fun emptyString(): String = ""
+inline fun emptyString(): String = ""

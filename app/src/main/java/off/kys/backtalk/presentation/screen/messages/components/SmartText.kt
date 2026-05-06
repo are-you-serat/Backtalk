@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import off.kys.backtalk.R
 import off.kys.backtalk.util.MarkdownParser
+import off.kys.backtalk.util.emptyString
 
 /**
  * A custom [Text] composable that provides a convenient way to override specific text styles
@@ -51,18 +52,18 @@ fun SmartText(
     text: String,
     modifier: Modifier = Modifier,
     fontSize: TextUnit = TextUnit.Unspecified,
-    color: Color = Color.Unspecified,
+    color: Color = MaterialTheme.colorScheme.background,
     style: TextStyle = LocalTextStyle.current,
     textDecoration: TextDecoration = TextDecoration.None,
     maxLines: Int = Int.MAX_VALUE,
 ) {
     val uriHandler = LocalUriHandler.current
     val showSafetyDialog = remember { mutableStateOf(false) }
-    var pendingUrl by remember { mutableStateOf("") }
+    var pendingUrl by remember { mutableStateOf(emptyString()) }
 
     val linkStyles = TextLinkStyles(
         style = SpanStyle(
-            color = MaterialTheme.colorScheme.primary,
+            color = MaterialTheme.colorScheme.primaryContainer,
             textDecoration = TextDecoration.Underline
         )
     )

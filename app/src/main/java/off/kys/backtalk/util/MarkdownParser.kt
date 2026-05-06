@@ -31,7 +31,7 @@ object MarkdownParser {
         StyleDef("`", SpanStyle(fontFamily = FontFamily.Monospace))
     )
 
-    private val MARKDOWN_LINK_REGEX = Regex("""\[([^\]]+)\]\(([^)]+)\)""")
+    private val MARKDOWN_LINK_REGEX = Regex("""\[([^]]+)]\(([^)]+)\)""")
     private val NAKED_URL_REGEX = Regex("""(https?://[^\s)\]]+)""")
 
     fun toAnnotatedString(
