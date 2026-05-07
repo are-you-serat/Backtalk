@@ -8,6 +8,4 @@ import off.kys.backtalk.domain.model.Thread
 data class ThreadsUiState(
     val threads: List<Thread> = emptyList(),
     val isLoading: Boolean = false,
-    val includeReplies: Boolean = false,
-    val groupByTime: Boolean = false
 )
