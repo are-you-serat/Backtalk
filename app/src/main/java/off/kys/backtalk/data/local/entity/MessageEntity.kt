@@ -16,6 +16,9 @@ import off.kys.backtalk.domain.model.MessageId
  * @property repliedToId The ID of the message this message is replying to, or null if it's not a reply.
  * @property editedText The content of the message after being edited, or null if it hasn't been edited.
  * @property editedAt The time the message was last edited, or null if it hasn't been edited.
+ * @property voicePath The local path to the voice message audio file, if applicable.
+ * @property voiceDuration The duration of the voice message in milliseconds, if applicable.
+ * @property waveformData A list of floats representing the audio waveform, if applicable.
  */
 @Keep
 @Serializable
@@ -28,5 +31,8 @@ data class MessageEntity(
     @Embedded
     val repliedToId: MessageId?,
     val editedText: String? = null,
-    val editedAt: Long? = null
+    val editedAt: Long? = null,
+    val voicePath: String? = null,
+    val voiceDuration: Long? = null,
+    val waveformData: List<Float>? = null
 )

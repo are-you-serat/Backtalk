@@ -209,36 +209,45 @@ private fun MessageContent(
 ) {
     val contentColor = contentColorFor(MaterialTheme.colorScheme.primary)
 
-    if (repliedMessage != null) {
-        ReplyPreview(text = repliedMessage.text, onPreviewClick = onReplyClick)
-        Spacer(modifier = Modifier.height(4.dp))
-    }
+    if (message.voicePath != null) {
+        VoiceMessageBubble(
+            voicePath = message.voicePath,
+            duration = message.voiceDuration ?: 0L,
+            waveformData = message.waveformData ?: emptyList(),
+            contentColor = contentColor
+        )
+    } else {
+        if (repliedMessage != null) {
+            ReplyPreview(text = repliedMessage.text, onPreviewClick = onReplyClick)
+            Spacer(modifier = Modifier.height(4.dp))
+        }
 
-    if (message.editedText != null && showOriginal) {
+        if (message.editedText != null && showOriginal) {
+            SmartText(
+                text = message.text,
+                style = MaterialTheme.typography.bodySmall,
+                color = contentColor.copy(alpha = 0.6f),
+                textDecoration = TextDecoration.LineThrough,
+                highlightQuery = highlightQuery
+            )
+        }
+
         SmartText(
-            text = message.text,
-            style = MaterialTheme.typography.bodySmall,
-            color = contentColor.copy(alpha = 0.6f),
-            textDecoration = TextDecoration.LineThrough,
+            text = message.editedText ?: message.text,
+            color = contentColor,
+            style = MaterialTheme.typography.bodyLarge,
             highlightQuery = highlightQuery
         )
-    }
 
-    SmartText(
-        text = message.editedText ?: message.text,
-        color = contentColor,
-        style = MaterialTheme.typography.bodyLarge,
-        highlightQuery = highlightQuery
-    )
-
-    if (message.editedText != null) {
-        Text(
-            text = stringResource(R.string.chat_status_edited),
-            style = MaterialTheme.typography.labelSmall,
-            fontStyle = FontStyle.Italic,
-            color = contentColor.copy(alpha = 0.7f),
-            modifier = Modifier.padding(top = 2.dp)
-        )
+        if (message.editedText != null) {
+            Text(
+                text = stringResource(R.string.chat_status_edited),
+                style = MaterialTheme.typography.labelSmall,
+                fontStyle = FontStyle.Italic,
+                color = contentColor.copy(alpha = 0.7f),
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
     }
 }
 

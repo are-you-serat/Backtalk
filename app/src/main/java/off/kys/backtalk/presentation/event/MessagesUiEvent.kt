@@ -18,6 +18,15 @@ sealed interface MessagesUiEvent {
      * @param text The text of the message to send.
      */
     data class SendMessage(val text: String) : MessagesUiEvent
+
+    /**
+     * UI event to send a voice message.
+     *
+     * @param path The path to the recorded audio file.
+     * @param duration The duration of the recording in milliseconds.
+     * @param waveform The waveform data.
+     */
+    data class SendVoiceMessage(val path: String, val duration: Long, val waveform: List<Float>) : MessagesUiEvent
     
     /**
      * UI event to edit a message.

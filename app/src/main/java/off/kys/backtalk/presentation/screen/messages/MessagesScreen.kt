@@ -111,7 +111,10 @@ class MessagesScreen : Screen {
                 onEditMessage = { viewModel.onEvent(MessagesUiEvent.EditMessage(it)) },
                 onReply = { viewModel.onEvent(MessagesUiEvent.ReplyTo(it)) },
                 onToggleSelect = { viewModel.onEvent(MessagesUiEvent.ToggleSelection(it)) },
-                onSend = { viewModel.onEvent(MessagesUiEvent.SendMessage(it)) }
+                onSend = { viewModel.onEvent(MessagesUiEvent.SendMessage(it)) },
+                onSendVoice = { path, duration, waveform ->
+                    viewModel.onEvent(MessagesUiEvent.SendVoiceMessage(path, duration, waveform))
+                }
             )
         }
     }

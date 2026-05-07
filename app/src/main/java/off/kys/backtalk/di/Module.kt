@@ -7,6 +7,7 @@ import off.kys.backtalk.data.local.dao.MessagesDao
 import off.kys.backtalk.data.local.database.MessagesDatabase
 import off.kys.backtalk.data.local.migrations.MIGRATION_1_2
 import off.kys.backtalk.data.local.migrations.MIGRATION_2_3
+import off.kys.backtalk.data.local.migrations.MIGRATION_3_4
 import off.kys.backtalk.data.repository.BackupRepositoryImpl
 import off.kys.backtalk.data.repository.MessagesRepositoryImpl
 import off.kys.backtalk.domain.repository.BackupRepository
@@ -60,7 +61,7 @@ private fun Module.databaseModule() {
             MessagesDatabase::class.java,
             "msgs_db"
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
             .build()
     }
 

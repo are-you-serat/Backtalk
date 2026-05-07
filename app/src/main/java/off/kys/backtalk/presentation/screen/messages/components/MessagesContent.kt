@@ -26,7 +26,8 @@ fun MessagesContent(
     onEditMessage: (MessageEntity?) -> Unit,
     onReply: (MessageEntity?) -> Unit,
     onToggleSelect: (MessageId) -> Unit,
-    onSend: (String) -> Unit
+    onSend: (String) -> Unit,
+    onSendVoice: (String, Long, List<Float>) -> Unit
 ) {
     Column(modifier = modifier) {
         MessagesList(
@@ -45,7 +46,8 @@ fun MessagesContent(
             editingMessage = state.editingMessage,
             onCancelReply = { onReply(null) },
             onCancelEdit = { onEditMessage(null) },
-            onMessageSend = onSend
+            onMessageSend = onSend,
+            onVoiceSend = onSendVoice
         )
     }
 }

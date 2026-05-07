@@ -2,7 +2,9 @@ package off.kys.backtalk.data.local.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import off.kys.backtalk.data.local.dao.MessagesDao
+import off.kys.backtalk.data.local.database.converter.Converters
 import off.kys.backtalk.data.local.entity.MessageEntity
 
 /**
@@ -12,9 +14,10 @@ import off.kys.backtalk.data.local.entity.MessageEntity
  */
 @Database(
     entities = [MessageEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class MessagesDatabase: RoomDatabase() {
     /**
      * Returns the Data Access Object (DAO) for the messages table.

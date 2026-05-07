@@ -44,6 +44,7 @@ class MessagesViewModel(
         when (event) {
             is MessagesUiEvent.LoadMessages -> loadMessages()
             is MessagesUiEvent.SendMessage -> sendMessage(event.text)
+            is MessagesUiEvent.SendVoiceMessage -> sendVoiceMessage(event.path, event.duration, event.waveform)
             is MessagesUiEvent.ReplyTo -> updateReply(event.message)
             is MessagesUiEvent.EditMessage -> updateEditingMessage(event.message)
 
@@ -101,6 +102,24 @@ class MessagesViewModel(
                     text = text,
                     timestamp = System.currentTimeMillis(),
                     repliedToId = replyTo?.id
+                )
+            )
+        }
+        updateReply(null)
+    }
+
+    private fun sendVoiceMessage(path: String, duration: Long, waveform: List<Float>) {
+        val replyTo = _uiState.value.replyingTo
+        viewModelScope.launch {
+            useCases.insertMessage(
+                MessageEntity(
+                    id = MessageId.generate(),
+                    text = "[Voice Message]",
+                    timestamp = System.currentTimeMillis(),
+                    repliedToId = replyTo?.id,
+                    voicePath = path,
+                    voiceDuration = duration,
+                    waveformData = waveform
                 )
             )
         }

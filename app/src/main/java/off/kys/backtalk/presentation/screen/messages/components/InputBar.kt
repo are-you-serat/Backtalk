@@ -1,16 +1,33 @@
 package off.kys.backtalk.presentation.screen.messages.components
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -25,13 +42,19 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -40,10 +63,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import kotlinx.coroutines.launch
 import off.kys.backtalk.R
 import off.kys.backtalk.data.local.entity.MessageEntity
+import off.kys.backtalk.util.AudioRecorder
 import off.kys.backtalk.util.emptyString
+import kotlin.math.roundToInt
+
+private const val TAG = "InputBar"
 
 /**
  * Composable function that displays the input bar for sending messages.
@@ -55,6 +85,7 @@ import off.kys.backtalk.util.emptyString
  * @param onCancelReply The callback function to handle canceling the reply.
  * @param onCancelEdit The callback function to handle canceling the edit.
  * @param onMessageSend The callback function to handle sending a message.
+ * @param onVoiceSend The callback function to handle sending a voice message.
  */
 @Composable
 fun InputBar(
@@ -64,8 +95,24 @@ fun InputBar(
     editingMessage: MessageEntity?,
     onCancelReply: () -> Unit,
     onCancelEdit: () -> Unit,
-    onMessageSend: (String) -> Unit
+    onMessageSend: (String) -> Unit,
+    onVoiceSend: (String, Long, List<Float>) -> Unit
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val audioRecorder = remember { AudioRecorder(context) }
+    var isRecording by remember { mutableStateOf(false) }
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    val amplitudes by audioRecorder.amplitudes.collectAsState()
+    val shakeOffset = remember { Animatable(0f) }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            Log.i(TAG, "InputBar: Microphone permission is granted")
+        }
+    }
+    var recordingStartTime by remember { mutableLongStateOf(0L) }
     var textValue by remember {
         mutableStateOf(
             TextFieldValue(
@@ -73,6 +120,36 @@ fun InputBar(
                 selection = TextRange(messageInput.length)
             )
         )
+    }
+
+    fun triggerDeniedShake() {
+        scope.launch {
+            repeat(4) {
+                shakeOffset.animateTo(
+                    targetValue = if (it % 2 == 0) 15f else -15f,
+                    animationSpec = androidx.compose.animation.core.spring(
+                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioHighBouncy,
+                        stiffness = androidx.compose.animation.core.Spring.StiffnessHigh
+                    )
+                )
+            }
+            shakeOffset.animateTo(0f)
+        }
+    }
+
+    fun startRecordingInternal() {
+        if (ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.RECORD_AUDIO
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            isRecording = true
+            recordingStartTime = System.currentTimeMillis()
+            audioRecorder.startRecording()
+        } else {
+            triggerDeniedShake()
+            permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
     }
 
     LaunchedEffect(key1 = messageInput) {
@@ -147,35 +224,145 @@ fun InputBar(
                     .padding(horizontal = 8.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                TextField(
-                    value = textValue,
-                    onValueChange = { textValue = it },
-                    textStyle = TextStyle(textDirection = TextDirection.Content),
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text(stringResource(R.string.chat_input_hint)) },
-                    maxLines = 4,
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    shape = MaterialTheme.shapes.extraLarge
-                )
-
-                IconButton(
-                    onClick = {
-                        if (textValue.text.isNotBlank()) {
-                            onMessageSend(textValue.text)
-                            textValue = TextFieldValue(emptyString())
-                        }
-                    },
-                    enabled = textValue.text.isNotBlank()
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.round_send_24),
-                        contentDescription = stringResource(R.string.common_send),
-                        tint = if (textValue.text.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-                    )
+                    this@Row.AnimatedVisibility(
+                        visible = !isRecording,
+                        enter = fadeIn() + slideInHorizontally(),
+                        exit = fadeOut() + slideOutHorizontally()
+                    ) {
+                        TextField(
+                            value = textValue,
+                            onValueChange = { textValue = it },
+                            textStyle = TextStyle(textDirection = TextDirection.Content),
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text(stringResource(R.string.chat_input_hint)) },
+                            maxLines = 4,
+                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                            colors = TextFieldDefaults.colors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                            shape = MaterialTheme.shapes.extraLarge
+                        )
+                    }
+
+                    this@Row.AnimatedVisibility(
+                        visible = isRecording,
+                        enter = fadeIn() + expandHorizontally(),
+                        exit = fadeOut() + shrinkHorizontally()
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight()
+                                .padding(horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.round_keyboard_voice_24),
+                                contentDescription = null,
+                                tint = Color.Red,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            WaveformVisualizer(
+                                waveformData = amplitudes,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(24.dp),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "< Slide to cancel",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                    }
+                }
+
+                val showSend = textValue.text.isNotBlank() && !isRecording
+
+                AnimatedContent(targetState = showSend, label = emptyString()) { targetShowSend ->
+                    if (targetShowSend) {
+                        IconButton(
+                            onClick = {
+                                if (textValue.text.isNotBlank()) {
+                                    onMessageSend(textValue.text)
+                                    textValue = TextFieldValue(emptyString())
+                                }
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.round_send_24),
+                                contentDescription = stringResource(R.string.common_send),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    } else {
+                        IconButton(
+                            onClick = {},
+                            modifier = Modifier
+                                .offset {
+                                    IntOffset(
+                                        (offsetX + shakeOffset.value).roundToInt(),
+                                        0
+                                    )
+                                }
+                                .pointerInput(Unit) {
+                                    detectDragGestures(
+                                        onDragStart = {
+                                            startRecordingInternal()
+                                        },
+                                        onDrag = { change, dragAmount ->
+                                            if (isRecording) {
+                                                change.consume()
+                                                offsetX = (offsetX + dragAmount.x).coerceAtMost(0f)
+                                                if (offsetX < -300f) {
+                                                    isRecording = false
+                                                    audioRecorder.cancelRecording()
+                                                    offsetX = 0f
+                                                }
+                                            }
+                                        },
+                                        onDragEnd = {
+                                            if (isRecording) {
+                                                isRecording = false
+                                                val file = audioRecorder.stopRecording()
+                                                if (file != null) {
+                                                    onVoiceSend(
+                                                        file.absolutePath,
+                                                        System.currentTimeMillis() - recordingStartTime,
+                                                        amplitudes
+                                                    )
+                                                }
+                                            }
+                                            offsetX = 0f
+                                        },
+                                        onDragCancel = {
+                                            if (isRecording) {
+                                                isRecording = false
+                                                audioRecorder.cancelRecording()
+                                            }
+                                            offsetX = 0f
+                                        }
+                                    )
+                                }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.round_keyboard_voice_24),
+                                contentDescription = "Record",
+                                tint = if (shakeOffset.value != 0f)
+                                    MaterialTheme.colorScheme.error
+                                else
+                                    MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                 }
             }
 
