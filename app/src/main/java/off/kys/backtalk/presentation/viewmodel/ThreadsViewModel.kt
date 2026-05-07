@@ -20,6 +20,8 @@ class ThreadsViewModel(
     private val _uiState = mutableStateOf(ThreadsUiState())
     val uiState: State<ThreadsUiState> = _uiState
 
+    private var allMessages: List<MessageEntity> = emptyList()
+
     init {
         loadMessages()
     }
@@ -31,6 +33,7 @@ class ThreadsViewModel(
     private fun loadMessages() {
         viewModelScope.launch {
             useCases.getAllMessages().collectLatest { messages ->
+                allMessages = messages
                 val grouped = groupMessages(
                     messages
                 )
@@ -39,28 +42,68 @@ class ThreadsViewModel(
         }
     }
 
+    /**
+     * Creates a focused thread starting from the given message, including all its descendants.
+     */
+    fun getSubThread(rootMessage: MessageEntity): Thread {
+        val descendants = mutableListOf<MessageEntity>()
+        val queue = mutableListOf(rootMessage.id)
+        val visited = mutableSetOf(rootMessage.id)
+
+        while (queue.isNotEmpty()) {
+            val parentId = queue.removeAt(0)
+            val children = allMessages.filter { it.repliedToId == parentId }
+            for (child in children) {
+                if (child.id !in visited) {
+                    descendants.add(child)
+                    visited.add(child.id)
+                    queue.add(child.id)
+                }
+            }
+        }
+
+        return Thread(
+            root = rootMessage,
+            replies = descendants.sortedBy { it.timestamp }
+        )
+    }
+
     private fun groupMessages(messages: List<MessageEntity>): List<Thread> {
         if (messages.isEmpty()) return emptyList()
 
         val sorted = messages.sortedBy { it.timestamp }
-
         val groups = mutableListOf<MutableList<MessageEntity>>()
-        var currentGroup = mutableListOf<MessageEntity>()
 
         sorted.forEach { message ->
-            if (currentGroup.isEmpty()) {
-                currentGroup.add(message)
-            } else {
-                val last = currentGroup.last()
-                if (message.timestamp - last.timestamp < Constants.TIME_GAP_FOR_HEADER) {
-                    currentGroup.add(message)
-                } else {
-                    groups.add(currentGroup)
-                    currentGroup = mutableListOf(message)
+            var foundGroup = false
+
+            // Check if this message is a reply to something already in a group
+            if (message.repliedToId != null) {
+                for (group in groups) {
+                    if (group.any { it.id == message.repliedToId }) {
+                        group.add(message)
+                        foundGroup = true
+                        break
+                    }
                 }
             }
+
+            if (!foundGroup) {
+                // Fallback to time-based grouping with the LAST group added
+                val lastGroup = groups.lastOrNull()
+                if (lastGroup != null) {
+                    val lastMessage = lastGroup.last()
+                    if (message.timestamp - lastMessage.timestamp < Constants.TIME_GAP_FOR_HEADER) {
+                        lastGroup.add(message)
+                        foundGroup = true
+                    }
+                }
+            }
+
+            if (!foundGroup) {
+                groups.add(mutableListOf(message))
+            }
         }
-        if (currentGroup.isNotEmpty()) groups.add(currentGroup)
 
         return groups.map { group ->
             Thread(root = group.first(), replies = group.drop(1))

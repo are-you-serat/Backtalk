@@ -9,7 +9,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -33,7 +32,6 @@ class ThreadDetailScreen(val thread: Thread) : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val context = LocalContext.current
         val viewModel = koinViewModel<ThreadsViewModel>()
-        val state by viewModel.uiState
 
         Scaffold(
             topBar = {
@@ -60,12 +58,11 @@ class ThreadDetailScreen(val thread: Thread) : Screen {
                     context.shareText(text)
                 },
                 onReplyClick = { message ->
-                    state.threads.find { it.root.id() == message.id() }?.let { subThread ->
-                        navigator.push(ThreadDetailScreen(subThread))
-                    }
+                    val subThread = viewModel.getSubThread(message)
+                    navigator.push(ThreadDetailScreen(subThread))
                 },
                 getReplyCount = { message ->
-                    state.threads.find { it.root.id() == message.id() }?.let { it.size - 1 } ?: 0
+                    viewModel.getSubThread(message).size - 1
                 }
             )
         }
