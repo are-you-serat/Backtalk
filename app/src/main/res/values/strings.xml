@@ -127,7 +127,7 @@
     <string name="backup_title">Backup &amp; Restore</string>
     <string name="backup_summary">Manage your data with manual backups</string>
     <string name="backup_export_title">Export backup</string>
-    <string name="backup_export_desc">Create an encrypted or plain JSON backup</string>
+    <string name="backup_export_desc">Create an encrypted or plain backup (.bkt)</string>
     <string name="backup_import_title">Import backup</string>
     <string name="backup_import_desc">Restore data from a previously exported file</string>
     <string name="backup_enter_password">Enter password</string>
@@ -145,6 +145,8 @@
     <string name="backup_export_success">Backup exported successfully</string>
     <string name="backup_error_incorrect_password">Incorrect password. Please try again.</string>
     <string name="backup_encrypted_prompt">This backup is encrypted. Please enter the password to proceed.</string>
+    <string name="backup_old_format_warning_title">Old Backup Format</string>
+    <string name="backup_old_format_warning_message">You have imported an old backup format (.json). This format does not support voice messages and is less secure. We recommend exporting a new backup (.bkt) to ensure all your data is safe.</string>
 
     <!-- Auto Export -->
     <string name="auto_export_title">Auto export</string>

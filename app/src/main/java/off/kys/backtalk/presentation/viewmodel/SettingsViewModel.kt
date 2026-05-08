@@ -18,6 +18,7 @@ import off.kys.backtalk.R
 import off.kys.backtalk.common.ThemeMode
 import off.kys.backtalk.common.pref.BacktalkPreferences
 import off.kys.backtalk.data.worker.AutoExportWorker
+import off.kys.backtalk.domain.use_case.ImportBackup
 import off.kys.backtalk.domain.use_case_bundle.BackupUseCases
 import off.kys.backtalk.presentation.event.SettingsUiEvent
 import off.kys.backtalk.presentation.state.SettingsUiState
@@ -247,7 +248,7 @@ class SettingsViewModel(
                 )
             }
             backupUseCases.importBackup(uri, password, clearExisting)
-                .onSuccess {
+                .onSuccess { result ->
                     _state.update {
                         it.copy(
                             backupLoading = false,
@@ -258,7 +259,8 @@ class SettingsViewModel(
                             secureScreenEnabled = preferences.secureScreenEnabled,
                             autoUpdateEnabled = preferences.autoUpdateEnabled,
                             isBackupEncrypted = null,
-                            selectedBackupUri = null
+                            selectedBackupUri = null,
+                            showOldBackupWarning = result is ImportBackup.ImportResult.SuccessWithWarning
                         )
                     }
                 }
@@ -297,7 +299,8 @@ class SettingsViewModel(
             it.copy(
                 isBackupEncrypted = null,
                 selectedBackupUri = null,
-                wrongPasswordError = false
+                wrongPasswordError = false,
+                showOldBackupWarning = false
             )
         }
     }

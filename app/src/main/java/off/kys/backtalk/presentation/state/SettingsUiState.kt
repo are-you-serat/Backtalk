@@ -24,5 +24,6 @@ data class SettingsUiState(
     val wrongPasswordError: Boolean = false,
     val selectedBackupUri: Uri? = null,
     val error: String? = null,
-    val successMessage: String? = null
+    val successMessage: String? = null,
+    val showOldBackupWarning: Boolean = false
 )

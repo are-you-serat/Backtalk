@@ -32,7 +32,7 @@ class AutoExportWorker(
         val directoryUri = directoryUriString.toUri()
         
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val fileName = "backtalk_backup_$timestamp.json"
+        val fileName = "backtalk_backup_$timestamp.bkt"
 
         return try {
             val fileUri = backupRepository.createBackupFile(directoryUri, fileName).getOrThrow()

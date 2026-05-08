@@ -11,13 +11,17 @@ import off.kys.backtalk.domain.repository.BackupRepository
  */
 class BackupRepositoryImpl(private val context: Context) : BackupRepository {
 
-    override suspend fun writeBackup(uri: Uri, content: String): Result<Unit> = withContext(Dispatchers.IO) {
-        runCatching {
-            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                outputStream.write(content.toByteArray())
-            } ?: throw IllegalStateException("Could not open output stream")
+    override suspend fun writeBackup(uri: Uri, content: String): Result<Unit> =
+        writeBackup(uri, content.toByteArray())
+
+    override suspend fun writeBackup(uri: Uri, bytes: ByteArray): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+                    outputStream.write(bytes)
+                } ?: throw IllegalStateException("Could not open output stream")
+            }
         }
-    }
 
     override suspend fun readBackup(uri: Uri): Result<String> = withContext(Dispatchers.IO) {
         runCatching {
@@ -27,12 +31,30 @@ class BackupRepositoryImpl(private val context: Context) : BackupRepository {
         }
     }
 
+    override suspend fun readBackupBytes(uri: Uri): Result<ByteArray> = withContext(Dispatchers.IO) {
+        runCatching {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                inputStream.readBytes()
+            } ?: throw IllegalStateException("Could not open input stream")
+        }
+    }
+
     override suspend fun isEncrypted(uri: Uri): Result<Boolean> = withContext(Dispatchers.IO) {
         runCatching {
             context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                val firstChar = inputStream.read()
-                if (firstChar == -1) throw IllegalStateException("Empty file")
-                firstChar.toChar() != '{'
+                val buffer = ByteArray(4)
+                val read = inputStream.read(buffer)
+                if (read < 1) throw IllegalStateException("Empty file")
+
+                val firstChar = buffer[0].toInt().toChar()
+                if (firstChar == '{') return@runCatching false // Unencrypted JSON
+
+                // Check for ZIP magic bytes (PK..)
+                if (read >= 2 && buffer[0].toInt() == 0x50 && buffer[1].toInt() == 0x4B) {
+                    return@runCatching false // Unencrypted ZIP
+                }
+
+                true // Likely encrypted (either JSON or ZIP)
             } ?: throw IllegalStateException("Could not open input stream")
         }
     }

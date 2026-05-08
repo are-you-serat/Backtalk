@@ -99,7 +99,7 @@ private fun Module.useCaseModule() {
     single { ScheduleMessageUseCase(get(), get()) }
     single { CheckAppUpdate() }
     single { ExportBackup(get(), get(), get()) }
-    single { ImportBackup(get(), get(), get()) }
+    single { ImportBackup(get(), get(), get(), get()) }
     single {
         MessagesUseCases(
             getAllMessages = get(),

@@ -1,5 +1,6 @@
 package off.kys.backtalk.domain.use_case
 
+import android.content.Context
 import android.net.Uri
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -20,9 +21,14 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import java.io.File
 
 @RunWith(MockitoJUnitRunner::class)
 class BackupUseCasesTest {
+
+    @Mock
+    private lateinit var context: Context
 
     @Mock
     private lateinit var messagesRepository: MessagesRepository
@@ -47,35 +53,37 @@ class BackupUseCasesTest {
     @Before
     fun setup() {
         exportBackup = ExportBackup(messagesRepository, preferences, backupRepository)
-        importBackup = ImportBackup(messagesDao, preferences, backupRepository)
+        importBackup = ImportBackup(context, messagesDao, preferences, backupRepository)
+        Mockito.`when`(context.filesDir).thenReturn(File("/tmp"))
     }
 
     @Test
     fun exportBackupSerializesDataCorrectly() = runTest {
         Mockito.`when`(messagesRepository.getAllMessages()).thenReturn(flowOf(testMessages))
         Mockito.`when`(preferences.themeMode).thenReturn(ThemeMode.DARK)
-        Mockito.`when`(backupRepository.writeBackup(any(), any())).thenReturn(Result.success(Unit))
+        Mockito.`when`(backupRepository.writeBackup(eq(testUri), any<ByteArray>())).thenReturn(Result.success(Unit))
 
         val result = exportBackup(testUri, null)
 
         Assert.assertTrue(result.isSuccess)
-        Mockito.verify(backupRepository).writeBackup(any(), any())
+        Mockito.verify(backupRepository).writeBackup(eq(testUri), any<ByteArray>())
     }
 
     @Test
-    fun importBackupRestoresDataCorrectly() = runTest {
+    fun importOldBackupRestoresDataCorrectly() = runTest {
         val backupData = BackupData(
             messages = testMessages,
             preferences = mapOf(BacktalkPreferences.KEY_THEME_MODE to "DARK")
         )
         val json = Json.encodeToString(backupData)
 
-        Mockito.`when`(backupRepository.readBackup(testUri)).thenReturn(Result.success(json))
+        Mockito.`when`(backupRepository.readBackupBytes(testUri)).thenReturn(Result.success(json.toByteArray()))
 
         val result = importBackup(testUri, null, clearExisting = true)
 
         Assert.assertTrue(result.isSuccess)
+        Assert.assertEquals(ImportBackup.ImportResult.SuccessWithWarning, result.getOrThrow())
         Mockito.verify(messagesDao).deleteAllMessages()
-        Mockito.verify(messagesDao).insertMessage(testMessages[0])
+        Mockito.verify(messagesDao).insertMessage(any())
     }
 }

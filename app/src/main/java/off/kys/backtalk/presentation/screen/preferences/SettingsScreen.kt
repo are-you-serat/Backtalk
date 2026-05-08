@@ -110,12 +110,13 @@ class SettingsScreen : Screen {
         val showIntervalDialog = remember { mutableStateOf(false) }
         val showAutoExportPasswordDialog = remember { mutableStateOf(false) }
         val showThemeDialog = remember { mutableStateOf(false) }
+        val showOldBackupWarning = remember { mutableStateOf(false) }
 
         var selectedUri by remember { mutableStateOf<android.net.Uri?>(null) }
         var isImporting by remember { mutableStateOf(false) }
 
         val exportLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.CreateDocument("application/json")
+            contract = ActivityResultContracts.CreateDocument("application/octet-stream")
         ) { uri ->
             uri?.let {
                 selectedUri = it
@@ -142,6 +143,12 @@ class SettingsScreen : Screen {
         LaunchedEffect(state.isBackupEncrypted) {
             if (state.isBackupEncrypted != null) {
                 showImportStrategyDialog.value = true
+            }
+        }
+
+        LaunchedEffect(state.showOldBackupWarning) {
+            if (state.showOldBackupWarning) {
+                showOldBackupWarning.value = true
             }
         }
 
@@ -265,7 +272,7 @@ class SettingsScreen : Screen {
                         label = stringResource(R.string.backup_export_title),
                         value = stringResource(R.string.backup_export_desc),
                         icon = painterResource(R.drawable.round_send_24),
-                        onClick = { exportLauncher.launch("backtalk_backup_${System.currentTimeMillis()}.json") }
+                        onClick = { exportLauncher.launch("backtalk_backup_${System.currentTimeMillis()}.bkt") }
                     )
                     HorizontalDivider(
                         modifier = Modifier.padding(horizontal = 16.dp),
@@ -503,6 +510,32 @@ class SettingsScreen : Screen {
                 onConfirm = { password ->
                     viewModel.onEvent(SettingsUiEvent.OnAutoExportPasswordChange(password))
                     showAutoExportPasswordDialog.value = false
+                }
+            )
+        }
+
+        if (showOldBackupWarning.value) {
+            AlertDialog(
+                onDismissRequest = { 
+                    showOldBackupWarning.value = false
+                    viewModel.onEvent(SettingsUiEvent.ResetBackupState)
+                },
+                icon = {
+                    Icon(
+                        painter = painterResource(R.drawable.round_warning_24),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                title = { Text(stringResource(R.string.backup_old_format_warning_title)) },
+                text = { Text(stringResource(R.string.backup_old_format_warning_message)) },
+                confirmButton = {
+                    Button(onClick = { 
+                        showOldBackupWarning.value = false
+                        viewModel.onEvent(SettingsUiEvent.ResetBackupState)
+                    }) {
+                        Text(stringResource(R.string.common_ok))
+                    }
                 }
             )
         }

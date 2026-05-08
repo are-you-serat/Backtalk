@@ -2,12 +2,17 @@ package off.kys.backtalk.domain.use_case
 
 import android.net.Uri
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import off.kys.backtalk.common.pref.BacktalkPreferences
 import off.kys.backtalk.domain.model.BackupData
 import off.kys.backtalk.domain.repository.BackupRepository
 import off.kys.backtalk.domain.repository.MessagesRepository
 import off.kys.backtalk.util.CryptoUtils
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 /**
  * Use case to export messages and preferences to a backup file.
@@ -37,10 +42,32 @@ class ExportBackup(
             val backupData = BackupData(messages = messages, preferences = prefsMap)
             val json = Json.encodeToString(backupData)
 
+            val baos = ByteArrayOutputStream()
+            ZipOutputStream(baos).use { zos ->
+                // Add backup.json
+                zos.putNextEntry(ZipEntry("backup.json"))
+                zos.write(json.toByteArray())
+                zos.closeEntry()
+
+                // Add media files
+                messages.forEach { message ->
+                    message.voicePath?.let { path ->
+                        val file = File(path)
+                        if (file.exists()) {
+                            zos.putNextEntry(ZipEntry("media/${file.name}"))
+                            zos.write(file.readBytes())
+                            zos.closeEntry()
+                        }
+                    }
+                }
+            }
+
+            val zipBytes = baos.toByteArray()
+
             val finalContent = if (!password.isNullOrBlank()) {
-                CryptoUtils.encrypt(json, password.toCharArray())
+                CryptoUtils.encrypt(zipBytes, password.toCharArray())
             } else {
-                json
+                zipBytes
             }
 
             backupRepository.writeBackup(uri, finalContent).getOrThrow()

@@ -17,12 +17,29 @@ interface BackupRepository {
     suspend fun writeBackup(uri: Uri, content: String): Result<Unit>
 
     /**
+     * Writes [bytes] to the specified [uri].
+     *
+     * @param uri The destination Uri.
+     * @param bytes The byte array content to write.
+     * @return Result indicating success or failure.
+     */
+    suspend fun writeBackup(uri: Uri, bytes: ByteArray): Result<Unit>
+
+    /**
      * Reads content from the specified [uri].
      *
      * @param uri The source Uri.
      * @return Result containing the string content or an error.
      */
     suspend fun readBackup(uri: Uri): Result<String>
+
+    /**
+     * Reads byte content from the specified [uri].
+     *
+     * @param uri The source Uri.
+     * @return Result containing the byte array or an error.
+     */
+    suspend fun readBackupBytes(uri: Uri): Result<ByteArray>
 
     /**
      * Checks if the backup at the specified [uri] is encrypted.
