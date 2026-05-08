@@ -1,12 +1,13 @@
 package off.kys.backtalk.presentation.screen.messages.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -17,10 +18,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import off.kys.backtalk.R
 import off.kys.backtalk.util.AudioPlayer
@@ -36,30 +40,33 @@ fun VoiceMessageBubble(
 ) {
     val audioPlayer = remember { AudioPlayer() }
     val isPlaying by audioPlayer.isPlaying.collectAsState()
-    
+
+    val barWidth = 2.dp
+    val gapWidth = 2.dp
+
+    val rawWidth = (waveformData.size * (barWidth.value + gapWidth.value)).dp
+    val dynamicWidth = rawWidth.coerceIn(40.dp, 200.dp)
+
     Row(
         modifier = Modifier
-            .fillMaxWidth(0.75f)
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .animateContentSize(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         IconButton(
             onClick = {
-                if (isPlaying) {
-                    audioPlayer.pause()
-                } else {
+                if (isPlaying) audioPlayer.pause()
+                else {
                     val file = File(voicePath)
-                    if (file.exists()) {
-                        audioPlayer.playFile(file)
-                    }
+                    if (file.exists()) audioPlayer.playFile(file)
                 }
             },
             modifier = Modifier.size(32.dp)
         ) {
             Icon(
                 painter = painterResource(
-                    if (isPlaying) R.drawable.round_pause_24
+                    if (isPlaying) R.drawable.round_close_24
                     else R.drawable.round_keyboard_voice_24
                 ),
                 contentDescription = null,
@@ -70,9 +77,11 @@ fun VoiceMessageBubble(
         WaveformVisualizer(
             waveformData = waveformData,
             modifier = Modifier
-                .weight(1f)
-                .height(32.dp),
-            color = contentColor
+                .height(32.dp)
+                .width(dynamicWidth),
+            color = contentColor,
+            barWidth = barWidth,
+            gapWidth = gapWidth
         )
 
         Text(
@@ -87,33 +96,37 @@ fun VoiceMessageBubble(
 fun WaveformVisualizer(
     waveformData: List<Float>,
     modifier: Modifier = Modifier,
-    color: Color
+    color: Color,
+    barWidth: Dp = 2.dp,
+    gapWidth: Dp = 2.dp
 ) {
+    val density = LocalDensity.current
+    val barWidthPx = with(density) { barWidth.toPx() }
+    val gapWidthPx = with(density) { gapWidth.toPx() }
+    val totalBarWidthPx = barWidthPx + gapWidthPx
+
     Canvas(modifier = modifier) {
-        val width = size.width
-        val height = size.height
-        val barWidth = 3.dp.toPx()
-        val gapWidth = 2.dp.toPx()
-        val totalBarWidth = barWidth + gapWidth
-        
-        val maxBars = (width / totalBarWidth).toInt()
-        val barsToShow = if (waveformData.size > maxBars) {
-            val step = waveformData.size / maxBars
-            List(maxBars) { i -> waveformData[i * step] }
+        val canvasHeight = size.height
+        val canvasWidth = size.width
+
+        val maxBarsThatFit = (canvasWidth / totalBarWidthPx).toInt()
+
+        val barsToDraw = if (waveformData.size > maxBarsThatFit) {
+            waveformData.takeLast(maxBarsThatFit)
         } else {
             waveformData
         }
 
-        barsToShow.forEachIndexed { index, amplitude ->
-            val x = index * totalBarWidth
-            val barHeight = (amplitude * height).coerceAtLeast(2.dp.toPx())
-            val y = (height - barHeight) / 2
-            
+        barsToDraw.forEachIndexed { index, amplitude ->
+            val x = index * totalBarWidthPx
+            val barHeight = (amplitude * canvasHeight).coerceAtLeast(2.dp.toPx())
+            val y = (canvasHeight - barHeight) / 2
+
             drawRoundRect(
                 color = color,
                 topLeft = Offset(x, y),
-                size = Size(barWidth, barHeight),
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(barWidth / 2)
+                size = Size(barWidthPx, barHeight),
+                cornerRadius = CornerRadius(barWidthPx / 2)
             )
         }
     }

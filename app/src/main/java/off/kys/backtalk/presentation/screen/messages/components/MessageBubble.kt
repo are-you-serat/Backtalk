@@ -35,7 +35,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -50,6 +49,7 @@ import off.kys.backtalk.R
 import off.kys.backtalk.common.pref.BacktalkPreferences
 import off.kys.backtalk.data.local.entity.MessageEntity
 import off.kys.backtalk.domain.model.MessageId
+import off.kys.backtalk.util.emptyString
 import org.koin.compose.koinInject
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -295,7 +295,7 @@ private fun ReminderTag(contentColor: Color) {
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Icon(
-                painter = painterResource(R.drawable.round_send_24), // Use a more appropriate icon if available
+                painter = painterResource(R.drawable.round_access_alarm_24),
                 contentDescription = null,
                 modifier = Modifier.size(12.dp),
                 tint = contentColor
@@ -329,10 +329,10 @@ private fun MessageFooter(
 ) {
     val timeFormat = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
 
-    androidx.compose.animation.AnimatedVisibility(
+    AnimatedVisibility(
         visible = isVisible,
-        enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandVertically(),
-        exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkVertically()
+        enter = fadeIn() + expandVertically(),
+        exit = fadeOut() + shrinkVertically()
     ) {
         Column(
             horizontalAlignment = Alignment.End,
@@ -351,7 +351,7 @@ private fun MessageFooter(
                 )
             } else {
                 Text(
-                    text = "${if (editedAt != null) stringResource(R.string.chat_sent_at) else ""} ${
+                    text = "${if (editedAt != null) stringResource(R.string.chat_sent_at) else emptyString()} ${
                         timeFormat.format(
                             Date(
                                 timestamp
