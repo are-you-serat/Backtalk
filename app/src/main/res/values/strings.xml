@@ -49,7 +49,11 @@
     <string name="chat_input_format_strikethrough">S</string>
     <string name="chat_input_format_monospace">M</string>
     <string name="chat_delete_selected_title">Delete messages?</string>
-    <string name="chat_delete_selected_message">Are you sure you want to delete the selected messages? This action cannot be undone.</string>
+    <plurals name="chat_delete_selected_count_confirmation">
+        <item quantity="one">Are you sure you want to delete %1$d selected message?</item>
+        <item quantity="other">Are you sure you want to delete %1$d selected messages?</item>
+    </plurals>
+    <string name="chat_delete_undone_warning">This action cannot be undone.</string>
     <string name="link_safety_title">External Link</string>
     <string name="link_safety_message">You are leaving the app to visit an external website. Make sure you trust this source before proceeding.</string>    <string name="link_safety_open">Open</string>
     <string name="link_safety_cancel">Cancel</string>
