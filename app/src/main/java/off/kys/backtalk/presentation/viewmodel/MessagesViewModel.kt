@@ -99,7 +99,8 @@ class MessagesViewModel(
         viewModelScope.launch {
             useCases.getAllMessages().collect { messages ->
                 _uiState.value = _uiState.value.copy(
-                    messages = messages.sortedBy { it.timestamp }
+                    messages = messages.sortedBy { it.timestamp },
+                    isLoading = false
                 )
             }
         }
