@@ -434,26 +434,26 @@ class SettingsScreen : Screen {
                     )
                 }
 
-                // Secret Developer Section
+                // Developer Options
                 AnimatedVisibility(state.devModeEnabled) {
                     SettingsSection(title = stringResource(R.string.settings_secret_category)) {
-                        SettingsItem(
-                            label = stringResource(R.string.settings_wipe_data),
-                            value = stringResource(R.string.settings_wipe_data_desc),
-                            icon = painterResource(R.drawable.round_delete_sweep_24),
-                            onClick = { showWipeDataDialog.value = true }
-                        )
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            thickness = 0.5.dp,
-                            color = MaterialTheme.colorScheme.outlineVariant
-                        )
                         SettingsToggle(
                             label = stringResource(R.string.settings_show_secret_category),
                             supportingText = stringResource(R.string.settings_show_secret_category_desc),
                             icon = painterResource(R.drawable.round_visibility_off_24),
                             checked = true,
                             onCheckedChange = { viewModel.onEvent(SettingsUiEvent.OnDevModeToggle(it)) }
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                        SettingsItem(
+                            label = stringResource(R.string.settings_wipe_data),
+                            value = stringResource(R.string.settings_wipe_data_desc),
+                            icon = painterResource(R.drawable.round_delete_sweep_24),
+                            onClick = { showWipeDataDialog.value = true }
                         )
                     }
                 }
