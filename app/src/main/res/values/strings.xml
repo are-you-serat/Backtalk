@@ -104,7 +104,7 @@
     <string name="settings_dev_name">kys0ff</string>
     <string name="settings_dev_click">You found me. Now go away.</string>
     <string name="settings_dev_click_fine">fine…</string>
-    <string name="settings_secret_category">Secret Developer Settings</string>
+    <string name="settings_secret_category">Developer Options</string>
     <string name="settings_wipe_data">Wipe all app data</string>
     <string name="settings_wipe_data_desc">Clear database, cache, and all preferences</string>
     <string name="settings_show_secret_category">Show developer options</string>
