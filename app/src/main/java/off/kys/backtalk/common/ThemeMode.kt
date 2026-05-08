@@ -17,5 +17,15 @@ enum class ThemeMode {
     /**
      * Theme follows the system setting.
      */
-    AUTO
+    AUTO;
+
+    /**
+     * Determines if dark theme should be applied based on the [ThemeMode]
+     * and the current system setting.
+     */
+    fun isDark(systemInDark: Boolean): Boolean = when (this) {
+        DARK -> true
+        LIGHT -> false
+        AUTO -> systemInDark
+    }
 }

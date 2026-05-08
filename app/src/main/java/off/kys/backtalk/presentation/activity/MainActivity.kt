@@ -14,7 +14,6 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import kotlinx.coroutines.launch
 import off.kys.backtalk.BuildConfig
-import off.kys.backtalk.common.ThemeMode
 import off.kys.backtalk.common.base.BaseLockActivity
 import off.kys.backtalk.presentation.activity.components.AppUpdateDialog
 import off.kys.backtalk.presentation.event.MainUiEvent
@@ -48,8 +47,7 @@ class MainActivity : BaseLockActivity() {
 
         enableEdgeToEdge()
         setContent {
-            val isDarkTheme =
-                viewModel.preferences.themeMode == ThemeMode.DARK || (viewModel.preferences.themeMode == ThemeMode.AUTO && isSystemInDarkTheme())
+            val isDarkTheme = viewModel.preferences.themeMode.isDark(isSystemInDarkTheme())
             val dynamicColor = viewModel.preferences.dynamicColorEnabled
             val updateState by viewModel.mainUiState.collectAsStateWithLifecycle()
 
@@ -74,7 +72,8 @@ class MainActivity : BaseLockActivity() {
                 }
 
                 (updateState as? MainUiState.UpdateAvailable)?.let { state ->
-                    val url = state.result.downloadUrls.firstOrNull()?.browserDownloadUrl ?: return@let
+                    val url =
+                        state.result.downloadUrls.firstOrNull()?.browserDownloadUrl ?: return@let
                     AppUpdateDialog(
                         updateResult = state.result,
                         onDismissRequest = { viewModel.onEvent(MainUiEvent.DismissDialog) },
