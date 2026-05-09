@@ -5,8 +5,11 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.edit
+import off.kys.backtalk.BuildConfig
 import off.kys.backtalk.common.ExportInterval
 import off.kys.backtalk.common.ThemeMode
+import java.util.UUID
+import kotlin.uuid.ExperimentalUuidApi
 
 /**
  * Manages the persistent storage and retrieval of application-wide settings using [SharedPreferences].
@@ -41,7 +44,22 @@ class BacktalkPreferences(context: Context) {
     private val _autoExportEncrypted = mutableStateOf(prefs.getBoolean(KEY_AUTO_EXPORT_ENCRYPTED, false))
     private val _autoExportPassword = mutableStateOf(prefs.getString(KEY_AUTO_EXPORT_PASSWORD, null))
     private val _hapticFeedbackEnabled = mutableStateOf(prefs.getBoolean(KEY_HAPTIC_FEEDBACK, true))
-    private val _devModeEnabled = mutableStateOf(prefs.getBoolean(KEY_DEV_MODE_ENABLED, false))
+    private val _keepScreenOn = mutableStateOf(prefs.getBoolean(KEY_KEEP_SCREEN_ON, BuildConfig.DEBUG))
+    private val _devModeEnabled = mutableStateOf(prefs.getBoolean(KEY_DEV_MODE_ENABLED, BuildConfig.DEBUG))
+    private val _pairedDevicesJson = mutableStateOf(prefs.getString(KEY_PAIRED_DEVICES, "[]") ?: "[]")
+    private val _deviceId = mutableStateOf(getOrCreateDeviceId())
+
+    @OptIn(ExperimentalUuidApi::class)
+    private fun getOrCreateDeviceId(): String {
+        val id = prefs.getString(KEY_DEVICE_ID, null)
+        return if (id == null) {
+            val newId = UUID.randomUUID().toString()
+            prefs.edit { putString(KEY_DEVICE_ID, newId) }
+            newId
+        } else {
+            id
+        }
+    }
 
     /**
      * Internal reference to the listener.
@@ -67,7 +85,9 @@ class BacktalkPreferences(context: Context) {
             KEY_AUTO_EXPORT_ENCRYPTED -> _autoExportEncrypted.value = p.getBoolean(key, false)
             KEY_AUTO_EXPORT_PASSWORD -> _autoExportPassword.value = p.getString(key, null)
             KEY_HAPTIC_FEEDBACK -> _hapticFeedbackEnabled.value = p.getBoolean(key, true)
+            KEY_KEEP_SCREEN_ON -> _keepScreenOn.value = p.getBoolean(key, BuildConfig.DEBUG)
             KEY_DEV_MODE_ENABLED -> _devModeEnabled.value = p.getBoolean(key, false)
+            KEY_PAIRED_DEVICES -> _pairedDevicesJson.value = p.getString(key, "[]") ?: "[]"
         }
         listener?.onSharedPreferenceChanged(p, key)
     }
@@ -112,8 +132,17 @@ class BacktalkPreferences(context: Context) {
         /** Preference key for enabling/disabling haptic feedback. */
         const val KEY_HAPTIC_FEEDBACK = "haptic_feedback"
 
+        /** Preference key for keeping the screen on. */
+        const val KEY_KEEP_SCREEN_ON = "keep_screen_on"
+
         /** Preference key for enabling/disabling developer mode. */
         const val KEY_DEV_MODE_ENABLED = "dev_mode_enabled"
+
+        /** Preference key for storing paired devices. */
+        const val KEY_PAIRED_DEVICES = "paired_devices"
+
+        /** Preference key for the unique device ID. */
+        const val KEY_DEVICE_ID = "device_id"
     }
 
     /**
@@ -196,11 +225,31 @@ class BacktalkPreferences(context: Context) {
         set(value) = prefs.edit { putBoolean(KEY_HAPTIC_FEEDBACK, value) }
 
     /**
+     * Whether the screen should stay on while the app is in use.
+     */
+    var keepScreenOn: Boolean
+        get() = _keepScreenOn.value
+        set(value) = prefs.edit { putBoolean(KEY_KEEP_SCREEN_ON, value) }
+
+    /**
      * Whether developer mode is enabled, revealing hidden settings.
      */
     var devModeEnabled: Boolean
         get() = _devModeEnabled.value
         set(value) = prefs.edit { putBoolean(KEY_DEV_MODE_ENABLED, value) }
+
+    /**
+     * The serialized list of paired devices.
+     */
+    var pairedDevicesJson: String
+        get() = _pairedDevicesJson.value
+        set(value) = prefs.edit { putString(KEY_PAIRED_DEVICES, value) }
+
+    /**
+     * The unique ID for this device used for sync pairing.
+     */
+    val deviceId: String
+        get() = _deviceId.value
 
     /**
      * Clears all stored preferences and resets to defaults.

@@ -51,6 +51,7 @@ class SettingsViewModel(
             autoExportEncrypted = preferences.autoExportEncrypted,
             autoExportPassword = preferences.autoExportPassword,
             hapticFeedbackEnabled = preferences.hapticFeedbackEnabled,
+            keepScreenOn = preferences.keepScreenOn,
             devModeEnabled = preferences.devModeEnabled
         )
     )
@@ -68,6 +69,7 @@ class SettingsViewModel(
         is SettingsUiEvent.OnAutoExportEncryptionToggle -> onAutoExportEncryptionToggle(event.enabled)
         is SettingsUiEvent.OnAutoExportPasswordChange -> onAutoExportPasswordChange(event.password)
         is SettingsUiEvent.OnHapticFeedbackToggle -> onHapticFeedbackToggle(event.enabled)
+        is SettingsUiEvent.OnKeepScreenOnToggle -> onKeepScreenOnToggle(event.enabled)
         is SettingsUiEvent.OnDevModeToggle -> onDevModeToggle(event.enabled)
         is SettingsUiEvent.ExportBackup -> exportBackup(event.uri, event.password)
         is SettingsUiEvent.CheckBackupEncryption -> checkBackupEncryption(event.uri)
@@ -155,6 +157,11 @@ class SettingsViewModel(
     private fun onHapticFeedbackToggle(enabled: Boolean) {
         preferences.hapticFeedbackEnabled = enabled
         _state.update { it.copy(hapticFeedbackEnabled = enabled) }
+    }
+
+    private fun onKeepScreenOnToggle(enabled: Boolean) {
+        preferences.keepScreenOn = enabled
+        _state.update { it.copy(keepScreenOn = enabled) }
     }
 
     private fun onDevModeToggle(enabled: Boolean) {

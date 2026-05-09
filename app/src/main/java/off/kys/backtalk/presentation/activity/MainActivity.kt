@@ -1,6 +1,7 @@
 package off.kys.backtalk.presentation.activity
 
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -55,6 +56,15 @@ class MainActivity : BaseLockActivity() {
                 val enabled = viewModel.preferences.secureScreenEnabled
                 isAnonymousMode = enabled
                 updateSystemFlags(enabled)
+            }
+
+            LaunchedEffect(viewModel.preferences.keepScreenOn) {
+                val enabled = viewModel.preferences.keepScreenOn
+                if (enabled) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
             }
 
             LaunchedEffect(Unit) {

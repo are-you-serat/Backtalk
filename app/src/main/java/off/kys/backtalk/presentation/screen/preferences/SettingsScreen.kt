@@ -86,6 +86,7 @@ import off.kys.backtalk.presentation.activity.MainActivity
 import off.kys.backtalk.presentation.event.SettingsUiEvent
 import off.kys.backtalk.presentation.state.SettingsUiState
 import off.kys.backtalk.presentation.viewmodel.SettingsViewModel
+import off.kys.backtalk.presentation.screen.sync.SyncScreen
 import off.kys.backtalk.util.emptyString
 import off.kys.backtalk.util.isSecurityEnabled
 import off.kys.backtalk.util.toast
@@ -299,6 +300,16 @@ class SettingsScreen : Screen {
                     )
                 }
 
+                // Sync Section
+                SettingsSection(title = stringResource(R.string.sync_title)) {
+                    SettingsItem(
+                        label = stringResource(R.string.sync_title),
+                        value = stringResource(R.string.sync_summary),
+                        icon = painterResource(R.drawable.round_refresh_24),
+                        onClick = { navigator.push(SyncScreen()) }
+                    )
+                }
+
                 // Auto Export Section
                 SettingsSection(title = stringResource(R.string.auto_export_title)) {
                     SettingsToggle(
@@ -443,6 +454,24 @@ class SettingsScreen : Screen {
                             icon = painterResource(R.drawable.round_visibility_off_24),
                             checked = true,
                             onCheckedChange = { viewModel.onEvent(SettingsUiEvent.OnDevModeToggle(it)) }
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+                        SettingsToggle(
+                            label = stringResource(R.string.settings_stay_awake),
+                            supportingText = stringResource(R.string.settings_stay_awake_desc),
+                            icon = painterResource(R.drawable.round_visibility_24),
+                            checked = state.keepScreenOn,
+                            onCheckedChange = {
+                                viewModel.onEvent(
+                                    SettingsUiEvent.OnKeepScreenOnToggle(
+                                        it
+                                    )
+                                )
+                            }
                         )
                         HorizontalDivider(
                             modifier = Modifier.padding(horizontal = 16.dp),

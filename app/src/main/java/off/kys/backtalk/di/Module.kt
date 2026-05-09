@@ -13,8 +13,10 @@ import off.kys.backtalk.data.local.migrations.MIGRATION_3_4
 import off.kys.backtalk.data.local.migrations.MIGRATION_4_5
 import off.kys.backtalk.data.repository.BackupRepositoryImpl
 import off.kys.backtalk.data.repository.MessagesRepositoryImpl
+import off.kys.backtalk.data.repository.SyncRepositoryImpl
 import off.kys.backtalk.domain.repository.BackupRepository
 import off.kys.backtalk.domain.repository.MessagesRepository
+import off.kys.backtalk.domain.repository.SyncRepository
 import off.kys.backtalk.domain.use_case.CheckAppUpdate
 import off.kys.backtalk.domain.use_case.CopyMessagesByIds
 import off.kys.backtalk.domain.use_case.DeleteMessageById
@@ -24,13 +26,17 @@ import off.kys.backtalk.domain.use_case.GetMessageById
 import off.kys.backtalk.domain.use_case.ImportBackup
 import off.kys.backtalk.domain.use_case.InsertMessage
 import off.kys.backtalk.domain.use_case.ScheduleMessageUseCase
+import off.kys.backtalk.domain.use_case.SyncData
 import off.kys.backtalk.domain.use_case.WipeAppData
 import off.kys.backtalk.domain.use_case_bundle.BackupUseCases
 import off.kys.backtalk.domain.use_case_bundle.MessagesUseCases
 import off.kys.backtalk.presentation.viewmodel.MainViewModel
 import off.kys.backtalk.presentation.viewmodel.MessagesViewModel
 import off.kys.backtalk.presentation.viewmodel.SettingsViewModel
+import off.kys.backtalk.presentation.viewmodel.SyncViewModel
 import off.kys.backtalk.presentation.viewmodel.ThreadsViewModel
+import off.kys.backtalk.sync.NsdHelper
+import off.kys.backtalk.sync.SyncSocketManager
 import off.kys.backtalk.util.AudioPlayer
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
@@ -83,6 +89,7 @@ private fun Module.databaseModule() {
 private fun Module.repositoryModule() {
     single<MessagesRepository> { MessagesRepositoryImpl(get(), get()) }
     single<BackupRepository> { BackupRepositoryImpl(get()) }
+    single<SyncRepository> { SyncRepositoryImpl(get(), get(), get(), get(), get()) }
 }
 
 /**
@@ -99,9 +106,10 @@ private fun Module.useCaseModule() {
     single { CopyMessagesByIds(get(), get()) }
     single { ScheduleMessageUseCase(get(), get()) }
     single { CheckAppUpdate() }
-    single { WipeAppData(androidContext(), get(), get()) }
+    single { WipeAppData(androidContext(), get(), get(), get()) }
     single { ExportBackup(get(), get(), get()) }
     single { ImportBackup(get(), get(), get(), get()) }
+    single { SyncData(get()) }
     single {
         MessagesUseCases(
             getAllMessages = get(),
@@ -132,6 +140,7 @@ private fun Module.viewModelModule() {
     viewModel { MessagesViewModel(get()) }
     viewModel { ThreadsViewModel(get()) }
     viewModel { SettingsViewModel(androidApplication(), get(), get(), get()) }
+    viewModel { SyncViewModel(get()) }
 }
 
 /**
@@ -145,6 +154,8 @@ private fun Module.systemModule() {
     single { BacktalkPreferences(get()) }
     single { VibrationManager(get(), get()) }
     single { AlarmScheduler(get()) }
+    single { NsdHelper(get()) }
+    single { SyncSocketManager() }
 }
 
 

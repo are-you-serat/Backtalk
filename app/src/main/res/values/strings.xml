@@ -22,6 +22,7 @@
     <string name="common_submit">Submit</string>
     <string name="common_export">Export</string>
     <string name="common_confirm">Confirm</string>
+    <string name="common_error">Error</string>
     <string name="common_hide_password">Hide password</string>
     <string name="common_show_password">Show password</string>
     <string name="common_password_set">••••••••</string>
@@ -109,7 +110,8 @@
     <string name="settings_wipe_data_desc">Clear database, cache, and all preferences</string>
     <string name="settings_show_secret_category">Show developer options</string>
     <string name="settings_show_secret_category_desc">Disable to hide this section</string>
-    <string name="settings_wipe_data_confirm_title">Wipe all data?</string>
+    <string name="settings_stay_awake">Stay awake</string>
+    <string name="settings_stay_awake_desc">Prevents the display from entering sleep mode during active charging or development sessions.</string>    <string name="settings_wipe_data_confirm_title">Wipe all data?</string>
     <string name="settings_wipe_data_confirm_message">This will permanently delete all your messages, scheduled messages, voice notes, and reset all settings. This action cannot be undone.</string>
     <string name="settings_license">Open source licenses</string>
     <string name="settings_license_desc">Libraries used in the application</string>
@@ -191,5 +193,37 @@
 
     <!-- Message Scheduling -->
     <string name="message_scheduling_select_time">Select time</string>
+
+    <!-- Sync & Devices -->
+    <string name="sync_title">Sync &amp; Devices</string>
+    <string name="sync_summary">Sync messages between devices on the same Wi-Fi</string>
+    <string name="sync_available_devices">Available Devices</string>
+    <string name="sync_paired_devices">Paired Devices</string>
+    <string name="sync_discover_devices">Discover Devices</string>
+    <string name="sync_stop_discovery">Stop Discovery</string>
+    <string name="sync_discovery_active">Searching for devices…</string>
+    <string name="sync_no_devices_found">No devices found</string>
+    <string name="sync_request_pairing">Request Pairing</string>
+    <string name="sync_pairing_request_title">Incoming Pairing Request</string>
+    <string name="sync_pairing_request_msg">A pairing request has been received from</string>
+    <string name="sync_show_pin">Show PIN</string>
+    <string name="sync_enter_pin">Enter PIN</string>
+    <string name="sync_pin_label">Enter the 6-digit PIN shown on the other device</string>
+    <string name="sync_pin_incorrect">Incorrect PIN. Please try again.</string>
+    <string name="sync_pairing_success">Paired successfully</string>
+    <string name="sync_pairing_failed">Pairing failed</string>
+    <string name="sync_status_syncing">Syncing…</string>
+    <string name="sync_status_up_to_date">Up to Date</string>
+    <string name="sync_status_connection_lost">Connection Lost</string>
+    <string name="sync_status_last_synced">Last synced: %1$s</string>
+    <string name="sync_now">Sync Now</string>
+    <string name="sync_pull">Pull Sync</string>
+    <string name="sync_cleanup_invalid">Cleanup Invalid Devices</string>
+    <string name="sync_status_online">Online</string>
+    <string name="sync_status_offline">Offline</string>
+    <string name="sync_disconnect">Disconnect</string>
+    <string name="sync_disconnect_confirm">Disconnect from "%1$s"?</string>
+    <string name="sync_pairing_pin_title">Pairing PIN</string>
+    <string name="sync_pairing_pin_msg">Enter this PIN on the other device:</string>
 
 </resources>

@@ -3,6 +3,7 @@ package off.kys.backtalk.domain.use_case
 import android.content.Context
 import off.kys.backtalk.common.pref.BacktalkPreferences
 import off.kys.backtalk.data.local.dao.MessagesDao
+import off.kys.backtalk.domain.repository.SyncRepository
 import java.io.File
 
 /**
@@ -11,12 +12,16 @@ import java.io.File
 class WipeAppData(
     private val context: Context,
     private val messagesDao: MessagesDao,
-    private val preferences: BacktalkPreferences
+    private val preferences: BacktalkPreferences,
+    private val syncRepository: SyncRepository
 ) {
     /**
      * Executes the wipe operation.
      */
     suspend operator fun invoke() {
+        // Notify and disconnect all paired devices
+        syncRepository.disconnectAll()
+
         // Clear Database
         messagesDao.deleteAllMessages()
 
