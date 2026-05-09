@@ -226,5 +226,8 @@
     <string name="sync_disconnect_confirm">Disconnect from "%1$s"?</string>
     <string name="sync_pairing_pin_title">Pairing PIN</string>
     <string name="sync_pairing_pin_msg">Enter this PIN on the other device:</string>
+    <string name="sync_already_paired_title">Already Paired</string>
+    <string name="sync_already_paired_msg">You are already paired with "%1$s". Do you want to unpair and start a fresh pairing?</string>
+    <string name="sync_unpair_and_restart">Unpair and Start Fresh</string>
 
 </resources>

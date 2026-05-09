@@ -22,7 +22,8 @@ data class SyncUiState(
     val syncStatus: SyncStatus = SyncStatus.IDLE,
     val error: String? = null,
     val deviceBeingPaired: DeviceInfo? = null,
-    val deviceToUnpair: DeviceInfo? = null
+    val deviceToUnpair: DeviceInfo? = null,
+    val deviceToRePair: DeviceInfo? = null
 )
 
 class SyncViewModel(
@@ -74,6 +75,15 @@ class SyncViewModel(
     }
 
     fun requestPairing(device: DeviceInfo) {
+        val isAlreadyPaired = _state.value.pairedDevices.any { it.id == device.id }
+        if (isAlreadyPaired) {
+            _state.value = _state.value.copy(deviceToRePair = device)
+            return
+        }
+        performPairing(device)
+    }
+
+    private fun performPairing(device: DeviceInfo) {
         stopDiscovery()
         viewModelScope.launch {
             _state.value = _state.value.copy(
@@ -169,8 +179,18 @@ class SyncViewModel(
         _state.value = _state.value.copy(deviceToUnpair = device)
     }
 
+    fun confirmRePair(device: DeviceInfo) {
+        syncRepository.disconnectDevice(device)
+        _state.value = _state.value.copy(deviceToRePair = null)
+        performPairing(device)
+    }
+
     fun dismissUnpairDialog() {
         _state.value = _state.value.copy(deviceToUnpair = null)
+    }
+
+    fun dismissRePairDialog() {
+        _state.value = _state.value.copy(deviceToRePair = null)
     }
 
     fun disconnect(device: DeviceInfo) {

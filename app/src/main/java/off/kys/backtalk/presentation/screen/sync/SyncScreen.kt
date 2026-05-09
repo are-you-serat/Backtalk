@@ -209,6 +209,51 @@ class SyncScreen : Screen {
                 )
             }
 
+            state.deviceToRePair?.let { device ->
+                AlertDialog(
+                    onDismissRequest = { viewModel.dismissRePairDialog() },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.round_sync_problem_24),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.sync_already_paired_title),
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(R.string.sync_already_paired_msg, device.name),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = { viewModel.confirmRePair(device) },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(R.string.sync_unpair_and_restart))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { viewModel.dismissRePairDialog() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(R.string.common_cancel))
+                        }
+                    }
+                )
+            }
+
             state.incomingRequest?.let { device ->
                 AlertDialog(
                     onDismissRequest = { viewModel.dismissIncomingRequest() },
