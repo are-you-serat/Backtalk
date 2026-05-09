@@ -82,6 +82,11 @@ class SyncScreen : Screen {
         val state by viewModel.state.collectAsState()
         var pinInput by remember { mutableStateOf(emptyString()) }
 
+        LaunchedEffect(Unit) {
+            viewModel.cleanupInvalidDevices()
+            viewModel.startDiscovery()
+        }
+
         DisposableEffect(Unit) {
             onDispose { viewModel.stopDiscovery() }
         }
@@ -98,30 +103,6 @@ class SyncScreen : Screen {
                             )
                         }
                     },
-                    actions = {
-                        IconButton(onClick = { viewModel.cleanupInvalidDevices() }) {
-                            Icon(
-                                painterResource(R.drawable.round_delete_sweep_24),
-                                stringResource(R.string.sync_cleanup_invalid)
-                            )
-                        }
-                        IconButton(onClick = {
-                            if (state.isDiscovering) viewModel.stopDiscovery()
-                            else viewModel.startDiscovery()
-                        }) {
-                            if (state.isDiscovering) {
-                                Icon(
-                                    painterResource(R.drawable.round_close_24),
-                                    stringResource(R.string.sync_stop_discovery)
-                                )
-                            } else {
-                                Icon(
-                                    painterResource(R.drawable.round_refresh_24),
-                                    stringResource(R.string.sync_discover_devices)
-                                )
-                            }
-                        }
-                    }
                 )
             }
         ) { padding ->
