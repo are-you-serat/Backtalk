@@ -173,12 +173,61 @@ class SyncScreen : Screen {
                         device = device,
                         onPushClick = { viewModel.syncNow(device) },
                         onPullClick = { viewModel.pullSync(device) },
-                        onDisconnectClick = { viewModel.disconnect(device) }
+                        onDisconnectClick = { viewModel.confirmUnpair(device) }
                     )
                 }
             }
 
             // Dialogs
+            state.deviceToUnpair?.let { device ->
+                AlertDialog(
+                    onDismissRequest = { viewModel.dismissUnpairDialog() },
+                    icon = {
+                        Icon(
+                            painter = painterResource(R.drawable.round_link_off_24),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    title = {
+                        Text(
+                            text = stringResource(R.string.sync_disconnect),
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = stringResource(R.string.sync_disconnect_confirm, device.name),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = { viewModel.disconnect(device) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(R.string.common_confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = { viewModel.dismissUnpairDialog() },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(stringResource(R.string.common_cancel))
+                        }
+                    }
+                )
+            }
+
             state.incomingRequest?.let { device ->
                 AlertDialog(
                     onDismissRequest = { viewModel.dismissIncomingRequest() },

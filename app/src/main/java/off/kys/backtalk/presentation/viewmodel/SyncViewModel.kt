@@ -21,7 +21,8 @@ data class SyncUiState(
     val pinToShow: String? = null,
     val syncStatus: SyncStatus = SyncStatus.IDLE,
     val error: String? = null,
-    val deviceBeingPaired: DeviceInfo? = null
+    val deviceBeingPaired: DeviceInfo? = null,
+    val deviceToUnpair: DeviceInfo? = null
 )
 
 class SyncViewModel(
@@ -164,8 +165,17 @@ class SyncViewModel(
         syncRepository.cleanupInvalidDevices()
     }
 
+    fun confirmUnpair(device: DeviceInfo) {
+        _state.value = _state.value.copy(deviceToUnpair = device)
+    }
+
+    fun dismissUnpairDialog() {
+        _state.value = _state.value.copy(deviceToUnpair = null)
+    }
+
     fun disconnect(device: DeviceInfo) {
         syncRepository.disconnectDevice(device)
+        _state.value = _state.value.copy(deviceToUnpair = null)
     }
 
     fun dismissIncomingRequest() {
