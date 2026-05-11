@@ -139,6 +139,9 @@
     <string name="statistics_text">Text</string>
     <string name="statistics_top_threads">Top Threads</string>
     <string name="statistics_messages_count">%1$d messages</string>
+    <string name="statistics_total_activity_percentage">%1$d%% of total activity</string>
+    <string name="statistics_duration_minutes_seconds">%1$dm %2$ds</string>
+    <string name="statistics_duration_seconds">%1$ds</string>
 
     <!-- Updates -->
     <string name="update_dialog_title">Update available</string>

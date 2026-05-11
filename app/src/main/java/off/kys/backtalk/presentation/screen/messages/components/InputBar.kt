@@ -27,12 +27,18 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -132,7 +138,6 @@ fun InputBar(
             )
         )
     }
-
     // Use extracted Scheduling Dialogs
     MessageSchedulingDialogs(
         showDatePicker = showDatePicker,
@@ -239,7 +244,9 @@ fun InputBar(
     }
 
     Surface(
-        modifier = Modifier.imePadding(),
+        modifier = Modifier.windowInsetsPadding(
+            WindowInsets.navigationBars.union(WindowInsets.ime).only(WindowInsetsSides.Bottom)
+        ),
         tonalElevation = 2.dp
     ) {
         Column(modifier = modifier) {
