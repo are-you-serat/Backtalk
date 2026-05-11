@@ -5,10 +5,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 /**
  * Composable function that displays a timestamp header.
@@ -17,7 +17,7 @@ import java.util.Locale
  */
 @Composable
 fun TimestampHeader(timestamp: Long) {
-    val sdf = SimpleDateFormat("MMM d, h:mm a", Locale.getDefault())
+    val sdf = SimpleDateFormat("MMM d, h:mm a", LocalLocale.current.platformLocale)
     Text(
         text = sdf.format(Date(timestamp)),
         style = MaterialTheme.typography.labelSmall,

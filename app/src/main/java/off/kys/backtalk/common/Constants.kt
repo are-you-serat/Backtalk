@@ -17,9 +17,4 @@ object Constants {
      */
     val TIME_GAP_FOR_GROUPING = TimeUnit.MINUTES.toMillis(1)
 
-    /**
-     * The raw URL to the MIT license for the Backtalk project on GitHub.
-     */
-    const val BACKTALK_MIT_LICENSE_RAW_URL: String = "https://raw.githubusercontent.com/kys0ff/Backtalk/refs/heads/master/LICENSE"
-
 }

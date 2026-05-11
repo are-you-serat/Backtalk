@@ -25,7 +25,7 @@ class SyncSocketManager {
     private var serverJob: Job? = null
     private val serverScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    suspend fun startServer(onPacketReceived: (SyncPacket) -> SyncPacket?): Int =
+    suspend fun startServer(onPacketReceived: suspend (SyncPacket) -> SyncPacket?): Int =
         withContext(Dispatchers.IO) {
             val server = ServerSocket(0)
             serverSocket = server
@@ -54,7 +54,7 @@ class SyncSocketManager {
 
     private suspend fun handleClient(
         socket: Socket,
-        onPacketReceived: (SyncPacket) -> SyncPacket?
+        onPacketReceived: suspend (SyncPacket) -> SyncPacket?,
     ) = withContext(Dispatchers.IO) {
         socket.use { s ->
             try {
@@ -111,7 +111,7 @@ class SyncSocketManager {
             val result = sendPacket(address, port, packet)
             if (result != null) return result
 
-            if (attempt < maxRetries - 1) {
+            if (attempt < (maxRetries - 1)) {
                 Log.d(
                     "SyncSocketManager",
                     "Retrying packet send to $address:$port, attempt ${attempt + 1}"
@@ -133,7 +133,5 @@ class SyncSocketManager {
         serverSocket = null
     }
 
-    fun generatePin(): String {
-        return (100000..999999).random().toString()
-    }
+    fun generatePin(): String = (100000..999999).random().toString()
 }

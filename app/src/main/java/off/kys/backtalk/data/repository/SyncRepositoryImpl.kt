@@ -1,5 +1,7 @@
 package off.kys.backtalk.data.repository
 
+import android.os.Build
+import android.os.ext.SdkExtensions
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -7,7 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import off.kys.backtalk.common.pref.BacktalkPreferences
@@ -29,7 +30,7 @@ class SyncRepositoryImpl(
 ) : SyncRepository {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val json = Json { ignoreUnknownKeys = true }
-    
+
     private val _discoveredDevices = MutableStateFlow<List<DeviceInfo>>(emptyList())
     override val discoveredDevices = _discoveredDevices.asStateFlow()
 
@@ -59,12 +60,25 @@ class SyncRepositoryImpl(
         nsdHelper.discoverServices(
             onDeviceDiscovered = { serviceInfo ->
                 val deviceId =
-                    serviceInfo.attributes["deviceId"]?.let { String(it) } ?: serviceInfo.serviceName
+                    serviceInfo.attributes["deviceId"]?.let { String(it) }
+                        ?: serviceInfo.serviceName
+
+                val hostAddress =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && SdkExtensions.getExtensionVersion(
+                            Build.VERSION_CODES.TIRAMISU
+                        ) >= 7
+                    ) {
+                        serviceInfo.hostAddresses.firstOrNull()?.hostAddress
+                    } else {
+                        @Suppress("DEPRECATION")
+                        serviceInfo.host.hostAddress
+                    }
+
 
                 val device = DeviceInfo(
                     id = deviceId,
                     name = serviceInfo.serviceName,
-                    address = serviceInfo.host.hostAddress,
+                    address = hostAddress,
                     port = serviceInfo.port,
                     lastSeenTimestamp = System.currentTimeMillis(),
                     isOnline = true
@@ -102,68 +116,72 @@ class SyncRepositoryImpl(
             val port = socketManager.startServer { packet ->
                 handleIncomingPacket(packet)
             }
-            nsdHelper.registerService(port, android.os.Build.MODEL, preferences.deviceId)
+            nsdHelper.registerService(port, Build.MODEL, preferences.deviceId)
         }
     }
 
-    private fun handleIncomingPacket(packet: SyncPacket): SyncPacket? {
-        return when (packet) {
-            is SyncPacket.PairingRequest -> {
-                val device = DeviceInfo(
-                    id = packet.deviceId,
-                    name = packet.deviceName,
+    private suspend fun handleIncomingPacket(packet: SyncPacket): SyncPacket? = when (packet) {
+        is SyncPacket.PairingRequest -> {
+            val device = DeviceInfo(
+                id = packet.deviceId,
+                name = packet.deviceName,
+                isOnline = true,
+                lastSeenTimestamp = System.currentTimeMillis()
+            )
+
+            // Cancel any previous pending request
+            pairingResponseDeferred?.cancel()
+
+            pendingPairingDevice = device
+            val deferred = CompletableDeferred<Boolean>()
+            pairingResponseDeferred = deferred
+            incomingRequestCallback?.invoke(device)
+
+            // Wait for user to accept or refuse
+            val accepted = withTimeoutOrNull(60000) {
+                deferred.await()
+            } ?: false
+
+            SyncPacket.PairingResponse(accepted = accepted)
+        }
+
+        is SyncPacket.PinVerification -> {
+            if (packet.pin == pendingPairingPin && pendingPairingDevice != null) {
+                val pairedDevice = pendingPairingDevice!!.copy(
+                    isPaired = true,
                     isOnline = true,
                     lastSeenTimestamp = System.currentTimeMillis()
                 )
-                pendingPairingDevice = device
-                pairingResponseDeferred = CompletableDeferred()
-                incomingRequestCallback?.invoke(device)
-                
-                // Wait for user to accept or refuse
-                val accepted = runBlocking {
-                    withTimeoutOrNull(60000) { // 1 minute timeout
-                        pairingResponseDeferred?.await()
-                    } ?: false
-                }
-                
-                SyncPacket.PairingResponse(accepted = accepted)
+                val currentPaired = _pairedDevices.value
+                savePairedDevices(currentPaired.filter { it.id != pairedDevice.id } + pairedDevice)
+                pendingPairingPin = null
+                pendingPairingDevice = null
+                SyncPacket.PinVerificationResponse(success = true)
+            } else {
+                SyncPacket.PinVerificationResponse(success = false)
             }
-            is SyncPacket.PinVerification -> {
-                if (packet.pin == pendingPairingPin && pendingPairingDevice != null) {
-                    val pairedDevice = pendingPairingDevice!!.copy(
-                        isPaired = true,
-                        isOnline = true,
-                        lastSeenTimestamp = System.currentTimeMillis()
-                    )
-                    val currentPaired = _pairedDevices.value
-                    savePairedDevices(currentPaired.filter { it.id != pairedDevice.id } + pairedDevice)
-                    pendingPairingPin = null
-                    pendingPairingDevice = null
-                    SyncPacket.PinVerificationResponse(success = true)
-                } else {
-                    SyncPacket.PinVerificationResponse(success = false)
-                }
-            }
-            is SyncPacket.DataUpdate -> {
-                scope.launch {
-                    syncData(packet.backupData)
-                }
-                SyncPacket.Ack(success = true)
-            }
-            is SyncPacket.SyncRequest -> {
-                // Someone is requesting our data (Pull sync)
-                updateDeviceStatusById(packet.requesterId, true)
-                val messages = runBlocking { messagesDao.getAllMessages().first() }
-                val backupData = BackupData(messages = messages, preferences = emptyMap())
-                SyncPacket.DataUpdate(backupData)
-            }
-            is SyncPacket.Disconnect -> {
-                val updatedList = _pairedDevices.value.filter { it.id != packet.deviceId }
-                savePairedDevices(updatedList)
-                SyncPacket.Ack(success = true)
-            }
-            else -> null
         }
+
+        is SyncPacket.DataUpdate -> {
+            syncData(packet.backupData)
+            SyncPacket.Ack(success = true)
+        }
+
+        is SyncPacket.SyncRequest -> {
+            // Someone is requesting our data (Pull sync)
+            updateDeviceStatusById(packet.requesterId)
+            val messages = messagesDao.getAllMessages().first()
+            val backupData = BackupData(messages = messages, preferences = emptyMap())
+            SyncPacket.DataUpdate(backupData)
+        }
+
+        is SyncPacket.Disconnect -> {
+            val updatedList = _pairedDevices.value.filter { it.id != packet.deviceId }
+            savePairedDevices(updatedList)
+            SyncPacket.Ack(success = true)
+        }
+
+        else -> null
     }
 
     override fun stopServer() {
@@ -173,7 +191,7 @@ class SyncRepositoryImpl(
 
     override suspend fun requestPairing(device: DeviceInfo): Result<Boolean> {
         val request = SyncPacket.PairingRequest(
-            deviceName = android.os.Build.MODEL,
+            deviceName = Build.MODEL,
             deviceId = preferences.deviceId
         )
         val response = socketManager.sendPacketWithRetry(device.address!!, device.port, request)
@@ -207,7 +225,7 @@ class SyncRepositoryImpl(
             val messages = messagesDao.getAllMessages().first()
             val backupData = BackupData(messages = messages, preferences = emptyMap())
             val packet = SyncPacket.DataUpdate(backupData)
-            
+
             val response = socketManager.sendPacketWithRetry(device.address!!, device.port, packet)
             if (response is SyncPacket.Ack && response.success) {
                 updateDeviceStatus(device, true)
@@ -222,22 +240,20 @@ class SyncRepositoryImpl(
         }
     }
 
-    override suspend fun pullSync(device: DeviceInfo): Result<Unit> {
-        return try {
-            val request = SyncPacket.SyncRequest(requesterId = preferences.deviceId)
-            val response = socketManager.sendPacketWithRetry(device.address!!, device.port, request)
-            if (response is SyncPacket.DataUpdate) {
-                syncData(response.backupData)
-                updateDeviceStatus(device, true)
-                Result.success(Unit)
-            } else {
-                updateDeviceStatus(device, false)
-                Result.failure(Exception("Pull sync failed: No data received"))
-            }
-        } catch (e: Exception) {
+    override suspend fun pullSync(device: DeviceInfo): Result<Unit> = try {
+        val request = SyncPacket.SyncRequest(requesterId = preferences.deviceId)
+        val response = socketManager.sendPacketWithRetry(device.address!!, device.port, request)
+        if (response is SyncPacket.DataUpdate) {
+            syncData(response.backupData)
+            updateDeviceStatus(device, true)
+            Result.success(Unit)
+        } else {
             updateDeviceStatus(device, false)
-            Result.failure(e)
+            Result.failure(Exception("Pull sync failed: No data received"))
         }
+    } catch (e: Exception) {
+        updateDeviceStatus(device, false)
+        Result.failure(e)
     }
 
     private fun updateDeviceStatus(device: DeviceInfo, isOnline: Boolean) {
@@ -255,13 +271,13 @@ class SyncRepositoryImpl(
         }
     }
 
-    private fun updateDeviceStatusById(deviceId: String, isOnline: Boolean) {
+    private fun updateDeviceStatusById(deviceId: String) {
         val paired = _pairedDevices.value
         if (paired.any { it.id == deviceId }) {
             val updated = paired.map {
                 if (it.id == deviceId) it.copy(
-                    isOnline = isOnline,
-                    lastSeenTimestamp = if (isOnline) System.currentTimeMillis() else it.lastSeenTimestamp
+                    isOnline = true,
+                    lastSeenTimestamp = System.currentTimeMillis()
                 ) else it
             }
             savePairedDevices(updated)
@@ -325,7 +341,5 @@ class SyncRepositoryImpl(
         pendingPairingPin = null
     }
 
-    override fun generatePin(): String {
-        return socketManager.generatePin()
-    }
+    override fun generatePin(): String = socketManager.generatePin()
 }

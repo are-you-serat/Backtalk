@@ -6,7 +6,6 @@
     <string name="common_cancel">Cancel</string>
     <string name="common_delete">Delete</string>
     <string name="common_copy">Copy</string>
-    <string name="common_exit">Exit</string>
     <string name="common_later">Later</string>
     <string name="common_close">Close</string>
     <string name="common_clear">Clear</string>
@@ -21,26 +20,19 @@
     <string name="common_weekly">Weekly</string>
     <string name="common_monthly">Monthly</string>
     <string name="common_not_set">Not set</string>
-    <string name="common_submit">Submit</string>
-    <string name="common_export">Export</string>
     <string name="common_confirm">Confirm</string>
     <string name="common_experimental">Experimental</string>
     <string name="common_error">Error</string>
-    <string name="common_hide_password">Hide password</string>
-    <string name="common_show_password">Show password</string>
     <string name="common_password_set">••••••••</string>
 
     <!-- Chat -->
     <string name="chat_title">Messages</string>
     <string name="chat_input_hint">Write a message…</string>
-    <string name="chat_selection_title">Message selected</string>
     <string name="chat_selection_count">%1$d selected</string>
-    <string name="chat_action_reply">Reply</string>
     <string name="chat_replying_to">Replying to</string>
     <string name="chat_copy_success">Copied to clipboard</string>
     <string name="chat_copy_label">Copied text</string>
     <string name="chat_status_edited">edited</string>
-    <string name="chat_voice_message">[Voice Message]</string>
     <string name="chat_scroll_to_bottom">Scroll to bottom</string>
     <string name="chat_sent_at">Sent at</string>
     <string name="chat_edited_at">Edited at %1$s</string>
@@ -73,29 +65,14 @@
     <string name="auth_title">Verify your identity</string>
     <string name="auth_subtitle">Please authenticate to continue</string>
     <string name="auth_locked_title">Backtalk is locked</string>
-    <string name="auth_unlock">Unlock</string>
-    <string name="auth_biometric_unavailable">Biometric authentication is not supported on this device</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
-    <string name="settings_general_title">General</string>
-    <string name="settings_general_summary">App preferences and behavior</string>
     <string name="settings_security_title">Security</string>
-    <string name="settings_security_and_privacy">Security &amp; privacy</string>
-    <string name="settings_security_summary">Privacy and protection settings</string>
-    <string name="settings_about_title">About</string>
-    <string name="settings_about_summary">Information about the application</string>
-    <string name="settings_language">Language</string>
     <string name="settings_theme">Theme</string>
-    <string name="settings_theme_language">Theme &amp; language</string>
-    <string name="settings_dark_mode">Dark mode</string>
-    <string name="settings_use_dark_theme">Enable dark theme</string>
-    <string name="settings_use_dynamic_color">Use dynamic colors</string>
     <string name="settings_version">Version</string>
-    <string name="settings_app_lock">App lock</string>
     <string name="settings_app_lock_desc">Require biometrics on startup</string>
     <string name="settings_secure_screen">Screen security</string>
-    <string name="settings_enable_secure_screen">Secure screen</string>
     <string name="settings_secure_screen_summary">Hide content in recent apps and prevent screenshots</string>
     <string name="settings_appearance">Appearance</string>
     <string name="settings_dynamic_color">Material You Dynamic Color</string>
@@ -104,7 +81,6 @@
     <string name="settings_enable_app_lock">Enable App Lock</string>
     <string name="settings_haptic_feedback">Haptic feedback</string>
     <string name="settings_haptic_feedback_desc">Vibrate on interactions like swipe-to-reply or long-press</string>
-    <string name="settings_restart_required">Requires restart to apply changes</string>
     <string name="settings_developer">Developer</string>
     <string name="settings_dev_name">kys0ff</string>
     <string name="settings_dev_click">You found me. Now go away.</string>
@@ -119,9 +95,6 @@
     <string name="settings_wipe_data_confirm_message">This will permanently delete all your messages, scheduled messages, voice notes, and reset all settings. This action cannot be undone.</string>
     <string name="settings_license">Open source licenses</string>
     <string name="settings_license_desc">Libraries used in the application</string>
-    <string name="settings_mit">MIT License</string>
-    <string name="settings_apache">Apache License 2.0</string>
-    <string name="settings_bsd">BSD License</string>
     <string name="settings_information">Information</string>
     <string name="settings_choose_theme">Choose Theme</string>
     <string name="settings_experimental_sync_title">Experimental Feature</string>
@@ -147,24 +120,19 @@
     <string name="update_dialog_title">Update available</string>
     <string name="update_dialog_message">Version %1$s is now available.\n\n%2$s</string>
     <string name="update_dialog_action_now">Update now</string>
-    <string name="settings_updates_title">Updates</string>
     <string name="settings_auto_check_updates">Check for updates automatically</string>
     <string name="settings_auto_check_updates_desc">Periodically check if a newer version is available</string>
     <string name="settings_check_updates_now">Check for updates now</string>
     <string name="settings_check_updates_desc">See if you are running the latest build</string>
     <string name="settings_checking_updates">Checking for updates…</string>
-    <string name="settings_up_to_date">You are already on the latest version</string>
 
     <!-- Backup & Restore -->
     <string name="backup_title">Backup &amp; Restore</string>
-    <string name="backup_summary">Manage your data with manual backups</string>
     <string name="backup_export_title">Export backup</string>
     <string name="backup_export_desc">Create an encrypted or plain backup (.bkt)</string>
     <string name="backup_import_title">Import backup</string>
     <string name="backup_import_desc">Restore data from a previously exported file</string>
     <string name="backup_enter_password">Enter password</string>
-    <string name="backup_password_optional">Password (optional)</string>
-    <string name="backup_password_required">Password required</string>
     <string name="backup_merge_data">Merge data</string>
     <string name="backup_clear_and_import">Clear and import</string>
     <string name="backup_import_strategy">Import Strategy</string>
@@ -185,18 +153,13 @@
     <string name="auto_export_summary">Periodically backup your data in the background</string>
     <string name="auto_export_interval">Export interval</string>
     <string name="auto_export_folder">Backup folder</string>
-    <string name="auto_export_select_folder">Select folder</string>
     <string name="auto_export_password">Auto export password</string>
     <string name="auto_export_encrypt">Encrypt auto export</string>
     <string name="auto_export_no_folder">No folder selected</string>
-    <string name="auto_export_permission_required">Folder permission required for auto export</string>
     <string name="auto_export_password_desc">This password will be used to encrypt your scheduled backups.</string>
 
     <!-- Threads -->
     <string name="threads_title">Threads</string>
-    <string name="threads_filter_replies">Include replies</string>
-    <string name="threads_filter_time">Group by time gap</string>
-    <string name="threads_view_replies">View %1$d replies</string>
     <string name="threads_empty">No threads found</string>
     <string name="threads_replies_count">Replies · %1$d</string>
     <string name="threads_you">You</string>
@@ -221,27 +184,18 @@
     <string name="sync_summary">Sync messages between devices on the same Wi-Fi</string>
     <string name="sync_available_devices">Available Devices</string>
     <string name="sync_paired_devices">Paired Devices</string>
-    <string name="sync_discover_devices">Discover Devices</string>
     <string name="sync_start_discovery">Start Discovery</string>
     <string name="sync_stop_discovery">Stop Discovery</string>
-    <string name="sync_discovery_active">Searching for devices…</string>
     <string name="sync_no_devices_found">No devices found</string>
-    <string name="sync_request_pairing">Request Pairing</string>
     <string name="sync_pairing_request_title">Incoming Pairing Request</string>
     <string name="sync_pairing_request_msg">A pairing request has been received from</string>
     <string name="sync_show_pin">Show PIN</string>
     <string name="sync_enter_pin">Enter PIN</string>
     <string name="sync_pin_label">Enter the 6-digit PIN shown on the other device</string>
-    <string name="sync_pin_incorrect">Incorrect PIN. Please try again.</string>
-    <string name="sync_pairing_success">Paired successfully</string>
-    <string name="sync_pairing_failed">Pairing failed</string>
     <string name="sync_status_syncing">Syncing…</string>
-    <string name="sync_status_up_to_date">Up to Date</string>
-    <string name="sync_status_connection_lost">Connection Lost</string>
     <string name="sync_status_last_synced">Last synced: %1$s</string>
     <string name="sync_now">Sync Now</string>
     <string name="sync_pull">Pull Sync</string>
-    <string name="sync_cleanup_invalid">Cleanup Invalid Devices</string>
     <string name="sync_status_online">Online</string>
     <string name="sync_status_offline">Offline</string>
     <string name="sync_disconnect">Disconnect</string>
@@ -273,7 +227,6 @@
     <string name="onboarding_permission_microphone_desc">Required to record and send voice messages.</string>
     <string name="onboarding_permission_alarms">Exact Alarms</string>
     <string name="onboarding_permission_alarms_desc">Required for precise delivery of your scheduled reminders.</string>
-    <string name="onboarding_permission_granted">Granted</string>
     <string name="onboarding_permission_request">Enable</string>
     <string name="onboarding_get_started">Get Started</string>
     <string name="onboarding_next">Next</string>

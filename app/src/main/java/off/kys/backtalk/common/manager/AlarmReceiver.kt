@@ -20,7 +20,6 @@ import off.kys.backtalk.presentation.activity.MainActivity
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-private const val TAG = "AlarmReceiver"
 private const val CHANNEL_ID = "scheduled_messages_channel"
 
 /**

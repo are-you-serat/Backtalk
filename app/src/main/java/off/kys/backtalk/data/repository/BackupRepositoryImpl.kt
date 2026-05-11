@@ -49,7 +49,6 @@ class BackupRepositoryImpl(private val context: Context) : BackupRepository {
                 val firstChar = buffer[0].toInt().toChar()
                 if (firstChar == '{') return@runCatching false // Unencrypted JSON
 
-                // Check for ZIP magic bytes (PK..)
                 if (read >= 2 && buffer[0].toInt() == 0x50 && buffer[1].toInt() == 0x4B) {
                     return@runCatching false // Unencrypted ZIP
                 }

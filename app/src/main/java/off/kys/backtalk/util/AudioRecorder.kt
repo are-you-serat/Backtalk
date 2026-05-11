@@ -52,11 +52,11 @@ class AudioRecorder(private val context: Context) {
                 delay(100)
                 val amplitude = try {
                     recorder?.maxAmplitude ?: 0
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     0
                 }
                 val normalizedAmplitude = (amplitude.toFloat() / 32767f).coerceIn(0f, 1f)
-                _amplitudes.value = _amplitudes.value + normalizedAmplitude
+                _amplitudes.value += normalizedAmplitude
             }
         }
     }
@@ -67,8 +67,7 @@ class AudioRecorder(private val context: Context) {
         
         try {
             recorder?.stop()
-        } catch (e: Exception) {
-            // Handle case where recording was too short
+        } catch (_: Exception) {
             recordingFile?.delete()
             recordingFile = null
         }
@@ -86,7 +85,7 @@ class AudioRecorder(private val context: Context) {
         
         try {
             recorder?.stop()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Ignore
         }
         recorder?.release()

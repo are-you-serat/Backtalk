@@ -19,15 +19,6 @@ object CryptoUtils {
     private const val IV_LENGTH = 16
 
     /**
-     * Encrypts the [plainText] using the [password].
-     * Result is formatted as base64(salt + iv + ciphertext).
-     */
-    fun encrypt(plainText: String, password: CharArray): String {
-        val encryptedBytes = encryptInternal(plainText.toByteArray(), password)
-        return Base64.encodeToString(encryptedBytes, Base64.NO_WRAP)
-    }
-
-    /**
      * Encrypts the [data] using the [password].
      * Result is salt + iv + ciphertext.
      */

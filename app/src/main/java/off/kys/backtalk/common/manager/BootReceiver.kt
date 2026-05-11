@@ -25,14 +25,8 @@ class BootReceiver : BroadcastReceiver(), KoinComponent {
             scope.launch {
                 val scheduledMessages = repository.getAllScheduledMessagesSync()
                 scheduledMessages.forEach {
-                    // Only reschedule if it hasn't expired yet
                     if (it.scheduledTimestamp > System.currentTimeMillis()) {
                         alarmScheduler.schedule(it)
-                    } else {
-                        // Optional: deliver it immediately or just clean up
-                        // For simplicity, we just clean up if it's very old, 
-                        // or rely on AlarmManager to trigger it if it was recent.
-                        // But AlarmManager setExact usually doesn't trigger for past times.
                     }
                 }
             }

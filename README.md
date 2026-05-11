@@ -6,7 +6,7 @@
 ---
 
 <p align="center">
-  <img src="fastlane/metadata/android/en-US/images/featureGraphic.png" width="100%" alt="Backtalk Header">
+  <img src="fastlane/metadata/android/en-US/images/featureGraphic.png" width="1895" alt="Backtalk Header">
 </p>
 
 # <p align="center">Backtalk 🗨️</p>
@@ -31,8 +31,8 @@
 ## Screenshots
 
 <p align="center">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="30%" alt="Screenshot 1">
-  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="30%" alt="Screenshot 2">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="720" alt="Screenshot 1">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="720" alt="Screenshot 2">
 </p>
 
 ---

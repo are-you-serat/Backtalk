@@ -13,7 +13,7 @@ import off.kys.github_app_updater_lib.model.updater.UpdateResult
  */
 class CheckAppUpdate(
     private val currentVersion: String = BuildConfig.VERSION_NAME,
-    private val isFdroid: Boolean = BuildConfig.IS_FDROID
+    private val isFDroid: Boolean = BuildConfig.IS_FDROID
 ) {
 
     /**
@@ -28,7 +28,7 @@ class CheckAppUpdate(
         onUpToDate: () -> Unit
     ) {
 
-        if (isFdroid) {
+        if (this@CheckAppUpdate.isFDroid) {
             onUpToDate()
             return
         }

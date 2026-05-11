@@ -93,7 +93,6 @@ dependencies {
     implementation(libs.bundles.room)
     implementation(libs.androidx.biometric)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.documentfile)
     implementation(libs.androidx.work.runtime.ktx)

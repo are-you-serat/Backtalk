@@ -62,16 +62,11 @@ fun Context.openUrl(url: String) {
  * @param text The string to be copied to the clipboard.
  */
 fun Context.copyToClipboard(text: String) {
-    // 1. Get the Clipboard Manager
     val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-
-    // 2. Create a ClipData object (Label is for accessibility/system use)
     val clip = ClipData.newPlainText(getString(R.string.chat_copy_label), text)
 
-    // 3. Set the clip as the primary clipboard content
     clipboard.setPrimaryClip(clip)
 
-    // Only show Toast for Android 12 (API 32) and below
     if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
         toast(getString(R.string.chat_copy_success))
     }
@@ -106,22 +101,14 @@ fun Context.isSecurityEnabled(): Boolean {
     return try {
         val biometricManager = BiometricManager.from(this)
         val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-
-        // Check for "Strong" Biometrics (Fingerprint, Face, etc.)
-        // or Device Credentials (PIN, Pattern, Password)
         val canAuthenticate =
             biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
 
         when (canAuthenticate) {
             BiometricManager.BIOMETRIC_SUCCESS -> true
-            else -> {
-                // Fallback for older APIs or specific edge cases where
-                // Keyguard might be set even if BiometricManager is being moody.
-                keyguardManager.isDeviceSecure
-            }
+            else -> keyguardManager.isDeviceSecure
         }
     } catch (_: Throwable) {
-        // Fallback for environments where BiometricManager is not supported (e.g., Layoutlib/Compose Preview)
         try {
             val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as? KeyguardManager
             keyguardManager?.isDeviceSecure ?: false

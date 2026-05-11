@@ -83,13 +83,12 @@ abstract class BaseLockActivity : AppCompatActivity() {
                 super.onAuthenticationSucceeded(result)
                 isLoggedIn = true
                 isBiometricVisible = false
-                onAuthenticated()
             }
 
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                 super.onAuthenticationError(errorCode, errString)
                 isBiometricVisible = false
-                onAuthenticationFailed(errorCode, errString)
+                onAuthenticationFailed()
             }
         })
     }
@@ -140,19 +139,6 @@ abstract class BaseLockActivity : AppCompatActivity() {
     protected open fun getBiometricSubtitle(): String = getString(R.string.auth_subtitle)
 
     /**
-     * Called when the user has successfully authenticated.
-     */
-    protected open fun onAuthenticated() {}
-
-    /**
-     * Called when biometric authentication fails or is canceled.
-     * Default implementation finishes the activity.
-     */
-    protected open fun onAuthenticationFailed(errorCode: Int, errString: CharSequence) {
-        finishAffinity()
-    }
-
-    /**
      * Attempts to show the biometric authentication prompt if the user is not logged in.
      */
     protected fun tryShowBiometric() = CoroutineScope(Dispatchers.Main).launch {
@@ -170,16 +156,4 @@ abstract class BaseLockActivity : AppCompatActivity() {
         isLoggedIn = false
     }
 
-    /**
-     * Updates the anonymous mode state and applies the corresponding system flags.
-     * @param enabled True to enable anonymous mode (disable screenshots), false otherwise.
-     */
-    protected fun updateSystemFlags(enabled: Boolean) {
-        isAnonymousMode = enabled
-        if (isAnonymousMode) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        } else {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
-    }
 }

@@ -110,11 +110,8 @@ fun BacktalkTheme(
 
                 // To force bright icons in light mode specifically:
                 val isLightMode = !darkTheme
-                if (isLightMode) {
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
-                } else {
-                    WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
-                }
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
+                    isLightMode
             }
         }
     }

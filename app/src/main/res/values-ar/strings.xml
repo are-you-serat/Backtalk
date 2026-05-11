@@ -1,12 +1,9 @@
 <resources>
-    <string name="app_name" translatable="false">Backtalk</string>
-
     <!-- Common -->
     <string name="common_send">إرسال</string>
     <string name="common_cancel">إلغاء</string>
     <string name="common_delete">حذف</string>
     <string name="common_copy">نسخ</string>
-    <string name="common_exit">خروج</string>
     <string name="common_later">لاحقاً</string>
     <string name="common_close">إغلاق</string>
     <string name="common_clear">مسح</string>
@@ -21,26 +18,19 @@
     <string name="common_weekly">أسبوعياً</string>
     <string name="common_monthly">شهرياً</string>
     <string name="common_not_set">غير محدد</string>
-    <string name="common_submit">إرسال</string>
-    <string name="common_export">تصدير</string>
     <string name="common_confirm">تأكيد</string>
     <string name="common_experimental">تجريبي</string>
     <string name="common_error">خطأ</string>
-    <string name="common_hide_password">إخفاء كلمة المرور</string>
-    <string name="common_show_password">إظهار كلمة المرور</string>
     <string name="common_password_set">••••••••</string>
 
     <!-- Chat -->
     <string name="chat_title">الرسائل</string>
     <string name="chat_input_hint">اكتب رسالة…</string>
-    <string name="chat_selection_title">تم اختيار رسالة</string>
     <string name="chat_selection_count">تم اختيار %1$d</string>
-    <string name="chat_action_reply">رد</string>
     <string name="chat_replying_to">الرد على</string>
     <string name="chat_copy_success">تم النسخ إلى الحافظة</string>
     <string name="chat_copy_label">النص المنسوخ</string>
     <string name="chat_status_edited">مُعدّلة</string>
-    <string name="chat_voice_message">[رسالة صوتية]</string>
     <string name="chat_scroll_to_bottom">انتقال للأسفل</string>
     <string name="chat_sent_at">أُرسلت في</string>
     <string name="chat_edited_at">عُدّلت في %1$s</string>
@@ -78,29 +68,14 @@
     <string name="auth_title">تأكيد الهوية</string>
     <string name="auth_subtitle">يرجى المصادقة للمتابعة</string>
     <string name="auth_locked_title">Backtalk مقفل</string>
-    <string name="auth_unlock">إلغاء القفل</string>
-    <string name="auth_biometric_unavailable">المصادقة الحيوية (بصمة الإصبع/الوجه) غير متوفرة على هذا الجهاز</string>
 
     <!-- Settings -->
     <string name="settings_title">الإعدادات</string>
-    <string name="settings_general_title">عام</string>
-    <string name="settings_general_summary">تفضيلات التطبيق وسلوكه</string>
     <string name="settings_security_title">الأمان</string>
-    <string name="settings_security_and_privacy">الأمان والخصوصية</string>
-    <string name="settings_security_summary">إعدادات الخصوصية والحماية</string>
-    <string name="settings_about_title">حول التطبيق</string>
-    <string name="settings_about_summary">معلومات الإصدار والمطور</string>
-    <string name="settings_language">اللغة</string>
     <string name="settings_theme">المظهر</string>
-    <string name="settings_theme_language">المظهر واللغة</string>
-    <string name="settings_dark_mode">الوضع الداكن</string>
-    <string name="settings_use_dark_theme">استخدام المظهر الداكن</string>
-    <string name="settings_use_dynamic_color">استخدام الألوان الديناميكية</string>
     <string name="settings_version">الإصدار</string>
-    <string name="settings_app_lock">قفل التطبيق</string>
     <string name="settings_app_lock_desc">طلب المصادقة الحيوية عند فتح التطبيق</string>
     <string name="settings_secure_screen">حماية الشاشة</string>
-    <string name="settings_enable_secure_screen">تفعيل حماية الشاشة</string>
     <string name="settings_secure_screen_summary">إخفاء المحتوى في قائمة التطبيقات الأخيرة ومنع لقطات الشاشة</string>
     <string name="settings_appearance">المظهر</string>
     <string name="settings_dynamic_color">ألوان Material You الديناميكية</string>
@@ -109,7 +84,6 @@
     <string name="settings_enable_app_lock">تفعيل قُفْل التطبيق</string>
     <string name="settings_haptic_feedback">الاستجابة اللمسية</string>
     <string name="settings_haptic_feedback_desc">اهتزاز خفيف عند التفاعل (مثل السحب للرد أو الضغط المطول)</string>
-    <string name="settings_restart_required">يتطلب إعادة تشغيل التطبيق لتطبيق التغييرات</string>
     <string name="settings_developer">المطور</string>
     <string name="settings_dev_name">kys0ff</string>
     <string name="settings_dev_click">لقد وجدتني. الآن ارحل بعيدًا.</string>
@@ -125,9 +99,6 @@
     <string name="settings_wipe_data_confirm_message">سيتم حذف جميع رسائلك، المهام المجدولة، والملاحظات الصوتية نهائيًا، كما ستتم إعادة تعيين الإعدادات. لايمكن التراجع عن هذا الإجراء.</string>
     <string name="settings_license">تراخيص البرمجيات مفتوحة المصدر</string>
     <string name="settings_license_desc">المكتبات البرمجية المستخدمة في التطبيق</string>
-    <string name="settings_mit">ترخيص MIT</string>
-    <string name="settings_apache">ترخيص Apache 2.0</string>
-    <string name="settings_bsd">ترخيص BSD</string>
     <string name="settings_information">معلومات</string>
     <string name="settings_choose_theme">اختر المظهر</string>
     <string name="settings_experimental_sync_title">ميزة تجريبية</string>
@@ -137,24 +108,19 @@
     <string name="update_dialog_title">يتوفر تحديث جديد</string>
     <string name="update_dialog_message">الإصدار %1$s متاح الآن.\n\n%2$s</string>
     <string name="update_dialog_action_now">تحديث الآن</string>
-    <string name="settings_updates_title">التحديثات</string>
     <string name="settings_auto_check_updates">التحقق التلقائي من التحديثات</string>
     <string name="settings_auto_check_updates_desc">البحث عن إصدارات جديدة بشكل دوري</string>
     <string name="settings_check_updates_now">التحقق من وجود تحديثات</string>
     <string name="settings_check_updates_desc">تأكد مما إذا كنت تستخدم أحدث إصدار</string>
     <string name="settings_checking_updates">جاري التحقق من التحديثات…</string>
-    <string name="settings_up_to_date">أنت تستخدم أحدث إصدار بالفعل</string>
 
     <!-- Backup & Restore -->
     <string name="backup_title">النسخ الاحتياطي والاستعادة</string>
-    <string name="backup_summary">إدارة بياناتك عبر النسخ الاحتياطي اليدوي</string>
     <string name="backup_export_title">تصدير نسخة احتياطية</string>
     <string name="backup_export_desc">إنشاء نسخة احتياطية مشفرة أو عادية بصيغة (.bkt)</string>
     <string name="backup_import_title">استيراد نسخة احتياطية</string>
     <string name="backup_import_desc">استعادة بياناتك من مِلَفّ تم تصديره سابقاً</string>
     <string name="backup_enter_password">أدخل كلمة المرور</string>
-    <string name="backup_password_optional">كلمة المرور (اختياري)</string>
-    <string name="backup_password_required">كلمة المرور مطلوبة</string>
     <string name="backup_merge_data">دمج البيانات</string>
     <string name="backup_clear_and_import">مسح واستيراد</string>
     <string name="backup_import_strategy">طريقة الاستيراد</string>
@@ -175,18 +141,13 @@
     <string name="auto_export_summary">نسخ البيانات احتياطيًا بشكل دوري في الخلفية</string>
     <string name="auto_export_interval">تكرار التصدير</string>
     <string name="auto_export_folder">مجلد النسخ الاحتياطي</string>
-    <string name="auto_export_select_folder">تحديد المجلد</string>
     <string name="auto_export_password">كلمة مرور التصدير التلقائي</string>
     <string name="auto_export_encrypt">تشفير التصدير التلقائي</string>
     <string name="auto_export_no_folder">لم يتم تحديد مجلد</string>
-    <string name="auto_export_permission_required">يتطلب التصدير التلقائي صَلاحِيَة الوصول للمجلد</string>
     <string name="auto_export_password_desc">ستُستخدم هذه الكلمة لتشفير النسخ الاحتياطية المجدولة تلقائيًا.</string>
 
     <!-- Threads -->
     <string name="threads_title">السلاسل</string>
-    <string name="threads_filter_replies">تضمين الردود</string>
-    <string name="threads_filter_time">تجميع حسب الفاصل الزمني</string>
-    <string name="threads_view_replies">عرض %1$d من الردود</string>
     <string name="threads_empty">لم يتم العثور على أي سلاسل رسائل</string>
     <string name="threads_replies_count">الردود · %1$d</string>
     <string name="threads_you">أنت</string>
@@ -211,27 +172,18 @@
     <string name="sync_summary">مزامنة الرسائل بين الأجهزة على نفس شبكة الـ Wi-Fi</string>
     <string name="sync_available_devices">الأجهزة المتاحة</string>
     <string name="sync_paired_devices">الأجهزة المقترنة</string>
-    <string name="sync_discover_devices">البحث عن أجهزة</string>
     <string name="sync_start_discovery">بدء البحث</string>
     <string name="sync_stop_discovery">إيقاف البحث</string>
-    <string name="sync_discovery_active">جاري البحث عن أجهزة قريبة…</string>
     <string name="sync_no_devices_found">لم يتم العثور على أجهزة</string>
-    <string name="sync_request_pairing">طلب اقتران</string>
     <string name="sync_pairing_request_title">طلب اقتران وارد</string>
     <string name="sync_pairing_request_msg">وصلك طلب اقتران من</string>
     <string name="sync_show_pin">إظهار رمز الـ PIN</string>
     <string name="sync_enter_pin">إدخال رمز الـ PIN</string>
     <string name="sync_pin_label">أدخل رمز الـ PIN (6 أرقام) الموضح على الجهاز الآخر</string>
-    <string name="sync_pin_incorrect">رمز الـ PIN غير صحيح، حاول مرة أخرى.</string>
-    <string name="sync_pairing_success">تم الاقتران بنجاح</string>
-    <string name="sync_pairing_failed">فشل الاقتران</string>
     <string name="sync_status_syncing">جاري المزامنة…</string>
-    <string name="sync_status_up_to_date">مُحدّث</string>
-    <string name="sync_status_connection_lost">انقطع الاتصال</string>
     <string name="sync_status_last_synced">آخر مزامنة: %1$s</string>
     <string name="sync_now">مزامنة الآن</string>
     <string name="sync_pull">جلب المزامنة</string>
-    <string name="sync_cleanup_invalid">إزالة الأجهزة غير الصالحة</string>
     <string name="sync_status_online">متصل</string>
     <string name="sync_status_offline">غير متصل</string>
     <string name="sync_disconnect">قطع الاتصال</string>
@@ -263,7 +215,6 @@
     <string name="onboarding_permission_microphone_desc">ضروري لتسجيل الملاحظات الصوتية.</string>
     <string name="onboarding_permission_alarms">التنبيهات الدقيقة</string>
     <string name="onboarding_permission_alarms_desc">ضرورية لضمان وصول تذكيراتك المجدولة بدقة متناهية.</string>
-    <string name="onboarding_permission_granted">تم المنح</string>
     <string name="onboarding_permission_request">تفعيل</string>
     <string name="onboarding_get_started">ابدأ الآن</string>
     <string name="onboarding_next">التالي</string>

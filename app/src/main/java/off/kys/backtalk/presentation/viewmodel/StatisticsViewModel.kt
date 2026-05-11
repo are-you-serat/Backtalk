@@ -61,7 +61,6 @@ class StatisticsViewModel(
     }
 
     private fun calculateLast7DaysActivity(messages: List<MessageEntity>): List<DayActivity> {
-        val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("EEE", Locale.getDefault())
         val days = mutableListOf<DayActivity>()
 

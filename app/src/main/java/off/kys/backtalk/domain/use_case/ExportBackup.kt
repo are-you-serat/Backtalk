@@ -2,7 +2,6 @@ package off.kys.backtalk.domain.use_case
 
 import android.net.Uri
 import kotlinx.coroutines.flow.first
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import off.kys.backtalk.common.pref.BacktalkPreferences
 import off.kys.backtalk.domain.model.BackupData
@@ -42,14 +41,12 @@ class ExportBackup(
             val backupData = BackupData(messages = messages, preferences = prefsMap)
             val json = Json.encodeToString(backupData)
 
-            val baos = ByteArrayOutputStream()
-            ZipOutputStream(baos).use { zos ->
-                // Add backup.json
+            val bays = ByteArrayOutputStream()
+            ZipOutputStream(bays).use { zos ->
                 zos.putNextEntry(ZipEntry("backup.json"))
                 zos.write(json.toByteArray())
                 zos.closeEntry()
 
-                // Add media files
                 messages.forEach { message ->
                     message.voicePath?.let { path ->
                         val file = File(path)
@@ -62,7 +59,7 @@ class ExportBackup(
                 }
             }
 
-            val zipBytes = baos.toByteArray()
+            val zipBytes = bays.toByteArray()
 
             val finalContent = if (!password.isNullOrBlank()) {
                 CryptoUtils.encrypt(zipBytes, password.toCharArray())

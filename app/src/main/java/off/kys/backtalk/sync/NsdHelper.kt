@@ -29,9 +29,7 @@ class NsdHelper(context: Context) {
             this.serviceName = deviceName
             this.serviceType = this@NsdHelper.serviceType
             this.port = port
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                setAttribute("deviceId", deviceId)
-            }
+            setAttribute("deviceId", deviceId)
         }
 
         registrationListener = object : NsdManager.RegistrationListener {

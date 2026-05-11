@@ -7,7 +7,7 @@ class CheckAppUpdateTest {
 
     @Test
     fun checkAppUpdate() = runTest {
-        val useCase = CheckAppUpdate(currentVersion = "0.1.3", isFdroid = false)
+        val useCase = CheckAppUpdate(currentVersion = "0.1.3", isFDroid = false)
         var updateAvailable = false
         
         useCase(
