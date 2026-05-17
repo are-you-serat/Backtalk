@@ -17,15 +17,14 @@ class CopyMessagesByIds(
     private val repository: MessagesRepository
 ) {
     /**
-     * Fetches messages by their [ids], sorts them by timestamp, and copies their text to the clipboard.
+     * Fetches messages corresponding to the provided [ids], sorts them chronologically by timestamp,
+     * and copies their combined text content to the system clipboard.
      *
-     * @param ids A set of [MessageId]s identifying the messages to be copied.
+     * @param ids The set of [MessageId]s identifying the messages to be copied.
      */
     suspend operator fun invoke(ids: Set<MessageId>) {
-        val messages = repository.getMessagesByIds(ids).firstOrNull()?.toSet()?.sortedBy { it.timestamp }
-            ?: return
-        val messagesBody = messages.joinToString("\n\n") { it.text }
-        // Copy the message to the clipboard
+        val messages = repository.getMessagesByIds(ids).firstOrNull()?.toSet()?.sortedBy { it.timestamp }.orEmpty()
+        val messagesBody = messages.joinToString("\n\n") { it.editedText ?: it.text }
         context.copyToClipboard(messagesBody)
     }
 }
