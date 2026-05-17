@@ -46,6 +46,7 @@ class BacktalkPreferences(context: Context) {
     private val _hapticFeedbackEnabled = mutableStateOf(prefs.getBoolean(KEY_HAPTIC_FEEDBACK, true))
     private val _keepScreenOn = mutableStateOf(prefs.getBoolean(KEY_KEEP_SCREEN_ON, BuildConfig.DEBUG))
     private val _devModeEnabled = mutableStateOf(prefs.getBoolean(KEY_DEV_MODE_ENABLED, BuildConfig.DEBUG))
+    private val _externalLinkWarningEnabled = mutableStateOf(prefs.getBoolean(KEY_EXTERNAL_LINK_WARNING, true))
     private val _pairedDevicesJson = mutableStateOf(prefs.getString(KEY_PAIRED_DEVICES, "[]") ?: "[]")
     private val _firstLaunch = mutableStateOf(prefs.getBoolean(KEY_FIRST_LAUNCH, true))
     private val _deviceId = mutableStateOf(getOrCreateDeviceId())
@@ -88,6 +89,7 @@ class BacktalkPreferences(context: Context) {
             KEY_HAPTIC_FEEDBACK -> _hapticFeedbackEnabled.value = p.getBoolean(key, true)
             KEY_KEEP_SCREEN_ON -> _keepScreenOn.value = p.getBoolean(key, BuildConfig.DEBUG)
             KEY_DEV_MODE_ENABLED -> _devModeEnabled.value = p.getBoolean(key, false)
+            KEY_EXTERNAL_LINK_WARNING -> _externalLinkWarningEnabled.value = p.getBoolean(key, true)
             KEY_PAIRED_DEVICES -> _pairedDevicesJson.value = p.getString(key, "[]") ?: "[]"
             KEY_FIRST_LAUNCH -> _firstLaunch.value = p.getBoolean(key, true)
         }
@@ -139,6 +141,9 @@ class BacktalkPreferences(context: Context) {
 
         /** Preference key for enabling/disabling developer mode. */
         const val KEY_DEV_MODE_ENABLED = "dev_mode_enabled"
+
+        /** Preference key for enabling/disabling external link warning. */
+        const val KEY_EXTERNAL_LINK_WARNING = "external_link_warning"
 
         /** Preference key for storing paired devices. */
         const val KEY_PAIRED_DEVICES = "paired_devices"
@@ -242,6 +247,13 @@ class BacktalkPreferences(context: Context) {
     var devModeEnabled: Boolean
         get() = _devModeEnabled.value
         set(value) = prefs.edit { putBoolean(KEY_DEV_MODE_ENABLED, value) }
+
+    /**
+     * Whether to show a warning before opening external links.
+     */
+    var externalLinkWarningEnabled: Boolean
+        get() = _externalLinkWarningEnabled.value
+        set(value) = prefs.edit { putBoolean(KEY_EXTERNAL_LINK_WARNING, value) }
 
     /**
      * The serialized list of paired devices.

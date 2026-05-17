@@ -52,7 +52,8 @@ class SettingsViewModel(
             autoExportPassword = preferences.autoExportPassword,
             hapticFeedbackEnabled = preferences.hapticFeedbackEnabled,
             keepScreenOn = preferences.keepScreenOn,
-            devModeEnabled = preferences.devModeEnabled
+            devModeEnabled = preferences.devModeEnabled,
+            externalLinkWarningEnabled = preferences.externalLinkWarningEnabled
         )
     )
     val state = _state.asStateFlow()
@@ -71,6 +72,7 @@ class SettingsViewModel(
         is SettingsUiEvent.OnHapticFeedbackToggle -> onHapticFeedbackToggle(event.enabled)
         is SettingsUiEvent.OnKeepScreenOnToggle -> onKeepScreenOnToggle(event.enabled)
         is SettingsUiEvent.OnDevModeToggle -> onDevModeToggle(event.enabled)
+        is SettingsUiEvent.OnExternalLinkWarningToggle -> onExternalLinkWarningToggle(event.enabled)
         is SettingsUiEvent.ExportBackup -> exportBackup(event.uri, event.password)
         is SettingsUiEvent.CheckBackupEncryption -> checkBackupEncryption(event.uri)
         is SettingsUiEvent.ImportBackup -> importBackup(
@@ -167,6 +169,11 @@ class SettingsViewModel(
     private fun onDevModeToggle(enabled: Boolean) {
         preferences.devModeEnabled = enabled
         _state.update { it.copy(devModeEnabled = enabled) }
+    }
+
+    private fun onExternalLinkWarningToggle(enabled: Boolean) {
+        preferences.externalLinkWarningEnabled = enabled
+        _state.update { it.copy(externalLinkWarningEnabled = enabled) }
     }
 
     private fun onWipeAppData() {

@@ -21,6 +21,7 @@ data class SettingsUiState(
     val hapticFeedbackEnabled: Boolean = true,
     val keepScreenOn: Boolean = false,
     val devModeEnabled: Boolean = false,
+    val externalLinkWarningEnabled: Boolean = true,
     val backupLoading: Boolean = false,
     val isBackupEncrypted: Boolean? = null,
     val wrongPasswordError: Boolean = false,

@@ -85,6 +85,8 @@
     <string name="settings_enable_app_lock">تفعيل قُفْل التطبيق</string>
     <string name="settings_haptic_feedback">الاستجابة اللمسية</string>
     <string name="settings_haptic_feedback_desc">اهتزاز خفيف عند التفاعل (مثل السحب للرد أو الضغط المطول)</string>
+    <string name="settings_external_link_warning">تحذير الروابط الخارجية</string>
+    <string name="settings_external_link_warning_desc">إظهار مربع حِوَار تأكيدي قبل فتح الروابط في المتصفح</string>
     <string name="settings_developer">المطور</string>
     <string name="settings_dev_name">kys0ff</string>
     <string name="settings_dev_click">لقد وجدتني. الآن ارحل بعيدًا.</string>

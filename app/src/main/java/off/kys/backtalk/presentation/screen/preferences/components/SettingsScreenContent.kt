@@ -217,6 +217,24 @@ fun SettingsScreenContent(
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
                 SettingsToggle(
+                    label = stringResource(R.string.settings_external_link_warning),
+                    supportingText = stringResource(R.string.settings_external_link_warning_desc),
+                    icon = painterResource(R.drawable.round_warning_24),
+                    checked = state.externalLinkWarningEnabled,
+                    onCheckedChange = {
+                        onEvent(
+                            SettingsUiEvent.OnExternalLinkWarningToggle(
+                                it
+                            )
+                        )
+                    }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+                SettingsToggle(
                     label = stringResource(R.string.settings_haptic_feedback),
                     supportingText = stringResource(R.string.settings_haptic_feedback_desc),
                     icon = painterResource(R.drawable.round_vibration_24),

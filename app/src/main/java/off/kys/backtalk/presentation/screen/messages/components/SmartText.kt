@@ -33,8 +33,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import off.kys.backtalk.R
+import off.kys.backtalk.common.pref.BacktalkPreferences
 import off.kys.backtalk.util.MarkdownParser
 import off.kys.backtalk.util.emptyString
+import org.koin.compose.koinInject
 
 /**
  * A custom [Text] composable that handles Markdown, links, and mentions.
@@ -54,6 +56,7 @@ fun SmartText(
     onMentionClicked: (String) -> Unit = {}
 ) {
     val uriHandler = LocalUriHandler.current
+    val preferences = koinInject<BacktalkPreferences>()
     val showSafetyDialog = remember { mutableStateOf(false) }
     var pendingUrl by remember { mutableStateOf(emptyString()) }
 
@@ -72,8 +75,12 @@ fun SmartText(
             when (annotation) {
                 is LinkAnnotation.Url -> {
                     if (clickableLink) {
-                        pendingUrl = annotation.url
-                        showSafetyDialog.value = true
+                        if (preferences.externalLinkWarningEnabled) {
+                            pendingUrl = annotation.url
+                            showSafetyDialog.value = true
+                        } else {
+                            uriHandler.openUri(annotation.url)
+                        }
                     }
                 }
 

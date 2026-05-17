@@ -82,6 +82,8 @@
     <string name="settings_enable_app_lock">Enable App Lock</string>
     <string name="settings_haptic_feedback">Haptic feedback</string>
     <string name="settings_haptic_feedback_desc">Vibrate on interactions like swipe-to-reply or long-press</string>
+    <string name="settings_external_link_warning">External link warning</string>
+    <string name="settings_external_link_warning_desc">Show a confirmation dialog before opening links in your browser</string>
     <string name="settings_developer">Developer</string>
     <string name="settings_dev_name">kys0ff</string>
     <string name="settings_dev_click">You found me. Now go away.</string>
