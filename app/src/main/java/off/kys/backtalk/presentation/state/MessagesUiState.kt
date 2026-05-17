@@ -23,5 +23,6 @@ data class MessagesUiState(
     val currentSearchResultIndex: Int = -1,
     val showPermissionRationale: Boolean = false,
     val showDeleteConfirmation: Boolean = false,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val selectedTag: String? = null
 )

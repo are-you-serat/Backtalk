@@ -3,6 +3,7 @@ package off.kys.backtalk.presentation.screen.messages.components
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -36,6 +37,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,21 +48,27 @@ import off.kys.backtalk.presentation.components.HintTooltip
 import off.kys.backtalk.util.emptyString
 
 /**
- * Composable function that displays the messages top bar.
+ * Composable function that displays the messages top bar, which dynamically switches between
+ * search, selection, and default viewing modes.
  *
- * @param scrollBehavior The scroll behavior of the top bar.
- * @param selectedCount The number of selected messages.
- * @param isSearchActive Whether the search mode is active.
- * @param searchQuery The current search query.
- * @param searchResultsCount The number of search results.
- * @param currentSearchIndex The current search result index.
- * @param onCloseSelection The callback function to handle closing the selection.
- * @param onDelete The callback function to handle deleting the selected message.
- * @param onCopy The callback function to handle copying the selected message.
- * @param onSettings The callback function to handle opening the settings screen.
- * @param onToggleSearch The callback function to toggle search mode.
- * @param onSearchQueryChange The callback function to update search query.
- * @param onNavigateSearch The callback function to navigate search results.
+ * @param scrollBehavior The scroll behavior of the top bar to handle elevation and color transitions.
+ * @param selectedCount The number of messages currently selected.
+ * @param isSearchActive Whether the search mode interface is currently active.
+ * @param searchQuery The current text query entered in the search field.
+ * @param searchResultsCount The total number of search results found.
+ * @param currentSearchIndex The current search result index for navigation.
+ * @param onCloseSelection Callback to clear the message selection and return to default state.
+ * @param onDelete Callback to handle the deletion of selected messages.
+ * @param onCopy Callback to handle copying the content of selected messages.
+ * @param onSettings Callback to navigate to the settings screen.
+ * @param onThreads Callback to navigate to the threads/conversations screen.
+ * @param onStatistics Callback to navigate to the statistics screen.
+ * @param onToggleSearch Callback to enable or disable the search mode.
+ * @param onSearchQueryChange Callback to update the current search query text.
+ * @param onNavigateSearch Callback to move between search results (true for up, false for down).
+ * @param tags A list of tag strings available for filtering.
+ * @param selectedTag The currently active filter tag, or null if no tag is selected.
+ * @param onTagClick Callback triggered when a tag is clicked for filtering.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,40 +87,69 @@ fun MessagesTopBar(
     onStatistics: () -> Unit,
     onToggleSearch: (Boolean) -> Unit,
     onSearchQueryChange: (String) -> Unit,
-    onNavigateSearch: (Boolean) -> Unit
+    onNavigateSearch: (Boolean) -> Unit,
+    tags: List<String>,
+    selectedTag: String?,
+    onTagClick: (String) -> Unit
 ) {
-    when {
-        isSearchActive -> {
-            SearchTopBar(
-                searchQuery = searchQuery,
-                searchResultsCount = searchResultsCount,
-                currentSearchIndex = currentSearchIndex,
-                onSearchQueryChange = onSearchQueryChange,
-                onNavigateSearch = onNavigateSearch,
-                onCloseSearch = { onToggleSearch(false) },
-                scrollBehavior = scrollBehavior
-            )
+    val appBarColors = TopAppBarDefaults.topAppBarColors()
+    val colorTransitionFraction = scrollBehavior.state.overlappedFraction
+    val containerColor = lerp(
+        appBarColors.containerColor,
+        appBarColors.scrolledContainerColor,
+        colorTransitionFraction
+    )
+
+    Column(
+        modifier = Modifier.background(containerColor)
+    ) {
+        val transparentTopAppBarColors = TopAppBarDefaults.topAppBarColors(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+            scrolledContainerColor = androidx.compose.ui.graphics.Color.Transparent
+        )
+
+        when {
+            isSearchActive -> {
+                SearchTopBar(
+                    searchQuery = searchQuery,
+                    searchResultsCount = searchResultsCount,
+                    currentSearchIndex = currentSearchIndex,
+                    onSearchQueryChange = onSearchQueryChange,
+                    onNavigateSearch = onNavigateSearch,
+                    onCloseSearch = { onToggleSearch(false) },
+                    scrollBehavior = scrollBehavior,
+                    colors = transparentTopAppBarColors
+                )
+            }
+
+            selectedCount > 0 -> {
+                SelectionTopBar(
+                    selectedCount = selectedCount,
+                    onCloseSelection = onCloseSelection,
+                    onDelete = onDelete,
+                    onCopy = onCopy,
+                    scrollBehavior = scrollBehavior,
+                    colors = transparentTopAppBarColors
+                )
+            }
+
+            else -> {
+                DefaultTopBar(
+                    onToggleSearch = { onToggleSearch(true) },
+                    onSettings = onSettings,
+                    onThreads = onThreads,
+                    onStatistics = onStatistics,
+                    scrollBehavior = scrollBehavior,
+                    colors = transparentTopAppBarColors
+                )
+            }
         }
 
-        selectedCount > 0 -> {
-            SelectionTopBar(
-                selectedCount = selectedCount,
-                onCloseSelection = onCloseSelection,
-                onDelete = onDelete,
-                onCopy = onCopy,
-                scrollBehavior = scrollBehavior
-            )
-        }
-
-        else -> {
-            DefaultTopBar(
-                onToggleSearch = { onToggleSearch(true) },
-                onSettings = onSettings,
-                onThreads = onThreads,
-                onStatistics = onStatistics,
-                scrollBehavior = scrollBehavior
-            )
-        }
+        TagFilterBar(
+            tags = tags,
+            selectedTag = selectedTag,
+            onTagClick = onTagClick
+        )
     }
 }
 
@@ -135,7 +172,8 @@ private fun SearchTopBar(
     onSearchQueryChange: (String) -> Unit,
     onNavigateSearch: (Boolean) -> Unit,
     onCloseSearch: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior
+    scrollBehavior: TopAppBarScrollBehavior,
+    colors: androidx.compose.material3.TopAppBarColors
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -182,7 +220,8 @@ private fun SearchTopBar(
                 )
             }
         },
-        scrollBehavior = scrollBehavior
+        scrollBehavior = scrollBehavior,
+        colors = colors
     )
 
     LaunchedEffect(Unit) {
@@ -256,7 +295,8 @@ private fun SelectionTopBar(
     onCloseSelection: () -> Unit,
     onDelete: () -> Unit,
     onCopy: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior
+    scrollBehavior: TopAppBarScrollBehavior,
+    colors: androidx.compose.material3.TopAppBarColors
 ) {
     TopAppBar(
         title = { Text(stringResource(R.string.chat_selection_count, selectedCount)) },
@@ -290,9 +330,7 @@ private fun SelectionTopBar(
             }
         },
         scrollBehavior = scrollBehavior,
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = TopAppBarDefaults.topAppBarColors().scrolledContainerColor
-        )
+        colors = colors
     )
 }
 
@@ -309,7 +347,8 @@ private fun DefaultTopBar(
     onSettings: () -> Unit,
     onThreads: () -> Unit,
     onStatistics: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior
+    scrollBehavior: TopAppBarScrollBehavior,
+    colors: androidx.compose.material3.TopAppBarColors
 ) {
     var showMenu by remember { mutableStateOf(false) }
 
@@ -388,7 +427,8 @@ private fun DefaultTopBar(
                 }
             }
         },
-        scrollBehavior = scrollBehavior
+        scrollBehavior = scrollBehavior,
+        colors = colors
     )
 }
 

@@ -26,14 +26,7 @@ import off.kys.backtalk.domain.model.MessageId
 import off.kys.backtalk.util.emptyString
 
 /**
- * Composable function that displays the messages list.
- *
- * @param ColumnScope The scope for the column.
- * @param messages The list of messages to display.
- * @param selectedMessageIds The set of selected message IDs.
- * @param onEditMessage The callback function to handle editing a message.
- * @param onReply The callback function to handle replying to a message.
- * @param onToggleSelect The callback function to handle toggling the selection of a message.
+ * Displays a scrollable list of messages with support for filtering, selection mode, and swipe actions
  */
 @Composable
 fun ColumnScope.MessagesList(
@@ -43,14 +36,27 @@ fun ColumnScope.MessagesList(
     onEditMessage: (MessageEntity?) -> Unit,
     onReply: (MessageEntity?) -> Unit,
     onToggleSelect: (MessageId) -> Unit,
-    searchQuery: String = emptyString()
+    searchQuery: String = emptyString(),
+    selectedTag: String? = null,
+    onTagClick: (String) -> Unit = {}
 ) {
     val coroutineScope = rememberCoroutineScope()
     var blinkMessageId by remember { mutableStateOf<MessageId?>(null) }
     val selectionMode = selectedMessageIds.isNotEmpty()
 
-    LaunchedEffect(messages.size) {
-        if (messages.isNotEmpty()) {
+    val filteredMessages = remember(messages, selectedTag) {
+        if (selectedTag == null) {
+            messages
+        } else {
+            messages.filter { message ->
+                val text = message.editedText ?: message.text
+                text.contains("#$selectedTag", ignoreCase = true)
+            }
+        }
+    }
+
+    LaunchedEffect(filteredMessages.size) {
+        if (filteredMessages.isNotEmpty()) {
             listState.animateScrollToItem(0)
         }
     }
@@ -64,7 +70,7 @@ fun ColumnScope.MessagesList(
         state = listState,
         reverseLayout = true
     ) {
-        val reversed = messages.reversed()
+        val reversed = filteredMessages.reversed()
 
         items(
             count = reversed.size,
@@ -94,7 +100,10 @@ fun ColumnScope.MessagesList(
             val canEdit = current.editedAt == null &&
                     (System.currentTimeMillis() - current.timestamp) < oneHourInMillis && current.voicePath == null
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.animateItem(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 if (showTimestamp) {
                     TimestampHeader(current.timestamp)
                 }
@@ -145,7 +154,8 @@ fun ColumnScope.MessagesList(
                         onLongClick = {
                             onToggleSelect(current.id)
                         },
-                        highlightQuery = searchQuery
+                        highlightQuery = searchQuery,
+                        onTagClick = onTagClick
                     )
                 }
             }

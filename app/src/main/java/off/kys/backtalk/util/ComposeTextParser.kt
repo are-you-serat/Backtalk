@@ -46,6 +46,7 @@ object ComposeTextParser {
     private val MARKDOWN_LINK_REGEX = Regex("""\[([^]]+)]\(([^)]+)\)""")
     private val NAKED_URL_REGEX = Regex("""(https?://[^\s)\]]+)""")
     private val MENTION_REGEX = Regex("""@(\w+)""")
+    private val HASHTAG_REGEX = Regex("""#(\w+)""")
 
     fun toAnnotatedString(
         text: String,
@@ -116,6 +117,17 @@ object ComposeTextParser {
             mentionMatch = mention
         }
 
+        // Check for hashtags
+        var hashtagMatch: MatchResult? = null
+        val hashtag = HASHTAG_REGEX.find(text)
+        if (hashtag != null && (earliestMatch == -1 || hashtag.range.first < earliestMatch)) {
+            earliestMatch = hashtag.range.first
+            bestStyle = null
+            linkMatch = null
+            mentionMatch = null
+            hashtagMatch = hashtag
+        }
+
         if (earliestMatch == -1) {
             builder.append(text)
             return
@@ -176,6 +188,25 @@ object ComposeTextParser {
                 }
                 parseRecursive(
                     text.substring(mentionMatch.range.last + 1),
+                    builder,
+                    linkStyles,
+                    onAnnotationClicked
+                )
+            }
+
+            hashtagMatch != null -> {
+                val tag = hashtagMatch.groupValues[1]
+                builder.withLink(
+                    LinkAnnotation.Clickable(
+                        tag = "hashtag:$tag",
+                        styles = linkStyles,
+                        linkInteractionListener = onAnnotationClicked
+                    )
+                ) {
+                    append("#$tag")
+                }
+                parseRecursive(
+                    text.substring(hashtagMatch.range.last + 1),
                     builder,
                     linkStyles,
                     onAnnotationClicked

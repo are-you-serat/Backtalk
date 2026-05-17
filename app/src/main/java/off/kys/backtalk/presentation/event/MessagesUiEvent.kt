@@ -104,4 +104,11 @@ sealed interface MessagesUiEvent {
      * UI event to dismiss the permission rationale dialog.
      */
     object DismissPermissionRationale : MessagesUiEvent
+
+    /**
+     * UI event to select a tag for filtering.
+     *
+     * @param tag The tag to select, or null to clear the filter.
+     */
+    data class SelectTag(val tag: String?) : MessagesUiEvent
 }

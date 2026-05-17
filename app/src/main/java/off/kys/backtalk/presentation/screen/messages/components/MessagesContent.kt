@@ -15,13 +15,18 @@ import off.kys.backtalk.presentation.state.MessagesUiState
 import off.kys.backtalk.util.emptyString
 
 /**
- * Composable function that displays the messages content.
+ * Composable function that displays the primary content of the messages screen, including
+ * the list of messages and relevant dialogs for permissions and deletions.
  *
- * @param modifier The modifier to be applied to the layout.
- * @param state The current state of the messages screen.
- * @param onEditMessage The callback function to handle editing a message.
- * @param onReply The callback function to handle replying to a message.
- * @param onToggleSelect The callback function to toggle the selection state of a message.
+ * @param modifier The [Modifier] to be applied to the layout.
+ * @param state The current UI state containing messages, selection data, and visibility flags for dialogs.
+ * @param listState The [LazyListState] used to control and observe the scroll position of the message list.
+ * @param onEditMessage Callback invoked when a message is selected for editing.
+ * @param onReply Callback invoked when a user intends to reply to a specific message.
+ * @param onToggleSelect Callback invoked to toggle the selection status of a message by its [MessageId].
+ * @param onDismissRationale Callback to dismiss the permission rationale dialog.
+ * @param onConfirmDelete Callback invoked to confirm and execute the deletion of selected messages.
+ * @param onDismissDelete Callback to dismiss the delete confirmation dialog.
  */
 @Composable
 fun MessagesContent(
@@ -33,9 +38,11 @@ fun MessagesContent(
     onToggleSelect: (MessageId) -> Unit,
     onDismissRationale: () -> Unit,
     onConfirmDelete: () -> Unit,
-    onDismissDelete: () -> Unit
+    onDismissDelete: () -> Unit,
+    onTagClick: (String) -> Unit
 ) {
     val context = LocalContext.current
+
     Column(modifier = modifier) {
         if (state.showPermissionRationale) {
             PermissionRationaleDialog(
@@ -68,7 +75,9 @@ fun MessagesContent(
             onEditMessage = onEditMessage,
             onReply = onReply,
             onToggleSelect = onToggleSelect,
-            searchQuery = if (state.isSearchActive) state.searchQuery else emptyString()
+            searchQuery = if (state.isSearchActive) state.searchQuery else emptyString(),
+            selectedTag = state.selectedTag,
+            onTagClick = onTagClick
         )
     }
 }

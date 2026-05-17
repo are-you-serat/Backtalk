@@ -31,6 +31,7 @@ import off.kys.backtalk.presentation.screen.statistics.StatisticsScreen
 import off.kys.backtalk.presentation.screen.threads.ThreadsScreen
 import off.kys.backtalk.presentation.viewmodel.MessagesViewModel
 import off.kys.backtalk.util.AudioPlayer
+import off.kys.backtalk.util.compose.rememberHashtags
 import off.kys.backtalk.util.compose.rememberScrollToBottomVisibility
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -48,6 +49,7 @@ class MessagesScreen : Screen {
         val messagesScrollState = rememberLazyListState()
         val scope = rememberCoroutineScope()
         val showScrollToBottom = rememberScrollToBottomVisibility(messagesScrollState)
+        val tags = rememberHashtags(state.messages)
 
         BackHandler(state.selectedMessageIds.isNotEmpty()) {
             viewModel.onEvent(MessagesUiEvent.ClearSelection)
@@ -102,9 +104,30 @@ class MessagesScreen : Screen {
                     onSettings = { navigator += SettingsScreen() },
                     onThreads = { navigator += ThreadsScreen() },
                     onStatistics = { navigator += StatisticsScreen() },
-                    onToggleSearch = { active: Boolean -> viewModel.onEvent(MessagesUiEvent.ToggleSearch(active)) },
-                    onSearchQueryChange = { query: String -> viewModel.onEvent(MessagesUiEvent.UpdateSearchQuery(query)) },
-                    onNavigateSearch = { up: Boolean -> viewModel.onEvent(MessagesUiEvent.NavigateSearch(up)) }
+                    onToggleSearch = { active: Boolean ->
+                        viewModel.onEvent(
+                            MessagesUiEvent.ToggleSearch(
+                                active
+                            )
+                        )
+                    },
+                    onSearchQueryChange = { query: String ->
+                        viewModel.onEvent(
+                            MessagesUiEvent.UpdateSearchQuery(
+                                query
+                            )
+                        )
+                    },
+                    onNavigateSearch = { up: Boolean ->
+                        viewModel.onEvent(
+                            MessagesUiEvent.NavigateSearch(
+                                up
+                            )
+                        )
+                    },
+                    tags = tags,
+                    selectedTag = state.selectedTag,
+                    onTagClick = { viewModel.onEvent(MessagesUiEvent.SelectTag(it)) }
                 )
             },
             bottomBar = {
@@ -116,7 +139,13 @@ class MessagesScreen : Screen {
                     onCancelEdit = { viewModel.onEvent(MessagesUiEvent.EditMessage(null)) },
                     onMessageSend = { viewModel.onEvent(MessagesUiEvent.SendMessage(it)) },
                     onVoiceSend = { path, duration, waveform ->
-                        viewModel.onEvent(MessagesUiEvent.SendVoiceMessage(path, duration, waveform))
+                        viewModel.onEvent(
+                            MessagesUiEvent.SendVoiceMessage(
+                                path,
+                                duration,
+                                waveform
+                            )
+                        )
                     },
                     onMessageSchedule = { text, time ->
                         viewModel.onEvent(MessagesUiEvent.ScheduleMessage(text, time))
@@ -143,7 +172,8 @@ class MessagesScreen : Screen {
                 onToggleSelect = { viewModel.onEvent(MessagesUiEvent.ToggleSelection(it)) },
                 onDismissRationale = { viewModel.onEvent(MessagesUiEvent.DismissPermissionRationale) },
                 onConfirmDelete = { viewModel.onEvent(MessagesUiEvent.ConfirmDeleteSelected) },
-                onDismissDelete = { viewModel.onEvent(MessagesUiEvent.DismissDeleteConfirmation) }
+                onDismissDelete = { viewModel.onEvent(MessagesUiEvent.DismissDeleteConfirmation) },
+                onTagClick = { viewModel.onEvent(MessagesUiEvent.SelectTag(it)) }
             )
         }
     }

@@ -114,7 +114,12 @@ fun SmartText(
                 }
 
                 is LinkAnnotation.Clickable -> {
-                    onMentionClicked(annotation.tag)
+                    if (annotation.tag.startsWith("hashtag:")) {
+                        val tag = annotation.tag.removePrefix("hashtag:")
+                        onMentionClicked(tag) // Reusing onMentionClicked for hashtags for now
+                    } else {
+                        onMentionClicked(annotation.tag)
+                    }
                 }
             }
         }

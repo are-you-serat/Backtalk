@@ -83,7 +83,8 @@ fun MessageBubble(
     onReplyPreviewClick: () -> Unit,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
-    highlightQuery: String? = null
+    highlightQuery: String? = null,
+    onTagClick: (String) -> Unit = {}
 ) {
     var showExtraInfo by remember { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
@@ -138,7 +139,8 @@ fun MessageBubble(
                 repliedMessage = repliedMessageEntity,
                 onReplyClick = onReplyPreviewClick,
                 showOriginal = showExtraInfo,
-                highlightQuery = highlightQuery
+                highlightQuery = highlightQuery,
+                onTagClick = onTagClick
             )
         }
 
@@ -232,7 +234,8 @@ private fun MessageContent(
     repliedMessage: MessageEntity?,
     onReplyClick: () -> Unit,
     showOriginal: Boolean,
-    highlightQuery: String? = null
+    highlightQuery: String? = null,
+    onTagClick: (String) -> Unit = {}
 ) {
     val contentColor = contentColorFor(MaterialTheme.colorScheme.primary)
 
@@ -264,7 +267,8 @@ private fun MessageContent(
                 style = MaterialTheme.typography.bodySmall,
                 color = contentColor.copy(alpha = 0.6f),
                 textDecoration = TextDecoration.LineThrough,
-                highlightQuery = highlightQuery
+                highlightQuery = highlightQuery,
+                onMentionClicked = onTagClick
             )
         }
 
@@ -272,7 +276,8 @@ private fun MessageContent(
             text = message.editedText ?: message.text,
             color = contentColor,
             style = MaterialTheme.typography.bodyLarge,
-            highlightQuery = highlightQuery
+            highlightQuery = highlightQuery,
+            onMentionClicked = onTagClick
         )
 
         if (message.editedText != null) {

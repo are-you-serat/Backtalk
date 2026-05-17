@@ -72,6 +72,11 @@ class MessagesViewModel(
             MessagesUiEvent.DismissPermissionRationale -> {
                 _uiState.value = _uiState.value.copy(showPermissionRationale = false)
             }
+            is MessagesUiEvent.SelectTag -> {
+                _uiState.value = _uiState.value.copy(
+                    selectedTag = if (_uiState.value.selectedTag == event.tag) null else event.tag
+                )
+            }
         }
     }
 
