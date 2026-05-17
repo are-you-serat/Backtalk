@@ -24,6 +24,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import kotlinx.coroutines.launch
 import off.kys.backtalk.presentation.event.MessagesUiEvent
+import off.kys.backtalk.presentation.screen.messages.components.InputBar
 import off.kys.backtalk.presentation.screen.messages.components.MessagesContent
 import off.kys.backtalk.presentation.screen.messages.components.MessagesTopBar
 import off.kys.backtalk.presentation.screen.messages.components.ScrollToBottomFab
@@ -112,6 +113,22 @@ class MessagesScreen : Screen {
                     onNavigateSearch = { up: Boolean -> viewModel.onEvent(MessagesUiEvent.NavigateSearch(up)) }
                 )
             },
+            bottomBar = {
+                InputBar(
+                    messageInput = state.editingMessage?.let { it.editedText ?: it.text }.orEmpty(),
+                    replyingTo = state.replyingTo,
+                    editingMessage = state.editingMessage,
+                    onCancelReply = { viewModel.onEvent(MessagesUiEvent.ReplyTo(null)) },
+                    onCancelEdit = { viewModel.onEvent(MessagesUiEvent.EditMessage(null)) },
+                    onMessageSend = { viewModel.onEvent(MessagesUiEvent.SendMessage(it)) },
+                    onVoiceSend = { path, duration, waveform ->
+                        viewModel.onEvent(MessagesUiEvent.SendVoiceMessage(path, duration, waveform))
+                    },
+                    onMessageSchedule = { text, time ->
+                        viewModel.onEvent(MessagesUiEvent.ScheduleMessage(text, time))
+                    }
+                )
+            },
             floatingActionButton = {
                 ScrollToBottomFab(
                     isVisible = showScrollToBottom,
@@ -130,13 +147,6 @@ class MessagesScreen : Screen {
                 onEditMessage = { viewModel.onEvent(MessagesUiEvent.EditMessage(it)) },
                 onReply = { viewModel.onEvent(MessagesUiEvent.ReplyTo(it)) },
                 onToggleSelect = { viewModel.onEvent(MessagesUiEvent.ToggleSelection(it)) },
-                onSend = { viewModel.onEvent(MessagesUiEvent.SendMessage(it)) },
-                onSendVoice = { path, duration, waveform ->
-                    viewModel.onEvent(MessagesUiEvent.SendVoiceMessage(path, duration, waveform))
-                },
-                onSchedule = { text, time ->
-                    viewModel.onEvent(MessagesUiEvent.ScheduleMessage(text, time))
-                },
                 onDismissRationale = { viewModel.onEvent(MessagesUiEvent.DismissPermissionRationale) },
                 onConfirmDelete = { viewModel.onEvent(MessagesUiEvent.ConfirmDeleteSelected) },
                 onDismissDelete = { viewModel.onEvent(MessagesUiEvent.DismissDeleteConfirmation) }

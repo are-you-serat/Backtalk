@@ -13,6 +13,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -24,6 +26,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -51,6 +54,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -201,9 +205,9 @@ fun InputBar(
             repeat(4) {
                 shakeOffset.animateTo(
                     targetValue = if (it % 2 == 0) 15f else -15f,
-                    animationSpec = androidx.compose.animation.core.spring(
-                        dampingRatio = androidx.compose.animation.core.Spring.DampingRatioHighBouncy,
-                        stiffness = androidx.compose.animation.core.Spring.StiffnessHigh
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioHighBouncy,
+                        stiffness = Spring.StiffnessHigh
                     )
                 )
             }
@@ -320,8 +324,8 @@ fun InputBar(
                                             handleScheduleClick()
                                         }
                                     },
-                                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-                                    indication = androidx.compose.material3.ripple(bounded = false)
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = ripple(bounded = false)
                                 ),
                             contentAlignment = Alignment.Center
                         ) {

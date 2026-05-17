@@ -22,7 +22,6 @@ import off.kys.backtalk.util.emptyString
  * @param onEditMessage The callback function to handle editing a message.
  * @param onReply The callback function to handle replying to a message.
  * @param onToggleSelect The callback function to toggle the selection state of a message.
- * @param onSend The callback function to handle sending a message.
  */
 @Composable
 fun MessagesContent(
@@ -32,9 +31,6 @@ fun MessagesContent(
     onEditMessage: (MessageEntity?) -> Unit,
     onReply: (MessageEntity?) -> Unit,
     onToggleSelect: (MessageId) -> Unit,
-    onSend: (String) -> Unit,
-    onSendVoice: (String, Long, List<Float>) -> Unit,
-    onSchedule: (String, Long) -> Unit,
     onDismissRationale: () -> Unit,
     onConfirmDelete: () -> Unit,
     onDismissDelete: () -> Unit
@@ -73,17 +69,6 @@ fun MessagesContent(
             onReply = onReply,
             onToggleSelect = onToggleSelect,
             searchQuery = if (state.isSearchActive) state.searchQuery else emptyString()
-        )
-
-        InputBar(
-            messageInput = state.editingMessage?.let { it.editedText ?: it.text }.orEmpty(),
-            replyingTo = state.replyingTo,
-            editingMessage = state.editingMessage,
-            onCancelReply = { onReply(null) },
-            onCancelEdit = { onEditMessage(null) },
-            onMessageSend = onSend,
-            onVoiceSend = onSendVoice,
-            onMessageSchedule = onSchedule
         )
     }
 }

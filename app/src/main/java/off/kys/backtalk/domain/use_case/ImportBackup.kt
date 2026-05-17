@@ -101,6 +101,7 @@ class ImportBackup(
                         value.toBoolean()
                     BacktalkPreferences.KEY_AUTO_UPDATE -> preferences.autoUpdateEnabled =
                         value.toBoolean()
+
                 }
             }
 
