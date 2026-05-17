@@ -37,29 +37,9 @@ object MarkdownParser {
     fun toAnnotatedString(
         text: String,
         linkStyles: TextLinkStyles? = null,
-        highlightQuery: String? = null,
         onAnnotationClicked: ((LinkAnnotation) -> Unit)? = null
     ): AnnotatedString = buildAnnotatedString {
-        val base = buildAnnotatedString {
-            parseRecursive(text, this, linkStyles, onAnnotationClicked)
-        }
-        append(base)
-
-        if (!highlightQuery.isNullOrBlank()) {
-            val terms = highlightQuery.lowercase().split(" ").filter { it.isNotBlank() }
-            val lowerText = base.text.lowercase()
-            for (term in terms) {
-                var index = lowerText.indexOf(term)
-                while (index != -1) {
-                    addStyle(
-                        style = SpanStyle(background = androidx.compose.ui.graphics.Color.Yellow.copy(alpha = 0.4f)),
-                        start = index,
-                        end = index + term.length
-                    )
-                    index = lowerText.indexOf(term, index + term.length)
-                }
-            }
-        }
+        parseRecursive(text, this, linkStyles, onAnnotationClicked)
     }
 
     private fun parseRecursive(
