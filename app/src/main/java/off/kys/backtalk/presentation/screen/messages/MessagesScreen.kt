@@ -13,9 +13,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -33,6 +31,7 @@ import off.kys.backtalk.presentation.screen.statistics.StatisticsScreen
 import off.kys.backtalk.presentation.screen.threads.ThreadsScreen
 import off.kys.backtalk.presentation.viewmodel.MessagesViewModel
 import off.kys.backtalk.util.AudioPlayer
+import off.kys.backtalk.util.compose.rememberScrollToBottomVisibility
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -53,13 +52,9 @@ class MessagesScreen : Screen {
 
         val state by viewModel.uiState
         val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
-        val listState = rememberLazyListState()
+        val messagesScrollState = rememberLazyListState()
         val scope = rememberCoroutineScope()
-        val showScrollToBottom by remember {
-            derivedStateOf {
-                listState.firstVisibleItemIndex > 2
-            }
-        }
+        val showScrollToBottom = rememberScrollToBottomVisibility(messagesScrollState)
 
         BackHandler(state.selectedMessageIds.isNotEmpty()) {
             viewModel.onEvent(MessagesUiEvent.ClearSelection)
@@ -86,7 +81,7 @@ class MessagesScreen : Screen {
                 val targetId = state.searchResults[state.currentSearchResultIndex]
                 val targetIndex = state.messages.reversed().indexOfFirst { it.id == targetId }
                 if (targetIndex != -1) {
-                    listState.animateScrollToItem(targetIndex)
+                    messagesScrollState.animateScrollToItem(targetIndex)
                 }
             }
         }
@@ -134,7 +129,7 @@ class MessagesScreen : Screen {
                     isVisible = showScrollToBottom,
                     onClick = {
                         scope.launch {
-                            listState.animateScrollToItem(0)
+                            messagesScrollState.animateScrollToItem(0)
                         }
                     }
                 )
@@ -143,7 +138,7 @@ class MessagesScreen : Screen {
             MessagesContent(
                 modifier = Modifier.padding(scaffoldPadding),
                 state = state,
-                listState = listState,
+                listState = messagesScrollState,
                 onEditMessage = { viewModel.onEvent(MessagesUiEvent.EditMessage(it)) },
                 onReply = { viewModel.onEvent(MessagesUiEvent.ReplyTo(it)) },
                 onToggleSelect = { viewModel.onEvent(MessagesUiEvent.ToggleSelection(it)) },
