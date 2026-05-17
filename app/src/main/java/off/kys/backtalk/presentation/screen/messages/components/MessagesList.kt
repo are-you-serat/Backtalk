@@ -25,9 +25,6 @@ import off.kys.backtalk.data.local.entity.MessageEntity
 import off.kys.backtalk.domain.model.MessageId
 import off.kys.backtalk.util.emptyString
 
-/**
- * Displays a scrollable list of messages with support for filtering, selection mode, and swipe actions
- */
 @Composable
 fun ColumnScope.MessagesList(
     messages: List<MessageEntity>,
@@ -51,7 +48,7 @@ fun ColumnScope.MessagesList(
             messages.filter { message ->
                 val text = message.editedText ?: message.text
                 text.contains("#$selectedTag", ignoreCase = true)
-            }
+            }.ifEmpty { messages }
         }
     }
 
