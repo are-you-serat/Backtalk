@@ -2,7 +2,6 @@ package off.kys.backtalk.presentation.screen.messages.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,7 +26,7 @@ fun VoiceRecordingIndicator(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight()
+            .height(56.dp)
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)

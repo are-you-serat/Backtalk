@@ -271,7 +271,7 @@ fun InputBar(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .heightIn(min = 56.dp) // now we have fixed issue #13 user cant see what he is typing because rge text field height was fixed on 56
+                        .heightIn(min = 56.dp)
                 ) {
                     this@Row.AnimatedVisibility(
                         visible = !isRecording,

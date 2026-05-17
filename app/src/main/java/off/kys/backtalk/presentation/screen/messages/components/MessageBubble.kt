@@ -241,6 +241,15 @@ private fun MessageContent(
         Spacer(modifier = Modifier.height(4.dp))
     }
 
+    if (repliedMessage != null) {
+        ReplyPreview(
+            text = if (repliedMessage.voicePath != null) stringResource(R.string.chat_voice_message) else repliedMessage.text,
+            voicePath = repliedMessage.voicePath,
+            onPreviewClick = onReplyClick
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+    }
+
     if (message.voicePath != null) {
         VoiceMessageBubble(
             voicePath = message.voicePath,
@@ -249,11 +258,6 @@ private fun MessageContent(
             contentColor = contentColor
         )
     } else {
-        if (repliedMessage != null) {
-            ReplyPreview(text = repliedMessage.text, onPreviewClick = onReplyClick)
-            Spacer(modifier = Modifier.height(4.dp))
-        }
-
         if (message.editedText != null && showOriginal) {
             SmartText(
                 text = message.text,

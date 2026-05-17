@@ -30,6 +30,7 @@
     <string name="chat_input_hint">Write a message…</string>
     <string name="chat_selection_count">%1$d selected</string>
     <string name="chat_replying_to">Replying to</string>
+    <string name="chat_voice_message">Voice Message</string>
     <string name="chat_copy_success">Copied to clipboard</string>
     <string name="chat_copy_label">Copied text</string>
     <string name="chat_status_edited">edited</string>

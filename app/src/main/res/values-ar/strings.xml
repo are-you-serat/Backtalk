@@ -28,6 +28,7 @@
     <string name="chat_input_hint">اكتب رسالة…</string>
     <string name="chat_selection_count">تم اختيار %1$d</string>
     <string name="chat_replying_to">الرد على</string>
+    <string name="chat_voice_message">رسالة صوتية</string>
     <string name="chat_copy_success">تم النسخ إلى الحافظة</string>
     <string name="chat_copy_label">النص المنسوخ</string>
     <string name="chat_status_edited">مُعدّلة</string>

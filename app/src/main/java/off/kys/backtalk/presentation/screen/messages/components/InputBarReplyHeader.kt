@@ -56,8 +56,13 @@ fun InputBarReplyHeader(
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
+                val replyText = when {
+                    editingMessage != null -> editingMessage.text
+                    replyingTo?.voicePath != null -> stringResource(R.string.chat_voice_message)
+                    else -> replyingTo?.text ?: emptyString()
+                }
                 SmartText(
-                    text = (editingMessage ?: replyingTo)?.text ?: emptyString(),
+                    text = replyText,
                     clickableLink = false,
                     maxLines = 1,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
