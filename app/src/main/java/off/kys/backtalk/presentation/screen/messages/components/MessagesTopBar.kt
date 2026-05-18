@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -102,12 +103,10 @@ fun MessagesTopBar(
         colorTransitionFraction
     )
 
-    Column(
-        modifier = Modifier.background(containerColor)
-    ) {
+    Column(Modifier.background(containerColor)) {
         val transparentTopAppBarColors = TopAppBarDefaults.topAppBarColors(
-            containerColor = androidx.compose.ui.graphics.Color.Transparent,
-            scrolledContainerColor = androidx.compose.ui.graphics.Color.Transparent
+            containerColor = Color.Transparent,
+            scrolledContainerColor = Color.Transparent
         )
 
         when {
@@ -412,7 +411,7 @@ private fun DefaultTopBar(
                     ) {
                         MenuOption(
                             label = stringResource(R.string.threads_title),
-                            icon = R.drawable.thread_24px,
+                            icon = R.drawable.round_thread_24px,
                             onClick = {
                                 showMenu = false
                                 onThreads()

@@ -408,7 +408,7 @@ fun SettingsScreenContent(
                 SettingsItem(
                     label = stringResource(R.string.settings_license),
                     value = stringResource(R.string.settings_license_desc),
-                    icon = painterResource(R.drawable.code_xml_24px),
+                    icon = painterResource(R.drawable.round_code_xml_24px),
                     onClick = onLicenseClicked
                 )
                 HorizontalDivider(
