@@ -78,6 +78,7 @@ fun SmartText(
     maxLines: Int = Int.MAX_VALUE,
     lineHeight: TextUnit = TextUnit.Unspecified,
     highlightQuery: String? = null,
+    overflow: TextOverflow = TextOverflow.Visible,
     onMentionClicked: (String) -> Unit = {}
 ) {
     val uriHandler = LocalUriHandler.current
@@ -205,6 +206,7 @@ fun SmartText(
             },
         maxLines = maxLines,
         lineHeight = lineHeight,
+        overflow = overflow,
         style = style.copy(
             textDirection = TextDirection.Content,
             color = if (color != Color.Unspecified) color else style.color,

@@ -11,6 +11,7 @@ import off.kys.backtalk.data.local.migrations.MIGRATION_1_2
 import off.kys.backtalk.data.local.migrations.MIGRATION_2_3
 import off.kys.backtalk.data.local.migrations.MIGRATION_3_4
 import off.kys.backtalk.data.local.migrations.MIGRATION_4_5
+import off.kys.backtalk.data.local.migrations.MIGRATION_5_6
 import off.kys.backtalk.data.repository.BackupRepositoryImpl
 import off.kys.backtalk.data.repository.MessagesRepositoryImpl
 import off.kys.backtalk.data.repository.SyncRepositoryImpl
@@ -27,6 +28,7 @@ import off.kys.backtalk.domain.use_case.GetAllScheduledMessages
 import off.kys.backtalk.domain.use_case.GetMessageById
 import off.kys.backtalk.domain.use_case.ImportBackup
 import off.kys.backtalk.domain.use_case.InsertMessage
+import off.kys.backtalk.domain.use_case.TogglePinMessage
 import off.kys.backtalk.domain.use_case.ScheduleMessageUseCase
 import off.kys.backtalk.domain.use_case.SyncData
 import off.kys.backtalk.domain.use_case.WipeAppData
@@ -78,7 +80,7 @@ private fun Module.databaseModule() {
             MessagesDatabase::class.java,
             "msgs_db"
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .build()
     }
 
@@ -110,6 +112,7 @@ private fun Module.useCaseModule() {
     single { DeleteMessageById(get()) }
     single { CopyMessagesByIds(get(), get()) }
     single { ScheduleMessageUseCase(get(), get()) }
+    single { TogglePinMessage(get()) }
     single { GetAllScheduledMessages(get()) }
     single { CancelScheduledMessage(get(), get()) }
     single { CheckAppUpdate() }
@@ -126,7 +129,8 @@ private fun Module.useCaseModule() {
             copyMessagesByIds = get(),
             scheduleMessage = get(),
             getAllScheduledMessages = get(),
-            cancelScheduledMessage = get()
+            cancelScheduledMessage = get(),
+            togglePinMessage = get()
         )
     }
     single {

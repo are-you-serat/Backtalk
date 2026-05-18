@@ -71,4 +71,8 @@ class MessagesRepositoryImpl(
     override suspend fun getAllMessagesSync(): List<MessageEntity> {
         return messagesDao.getAllMessagesSync()
     }
+
+    override suspend fun updatePinnedStatus(id: MessageId, isPinned: Boolean) {
+        messagesDao.updatePinnedStatus(id, isPinned)
+    }
 }

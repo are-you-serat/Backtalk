@@ -239,8 +239,18 @@ private fun MessageContent(
 ) {
     val contentColor = contentColorFor(MaterialTheme.colorScheme.primary)
 
-    if (message.isReminder) {
-        ReminderTag(contentColor)
+    if (message.isReminder || message.isPinned) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            if (message.isReminder) {
+                ReminderTag(contentColor)
+            }
+            if (message.isPinned) {
+                PinTag(contentColor)
+            }
+        }
         Spacer(modifier = Modifier.height(4.dp))
     }
 
@@ -311,6 +321,33 @@ private fun ReminderTag(contentColor: Color) {
             )
             Text(
                 text = stringResource(R.string.chat_reminder_tag),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = contentColor
+            )
+        }
+    }
+}
+
+@Composable
+private fun PinTag(contentColor: Color) {
+    Surface(
+        color = contentColor.copy(alpha = 0.15f),
+        shape = RoundedCornerShape(4.dp)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.round_push_pin_24),
+                contentDescription = null,
+                modifier = Modifier.size(12.dp),
+                tint = contentColor
+            )
+            Text(
+                text = "Pinned",
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Bold,
                 color = contentColor

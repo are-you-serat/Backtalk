@@ -16,7 +16,7 @@ import off.kys.backtalk.data.local.entity.ScheduledMessageEntity
  */
 @Database(
     entities = [MessageEntity::class, ScheduledMessageEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

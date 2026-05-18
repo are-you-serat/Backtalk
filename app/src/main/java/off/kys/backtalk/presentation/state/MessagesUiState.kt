@@ -24,5 +24,8 @@ data class MessagesUiState(
     val showPermissionRationale: Boolean = false,
     val showDeleteConfirmation: Boolean = false,
     val isLoading: Boolean = true,
-    val selectedTag: String? = null
+    val selectedTag: String? = null,
+    val pinnedMessages: List<MessageEntity> = emptyList(),
+    val activePinnedMessageIndex: Int = 0,
+    val showPinnedMessagesDialog: Boolean = false
 )

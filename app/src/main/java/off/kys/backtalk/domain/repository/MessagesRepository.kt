@@ -73,4 +73,12 @@ interface MessagesRepository {
      * Retrieves all messages as a list.
      */
     suspend fun getAllMessagesSync(): List<MessageEntity>
+
+    /**
+     * Updates the pinned status of a message.
+     *
+     * @param id The ID of the message to update.
+     * @param isPinned The new pinned status.
+     */
+    suspend fun updatePinnedStatus(id: MessageId, isPinned: Boolean)
 }

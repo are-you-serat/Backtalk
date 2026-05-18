@@ -4,11 +4,17 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import off.kys.backtalk.data.local.entity.MessageEntity
 import off.kys.backtalk.domain.model.MessageId
 import off.kys.backtalk.presentation.state.MessagesUiState
@@ -39,11 +45,55 @@ fun MessagesContent(
     onDismissRationale: () -> Unit,
     onConfirmDelete: () -> Unit,
     onDismissDelete: () -> Unit,
-    onTagClick: (String) -> Unit
+    onTagClick: (String) -> Unit,
+    onNavigatePinned: () -> Unit,
+    onTogglePinnedDialog: (Boolean) -> Unit,
+    onTogglePin: (MessageEntity, Boolean) -> Unit,
+    onScrollToMessage: (MessageId) -> Unit
 ) {
     val context = LocalContext.current
 
-    Column(modifier = modifier) {
+    Box(modifier = modifier.fillMaxSize()) {
+        MessagesList(
+            messages = state.messages,
+            selectedMessageIds = state.selectedMessageIds,
+            listState = listState,
+            onEditMessage = onEditMessage,
+            onReply = onReply,
+            onToggleSelect = onToggleSelect,
+            searchQuery = if (state.isSearchActive) state.searchQuery else emptyString(),
+            selectedTag = state.selectedTag,
+            onTagClick = onTagClick,
+            contentPadding = if (state.pinnedMessages.isNotEmpty()) PaddingValues(top = 32.dp) else PaddingValues(
+                0.dp
+            )
+        )
+
+        if (state.pinnedMessages.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter)
+                    .padding(horizontal = 8.dp, vertical = 6.dp),
+            ) {
+                PinnedMessageBar(
+                    pinnedMessages = state.pinnedMessages,
+                    activeIndex = state.activePinnedMessageIndex,
+                    onClick = onNavigatePinned,
+                    onListClick = { onTogglePinnedDialog(true) }
+                )
+            }
+        }
+
+        if (state.showPinnedMessagesDialog) {
+            PinnedMessagesDialog(
+                pinnedMessages = state.pinnedMessages,
+                onMessageClick = { onScrollToMessage(it.id) },
+                onUnpinClick = { onTogglePin(it, false) },
+                onDismiss = { onTogglePinnedDialog(false) }
+            )
+        }
+
         if (state.showPermissionRationale) {
             PermissionRationaleDialog(
                 onDismiss = onDismissRationale,
@@ -67,17 +117,5 @@ fun MessagesContent(
                 onDismiss = onDismissDelete
             )
         }
-
-        MessagesList(
-            messages = state.messages,
-            selectedMessageIds = state.selectedMessageIds,
-            listState = listState,
-            onEditMessage = onEditMessage,
-            onReply = onReply,
-            onToggleSelect = onToggleSelect,
-            searchQuery = if (state.isSearchActive) state.searchQuery else emptyString(),
-            selectedTag = state.selectedTag,
-            onTagClick = onTagClick
-        )
     }
 }

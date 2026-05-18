@@ -69,4 +69,13 @@ interface MessagesDao {
      */
     @Query("SELECT * FROM messages")
     suspend fun getAllMessagesSync(): List<MessageEntity>
+
+    /**
+     * Updates the pinned status of a message.
+     *
+     * @param id The [MessageId] of the message to update.
+     * @param isPinned The new pinned status.
+     */
+    @Query("UPDATE messages SET isPinned = :isPinned WHERE id = :id")
+    suspend fun updatePinnedStatus(id: MessageId, isPinned: Boolean)
 }

@@ -72,10 +72,24 @@ class MessagesScreen : Screen {
             viewModel.onEvent(MessagesUiEvent.ToggleSearch(false))
         }
 
+        BackHandler(state.showPinnedMessagesDialog) {
+            viewModel.onEvent(MessagesUiEvent.TogglePinnedMessagesDialog(false))
+        }
+
         LaunchedEffect(state.currentSearchResultIndex) {
             if (state.isSearchActive && state.currentSearchResultIndex != -1) {
                 val targetId = state.searchResults[state.currentSearchResultIndex]
                 val targetIndex = state.messages.reversed().indexOfFirst { it.id == targetId }
+                if (targetIndex != -1) {
+                    messagesScrollState.animateScrollToItem(targetIndex)
+                }
+            }
+        }
+
+        LaunchedEffect(state.activePinnedMessageIndex) {
+            val activePinned = state.pinnedMessages.getOrNull(state.activePinnedMessageIndex)
+            if (activePinned != null) {
+                val targetIndex = state.messages.asReversed().indexOfFirst { it.id == activePinned.id }
                 if (targetIndex != -1) {
                     messagesScrollState.animateScrollToItem(targetIndex)
                 }
@@ -102,6 +116,14 @@ class MessagesScreen : Screen {
                     onCloseSelection = { viewModel.onEvent(MessagesUiEvent.ClearSelection) },
                     onDelete = { viewModel.onEvent(MessagesUiEvent.DeleteSelected) },
                     onCopy = { viewModel.onEvent(MessagesUiEvent.CopySelected) },
+                    onPin = {
+                        val selectedId = state.selectedMessageIds.firstOrNull()
+                        if (selectedId != null) {
+                            val isPinned = state.messages.find { it.id == selectedId }?.isPinned ?: false
+                            viewModel.onEvent(MessagesUiEvent.TogglePinMessage(selectedId, !isPinned))
+                            viewModel.onEvent(MessagesUiEvent.ClearSelection)
+                        }
+                    },
                     onSettings = { navigator += SettingsScreen() },
                     onThreads = { navigator += ThreadsScreen() },
                     onReminders = { navigator += RemindersScreen() },
@@ -175,7 +197,21 @@ class MessagesScreen : Screen {
                 onDismissRationale = { viewModel.onEvent(MessagesUiEvent.DismissPermissionRationale) },
                 onConfirmDelete = { viewModel.onEvent(MessagesUiEvent.ConfirmDeleteSelected) },
                 onDismissDelete = { viewModel.onEvent(MessagesUiEvent.DismissDeleteConfirmation) },
-                onTagClick = { viewModel.onEvent(MessagesUiEvent.SelectTag(it)) }
+                onTagClick = { viewModel.onEvent(MessagesUiEvent.SelectTag(it)) },
+                onNavigatePinned = {
+                    viewModel.onEvent(MessagesUiEvent.NavigatePinned)
+                },
+                onTogglePinnedDialog = { viewModel.onEvent(MessagesUiEvent.TogglePinnedMessagesDialog(it)) },
+                onTogglePin = { message, isPinned -> viewModel.onEvent(MessagesUiEvent.TogglePinMessage(message.id, isPinned)) },
+                onScrollToMessage = { id ->
+                    scope.launch {
+                        val targetIndex = state.messages.asReversed().indexOfFirst { it.id == id }
+                        if (targetIndex != -1) {
+                            messagesScrollState.animateScrollToItem(targetIndex)
+                        }
+                    }
+                    viewModel.onEvent(MessagesUiEvent.ScrollToMessage(id))
+                }
             )
         }
     }

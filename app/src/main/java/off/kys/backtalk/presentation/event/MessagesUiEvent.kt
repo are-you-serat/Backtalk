@@ -111,4 +111,24 @@ sealed interface MessagesUiEvent {
      * @param tag The tag to select, or null to clear the filter.
      */
     data class SelectTag(val tag: String?) : MessagesUiEvent
+
+    /**
+     * UI event to toggle the pinned status of a message.
+     */
+    data class TogglePinMessage(val id: MessageId, val isPinned: Boolean) : MessagesUiEvent
+
+    /**
+     * UI event to navigate to the next pinned message.
+     */
+    object NavigatePinned : MessagesUiEvent
+
+    /**
+     * UI event to toggle the pinned messages dialog.
+     */
+    data class TogglePinnedMessagesDialog(val show: Boolean) : MessagesUiEvent
+
+    /**
+     * UI event to scroll to a specific message.
+     */
+    data class ScrollToMessage(val id: MessageId) : MessagesUiEvent
 }

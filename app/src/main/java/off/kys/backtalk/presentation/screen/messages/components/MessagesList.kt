@@ -2,9 +2,9 @@ package off.kys.backtalk.presentation.screen.messages.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
@@ -26,10 +26,11 @@ import off.kys.backtalk.domain.model.MessageId
 import off.kys.backtalk.util.emptyString
 
 @Composable
-fun ColumnScope.MessagesList(
+fun MessagesList(
     messages: List<MessageEntity>,
     selectedMessageIds: Set<MessageId>,
     listState: LazyListState,
+    contentPadding: PaddingValues,
     onEditMessage: (MessageEntity?) -> Unit,
     onReply: (MessageEntity?) -> Unit,
     onToggleSelect: (MessageId) -> Unit,
@@ -59,10 +60,8 @@ fun ColumnScope.MessagesList(
     }
 
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .weight(1f),
-        contentPadding = PaddingValues(16.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp) + contentPadding,
         verticalArrangement = Arrangement.spacedBy(2.dp),
         state = listState,
         reverseLayout = true

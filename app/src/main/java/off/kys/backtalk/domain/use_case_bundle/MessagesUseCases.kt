@@ -8,6 +8,7 @@ import off.kys.backtalk.domain.use_case.GetAllScheduledMessages
 import off.kys.backtalk.domain.use_case.GetMessageById
 import off.kys.backtalk.domain.use_case.InsertMessage
 import off.kys.backtalk.domain.use_case.ScheduleMessageUseCase
+import off.kys.backtalk.domain.use_case.TogglePinMessage
 
 /**
  * A bundle of use cases related to message operations.
@@ -23,5 +24,6 @@ data class MessagesUseCases(
     val copyMessagesByIds: CopyMessagesByIds,
     val scheduleMessage: ScheduleMessageUseCase,
     val getAllScheduledMessages: GetAllScheduledMessages,
-    val cancelScheduledMessage: CancelScheduledMessage
+    val cancelScheduledMessage: CancelScheduledMessage,
+    val togglePinMessage: TogglePinMessage
 )

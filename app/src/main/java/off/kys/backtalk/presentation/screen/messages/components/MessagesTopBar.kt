@@ -82,6 +82,7 @@ fun MessagesTopBar(
     onCloseSelection: () -> Unit,
     onDelete: () -> Unit,
     onCopy: () -> Unit,
+    onPin: () -> Unit,
     onSettings: () -> Unit,
     onThreads: () -> Unit,
     onReminders: () -> Unit,
@@ -129,6 +130,7 @@ fun MessagesTopBar(
                     onCloseSelection = onCloseSelection,
                     onDelete = onDelete,
                     onCopy = onCopy,
+                    onPin = onPin,
                     scrollBehavior = scrollBehavior,
                     colors = transparentTopAppBarColors
                 )
@@ -297,6 +299,7 @@ private fun SelectionTopBar(
     onCloseSelection: () -> Unit,
     onDelete: () -> Unit,
     onCopy: () -> Unit,
+    onPin: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior,
     colors: androidx.compose.material3.TopAppBarColors
 ) {
@@ -313,6 +316,17 @@ private fun SelectionTopBar(
             }
         },
         actions = {
+            if (selectedCount == 1) {
+                HintTooltip("Pin") {
+                    IconButton(onClick = onPin) {
+                        Icon(
+                            painter = painterResource(R.drawable.round_push_pin_24),
+                            contentDescription = "Pin",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
             HintTooltip(stringResource(R.string.common_delete)) {
                 IconButton(onClick = onDelete) {
                     Icon(

@@ -77,7 +77,32 @@ class MessagesViewModel(
                     selectedTag = if (_uiState.value.selectedTag == event.tag) null else event.tag
                 )
             }
+            is MessagesUiEvent.TogglePinMessage -> togglePinMessage(event.id, event.isPinned)
+            is MessagesUiEvent.NavigatePinned -> navigatePinned()
+            is MessagesUiEvent.TogglePinnedMessagesDialog -> {
+                _uiState.value = _uiState.value.copy(showPinnedMessagesDialog = event.show)
+            }
+            is MessagesUiEvent.ScrollToMessage -> {
+                // This event might be handled by the UI layer via a SideEffect if needed,
+                // but we can also just update state if we want to trigger a scroll.
+                // For now, if it's from the dialog, we might just need to ensure the dialog closes.
+                _uiState.value = _uiState.value.copy(showPinnedMessagesDialog = false)
+            }
         }
+    }
+
+    private fun togglePinMessage(id: MessageId, isPinned: Boolean) {
+        viewModelScope.launch {
+            useCases.togglePinMessage(id, isPinned)
+        }
+    }
+
+    private fun navigatePinned() {
+        val state = _uiState.value
+        if (state.pinnedMessages.isEmpty()) return
+        
+        val nextIndex = (state.activePinnedMessageIndex + 1) % state.pinnedMessages.size
+        _uiState.value = state.copy(activePinnedMessageIndex = nextIndex)
     }
 
     /**
@@ -103,9 +128,14 @@ class MessagesViewModel(
     private fun loadMessages() {
         viewModelScope.launch {
             useCases.getAllMessages().collect { messages ->
+                val sortedMessages = messages.sortedBy { it.timestamp }
+                val pinnedMessages = sortedMessages.filter { it.isPinned }.reversed() // Newest pinned first for the bar
+                
                 _uiState.value = _uiState.value.copy(
-                    messages = messages.sortedBy { it.timestamp },
-                    isLoading = false
+                    messages = sortedMessages,
+                    pinnedMessages = pinnedMessages,
+                    isLoading = false,
+                    activePinnedMessageIndex = if (pinnedMessages.isEmpty()) 0 else _uiState.value.activePinnedMessageIndex % pinnedMessages.size
                 )
             }
         }

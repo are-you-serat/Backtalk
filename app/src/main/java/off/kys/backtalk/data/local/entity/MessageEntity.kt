@@ -37,5 +37,6 @@ data class MessageEntity(
     val waveformData: List<Float>? = null,
     val isReminder: Boolean = false,
     val originalCreationTimestamp: Long? = null,
-    val scheduledTimestamp: Long? = null
+    val scheduledTimestamp: Long? = null,
+    val isPinned: Boolean = false
 )
