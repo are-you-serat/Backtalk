@@ -7,8 +7,6 @@ import android.provider.Settings
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -71,19 +69,13 @@ fun MessagesContent(
         )
 
         if (state.pinnedMessages.isNotEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.TopCenter)
-                    .padding(horizontal = 8.dp, vertical = 6.dp),
-            ) {
-                PinnedMessageBar(
-                    pinnedMessages = state.pinnedMessages,
-                    activeIndex = state.activePinnedMessageIndex,
-                    onClick = onNavigatePinned,
-                    onListClick = { onTogglePinnedDialog(true) }
-                )
-            }
+            PinnedMessageBar(
+                modifier = Modifier.align(Alignment.TopCenter),
+                pinnedMessages = state.pinnedMessages,
+                activeIndex = state.activePinnedMessageIndex,
+                onClick = onNavigatePinned,
+                onListClick = { onTogglePinnedDialog(true) }
+            )
         }
 
         if (state.showPinnedMessagesDialog) {

@@ -47,8 +47,6 @@ fun PinnedMessageBar(
     if (pinnedMessages.isEmpty()) return
 
     val currentPinned = pinnedMessages.getOrNull(activeIndex) ?: return
-
-    // Express total queue context if there's more than one pinned message
     val labelText = if (pinnedMessages.size > 1) {
         "Pinned Message (${activeIndex + 1}/${pinnedMessages.size})"
     } else {
@@ -60,7 +58,7 @@ fun PinnedMessageBar(
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 6.dp),
         shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.9f),
     ) {
         Row(
             modifier = Modifier
