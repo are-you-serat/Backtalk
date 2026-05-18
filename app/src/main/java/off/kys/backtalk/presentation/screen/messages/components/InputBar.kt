@@ -119,9 +119,8 @@ fun InputBar(
     val amplitudes by audioRecorder.amplitudes.collectAsState()
     val shakeOffset = remember { Animatable(0f) }
 
-    // --- Scheduling States ---
-    val showDatePicker = remember { mutableStateOf(false) }
-    val showTimePicker = remember { mutableStateOf(false) }
+    // --- Modernized Scheduling State Integration ---
+    val schedulingStage = remember { mutableStateOf(SchedulingStage.Hidden) }
     val datePickerState = rememberDatePickerState()
     val timePickerState = rememberTimePickerState()
 
@@ -148,13 +147,13 @@ fun InputBar(
     fun checkAndRequestExactAlarmPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val alarmManager = context.getSystemService(AlarmManager::class.java)
-            if (!alarmManager.canScheduleExactAlarms()) {
+            if (alarmManager != null && !alarmManager.canScheduleExactAlarms()) {
                 showPermissionRationale.value = true
             } else {
-                showDatePicker.value = true
+                schedulingStage.value = SchedulingStage.SelectingDate
             }
         } else {
-            showDatePicker.value = true
+            schedulingStage.value = SchedulingStage.SelectingDate
         }
     }
 
@@ -165,7 +164,6 @@ fun InputBar(
             checkAndRequestExactAlarmPermission()
         }
     }
-
 
     fun handleScheduleClick() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -185,9 +183,9 @@ fun InputBar(
 
     fun triggerDeniedShake() {
         scope.launch {
-            repeat(4) {
+            repeat(4) { index ->
                 shakeOffset.animateTo(
-                    targetValue = if (it % 2 == 0) 15f else -15f,
+                    targetValue = if (index % 2 == 0) 15f else -15f,
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioHighBouncy,
                         stiffness = Spring.StiffnessHigh
@@ -237,11 +235,12 @@ fun InputBar(
         }
     }
 
+    // Wiring up the freshly updated multi-stage picker logic cleanly
     MessageSchedulingDialogs(
-        showDatePicker = showDatePicker,
-        showTimePicker = showTimePicker,
+        stage = schedulingStage.value,
         datePickerState = datePickerState,
         timePickerState = timePickerState,
+        onStageChange = { nextStage -> schedulingStage.value = nextStage },
         onSchedule = { time ->
             onMessageSchedule(textValue.text, time)
             textValue = TextFieldValue(emptyString())
