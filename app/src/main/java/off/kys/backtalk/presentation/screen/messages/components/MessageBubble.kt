@@ -205,7 +205,6 @@ private fun MessageSurface(
         color = bubbleColor,
         shape = shape,
         border = border,
-        shadowElevation = 1.dp
     ) {
         Box {
             Surface(

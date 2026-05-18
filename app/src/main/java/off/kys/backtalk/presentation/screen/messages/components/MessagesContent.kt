@@ -64,7 +64,7 @@ fun MessagesContent(
             searchQuery = if (state.isSearchActive) state.searchQuery else emptyString(),
             selectedTag = state.selectedTag,
             onTagClick = onTagClick,
-            contentPadding = if (state.pinnedMessages.isNotEmpty()) PaddingValues(top = 32.dp) else PaddingValues(
+            contentPadding = if (state.pinnedMessages.isNotEmpty()) PaddingValues(top = 48.dp) else PaddingValues(
                 0.dp
             )
         )
