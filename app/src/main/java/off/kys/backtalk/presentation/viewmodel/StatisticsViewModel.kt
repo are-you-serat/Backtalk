@@ -34,8 +34,14 @@ class StatisticsViewModel(
             val scheduledMessages = repository.getAllScheduledMessagesSync()
             
             val voiceMessages = allMessages.filter { it.voicePath != null }
-            val textMessages = allMessages.filter { it.voicePath == null }
+            val textMessages = allMessages.filter { it.voicePath == null && it.mediaPaths == null && it.mediaPath == null }
             
+            val mediaMessages = allMessages.filter { it.mediaPaths != null || it.mediaPath != null }
+            val imageCount = mediaMessages.filter { it.mediaType?.contains("image") == true || it.mediaType == null }
+                .sumOf { (it.mediaPaths?.size ?: 0) + (if (it.mediaPath != null) 1 else 0) }
+            val videoCount = mediaMessages.filter { it.mediaType?.contains("video") == true }
+                .sumOf { (it.mediaPaths?.size ?: 0) + (if (it.mediaPath != null) 1 else 0) }
+
             val totalVoiceDuration = voiceMessages.sumOf { it.voiceDuration ?: 0L }
             val avgLen = if (textMessages.isNotEmpty()) {
                 textMessages.sumOf { it.text.length } / textMessages.size
@@ -54,6 +60,8 @@ class StatisticsViewModel(
                     activityLast7Days = activity,
                     topThreads = topThreads,
                     avgMessageLength = avgLen,
+                    imageCount = imageCount,
+                    videoCount = videoCount,
                     isLoading = false
                 )
             }

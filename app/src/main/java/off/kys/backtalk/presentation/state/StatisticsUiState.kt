@@ -13,6 +13,8 @@ data class StatisticsUiState(
     val activityLast7Days: List<DayActivity> = emptyList(),
     val topThreads: List<ThreadStat> = emptyList(),
     val avgMessageLength: Int = 0,
+    val imageCount: Int = 0,
+    val videoCount: Int = 0,
     val isLoading: Boolean = true
 )
 

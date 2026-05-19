@@ -99,25 +99,21 @@ fun ActivityBarChart(
 
 @Composable
 fun MessageTypePieChart(
-    voiceCount: Int,
-    textCount: Int,
-    voiceLabel: String,
-    textLabel: String,
+    slices: List<PieSlice>,
     modifier: Modifier = Modifier
 ) {
-    val voiceColor = MaterialTheme.colorScheme.primary
-    val textColor = MaterialTheme.colorScheme.tertiaryContainer
-
-    val total = (voiceCount + textCount).coerceAtLeast(1)
-    val voicePercentage = (voiceCount.toFloat() / total) * 100f
-    val textPercentage = 100f - voicePercentage
-    val targetSweepAngle = (voiceCount.toFloat() / total) * 360f
-
-    val animatedSweepAngle by animateFloatAsState(
-        targetValue = targetSweepAngle,
+    val total = slices.sumOf { it.count }.coerceAtLeast(1)
+    
+    val animationTriggered = remember { mutableStateOf(false) }
+    val animateProgress by animateFloatAsState(
+        targetValue = if (animationTriggered.value) 1f else 0f,
         animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing),
         label = "PieChartAnimation"
     )
+
+    LaunchedEffect(Unit) {
+        animationTriggered.value = true
+    }
 
     Row(
         modifier = modifier
@@ -128,40 +124,44 @@ fun MessageTypePieChart(
         Box(contentAlignment = Alignment.Center) {
             Canvas(modifier = Modifier.size(150.dp)) {
                 val strokeWidth = 16.dp.toPx()
+                var startAngle = -90f
 
-                drawArc(
-                    color = textColor,
-                    startAngle = 0f,
-                    sweepAngle = 360f,
-                    useCenter = false,
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                )
-
-                drawArc(
-                    color = voiceColor,
-                    startAngle = -90f,
-                    sweepAngle = animatedSweepAngle,
-                    useCenter = false,
-                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
-                )
+                slices.forEach { slice ->
+                    val sweepAngle = (slice.count.toFloat() / total) * 360f * animateProgress
+                    if (sweepAngle > 0) {
+                        drawArc(
+                            color = slice.color,
+                            startAngle = startAngle,
+                            sweepAngle = sweepAngle,
+                            useCenter = false,
+                            style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                        )
+                    }
+                    startAngle += (slice.count.toFloat() / total) * 360f
+                }
             }
         }
 
         Spacer(modifier = Modifier.width(32.dp))
 
         Column {
-            ChartLegendItem(
-                color = voiceColor,
-                label = "$voiceLabel: ${voicePercentage.toInt()}%"
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            ChartLegendItem(
-                color = textColor,
-                label = "$textLabel: ${textPercentage.toInt()}%"
-            )
+            slices.forEach { slice ->
+                val percentage = (slice.count.toFloat() / total) * 100f
+                ChartLegendItem(
+                    color = slice.color,
+                    label = "${slice.label}: ${percentage.toInt()}%"
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+            }
         }
     }
 }
+
+data class PieSlice(
+    val count: Int,
+    val label: String,
+    val color: Color
+)
 
 @Composable
 private fun ChartLegendItem(color: Color, label: String) {

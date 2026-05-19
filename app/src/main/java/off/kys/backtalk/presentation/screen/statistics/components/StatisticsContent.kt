@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -69,6 +70,18 @@ fun StatisticsContent(
             )
         }
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            StatCard(
+                label = stringResource(R.string.statistics_images),
+                value = state.imageCount.toString(),
+                icon = painterResource(R.drawable.round_image_24),
+                modifier = Modifier.weight(1f)
+            )
+        }
+
         SectionTitle(stringResource(R.string.statistics_activity_last_7_days))
         Card(modifier = Modifier.fillMaxWidth()) {
             Box(modifier = Modifier.padding(8.dp)) {
@@ -79,10 +92,23 @@ fun StatisticsContent(
         SectionTitle(stringResource(R.string.statistics_message_types))
         Card(modifier = Modifier.fillMaxWidth()) {
             MessageTypePieChart(
-                voiceCount = state.voiceMessagesCount,
-                textCount = state.textMessagesCount,
-                voiceLabel = stringResource(R.string.statistics_voice),
-                textLabel = stringResource(R.string.statistics_text),
+                slices = listOf(
+                    PieSlice(
+                        count = state.textMessagesCount,
+                        label = stringResource(R.string.statistics_text),
+                        color = MaterialTheme.colorScheme.primary
+                    ),
+                    PieSlice(
+                        count = state.voiceMessagesCount,
+                        label = stringResource(R.string.statistics_voice),
+                        color = MaterialTheme.colorScheme.secondary
+                    ),
+                    PieSlice(
+                        count = state.imageCount,
+                        label = stringResource(R.string.statistics_images),
+                        color = MaterialTheme.colorScheme.tertiary
+                    ),
+                ),
                 modifier = Modifier.padding(16.dp)
             )
         }
