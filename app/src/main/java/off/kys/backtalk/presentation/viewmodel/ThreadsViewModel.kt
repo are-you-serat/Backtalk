@@ -77,10 +77,9 @@ class ThreadsViewModel(
         sorted.forEach { message ->
             var foundGroup = false
 
-            // Check if this message is a reply to something already in a group
             if (message.repliedToId != null) {
                 for (group in groups) {
-                    if (group.any { it.id == message.repliedToId }) {
+                    if (group.first().id == message.repliedToId) {
                         group.add(message)
                         foundGroup = true
                         break
@@ -89,7 +88,6 @@ class ThreadsViewModel(
             }
 
             if (!foundGroup) {
-                // Fallback to time-based grouping with the LAST group added
                 val lastGroup = groups.lastOrNull()
                 if (lastGroup != null) {
                     val lastMessage = lastGroup.last()
