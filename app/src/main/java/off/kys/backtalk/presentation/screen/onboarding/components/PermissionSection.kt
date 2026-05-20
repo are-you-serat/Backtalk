@@ -73,5 +73,30 @@ fun PermissionSection(
                 }
             )
         }
+
+        PermissionItem(
+            title = stringResource(R.string.onboarding_permission_camera),
+            description = stringResource(R.string.onboarding_permission_camera_desc),
+            icon = R.drawable.round_videocam_24,
+            isGranted = state.cameraPermissionGranted,
+            onRequest = {
+                permissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        )
+
+        PermissionItem(
+            title = stringResource(R.string.onboarding_permission_media),
+            description = stringResource(R.string.onboarding_permission_media_desc),
+            icon = R.drawable.round_image_24,
+            isGranted = state.mediaPermissionGranted,
+            onRequest = {
+                val mediaPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    Manifest.permission.READ_MEDIA_IMAGES
+                } else {
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                }
+                permissionLauncher.launch(mediaPermission)
+            }
+        )
     }
 }

@@ -44,11 +44,29 @@ class OnboardingViewModel(
 
             val alarmGranted = alarmScheduler.canScheduleExactAlarms()
 
+            val cameraGranted = ContextCompat.checkSelfPermission(
+                application,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+
+            val mediaPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Manifest.permission.READ_MEDIA_IMAGES
+            } else {
+                Manifest.permission.READ_EXTERNAL_STORAGE
+            }
+
+            val mediaGranted = ContextCompat.checkSelfPermission(
+                application,
+                mediaPermission
+            ) == PackageManager.PERMISSION_GRANTED
+
             _state.update {
                 it.copy(
                     notificationPermissionGranted = notificationGranted,
                     microphonePermissionGranted = microphoneGranted,
-                    exactAlarmPermissionGranted = alarmGranted
+                    exactAlarmPermissionGranted = alarmGranted,
+                    cameraPermissionGranted = cameraGranted,
+                    mediaPermissionGranted = mediaGranted
                 )
             }
         }

@@ -1,12 +1,14 @@
 package off.kys.backtalk.presentation.screen.onboarding.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import off.kys.backtalk.R
 import off.kys.backtalk.data.local.entity.MessageEntity
 import off.kys.backtalk.domain.model.MessageId
 import off.kys.backtalk.domain.model.Thread
 import off.kys.backtalk.util.emptyString
+import off.kys.backtalk.util.getAssetFile
 
 object OnboardingMocks {
     val message1
@@ -46,6 +48,18 @@ object OnboardingMocks {
             originalCreationTimestamp = System.currentTimeMillis() - 3600000,
             scheduledTimestamp = System.currentTimeMillis()
         )
+
+    val imageMessage: MessageEntity
+        @Composable get() {
+            val context = LocalContext.current
+            return MessageEntity(
+                id = MessageId(5),
+                text = "Check out this photo!",
+                timestamp = System.currentTimeMillis() - 30000,
+                repliedToId = null,
+                mediaPath = context.getAssetFile("duck.jpg").absolutePath
+            )
+        }
 
     val threadMock
         @Composable get() = Thread(

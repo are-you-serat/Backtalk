@@ -53,7 +53,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import off.kys.backtalk.R
@@ -229,7 +228,7 @@ private fun MessageContent(
     highlightQuery: String? = null,
     onTagClick: (String) -> Unit = {}
 ) {
-    val navigator = LocalNavigator.currentOrThrow
+    val navigator = LocalNavigator.current
     val contentColor = contentColorFor(MaterialTheme.colorScheme.primary)
 
     if (message.isReminder || message.isPinned) {
@@ -264,7 +263,7 @@ private fun MessageContent(
     }
 
     if (images.isNotEmpty()) {
-        ImageGrid(images) { imagePath -> navigator += ImagePreviewScreen(imagePath) }
+        ImageGrid(images) { imagePath -> navigator?.push(ImagePreviewScreen(imagePath)) }
         val messageText = message.editedText ?: message.text
         if (messageText.isNotEmpty() || message.voicePath != null) {
             Spacer(modifier = Modifier.height(4.dp))

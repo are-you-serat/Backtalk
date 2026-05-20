@@ -245,6 +245,10 @@
     <string name="onboarding_permission_microphone_desc">Required to record and send voice messages.</string>
     <string name="onboarding_permission_alarms">Exact Alarms</string>
     <string name="onboarding_permission_alarms_desc">Required for precise delivery of your scheduled reminders.</string>
+    <string name="onboarding_permission_camera">Camera</string>
+    <string name="onboarding_permission_camera_desc">Required to take and send photos directly from the app.</string>
+    <string name="onboarding_permission_media">Media Library</string>
+    <string name="onboarding_permission_media_desc">Required to select and send images from your gallery.</string>
     <string name="onboarding_permission_request">Enable</string>
     <string name="onboarding_get_started">Get Started</string>
     <string name="onboarding_next">Next</string>

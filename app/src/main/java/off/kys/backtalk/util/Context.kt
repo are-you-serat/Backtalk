@@ -11,6 +11,7 @@ import androidx.annotation.StringRes
 import androidx.biometric.BiometricManager
 import androidx.core.net.toUri
 import off.kys.backtalk.R
+import java.io.File
 
 /**
  * Displays a short [Toast] message.
@@ -116,4 +117,17 @@ fun Context.isSecurityEnabled(): Boolean {
             false
         }
     }
+}
+
+fun Context.getAssetFile(assetFileName: String): File {
+    val cacheFile = File(this.cacheDir, assetFileName)
+
+    if (!cacheFile.exists()) {
+        this.assets.open(assetFileName).use { inputStream ->
+            cacheFile.outputStream().use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        }
+    }
+    return cacheFile
 }

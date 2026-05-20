@@ -91,6 +91,18 @@ enum class OnboardingPage(
                     onClick = {},
                     onLongClick = {}
                 )
+                MessageBubble(
+                    messageEntity = OnboardingMocks.imageMessage,
+                    repliedMessageEntity = null,
+                    blinkMessageId = null,
+                    isTop = true,
+                    isBottom = true,
+                    selectMode = false,
+                    isSelected = false,
+                    onReplyPreviewClick = {},
+                    onClick = {},
+                    onLongClick = {}
+                )
             }
         }
     },
