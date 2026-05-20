@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import off.kys.backtalk.common.Constants
 import off.kys.backtalk.data.local.entity.MessageEntity
 import off.kys.backtalk.domain.repository.MessagesRepository
 import off.kys.backtalk.presentation.state.DayActivity
@@ -30,13 +31,13 @@ class StatisticsViewModel(
     private fun loadStatistics() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            
+
             val allMessages = repository.getAllMessagesSync()
             val scheduledMessages = repository.getAllScheduledMessagesSync()
-            
+
             val voiceMessages = allMessages.filter { it.voicePath != null }
             val textMessages = allMessages.filter { it.voicePath == null && it.mediaPaths == null && it.mediaPath == null }
-            
+
             val mediaMessages = allMessages.filter { it.mediaPaths != null || it.mediaPath != null }
             val imageCount = mediaMessages.filter { it.mediaType?.contains("image") == true || it.mediaType == null }
                 .sumOf { (it.mediaPaths?.size ?: 0) + (if (it.mediaPath != null) 1 else 0) }
@@ -49,6 +50,7 @@ class StatisticsViewModel(
             } else 0
 
             val activity = calculateLast7DaysActivity(allMessages)
+
             val topThreads = calculateTopThreads(allMessages)
 
             _state.update {
@@ -77,14 +79,14 @@ class StatisticsViewModel(
             val cal = Calendar.getInstance()
             cal.add(Calendar.DAY_OF_YEAR, -i)
             val dayName = dateFormat.format(cal.time)
-            
+
             val startOfDay = cal.apply {
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 0)
                 set(Calendar.SECOND, 0)
                 set(Calendar.MILLISECOND, 0)
             }.timeInMillis
-            
+
             val endOfDay = cal.apply {
                 set(Calendar.HOUR_OF_DAY, 23)
                 set(Calendar.MINUTE, 59)
@@ -99,16 +101,52 @@ class StatisticsViewModel(
     }
 
     private fun calculateTopThreads(messages: List<MessageEntity>): List<ThreadStat> {
-        val threadGroups = messages.groupBy { it.repliedToId?.value ?: it.id.value }
-        val sortedThreads = threadGroups.map { (rootId, msgs) ->
-            val rootMsg = messages.find { it.id.value == rootId }
-            val title = rootMsg?.text?.take(20)?.plus(if (rootMsg.text.length > 20) "..." else emptyString())
-                ?: "Unknown Thread"
-            
+        if (messages.isEmpty()) return emptyList()
+
+        val sorted = messages.sortedBy { it.timestamp }
+        val groups = mutableListOf<MutableList<MessageEntity>>()
+
+        sorted.forEach { message ->
+            var foundGroup = false
+
+            if (message.repliedToId != null) {
+                for (group in groups) {
+                    if (group.first().id == message.repliedToId) {
+                        group.add(message)
+                        foundGroup = true
+                        break
+                    }
+                }
+            }
+
+            if (!foundGroup) {
+                val lastGroup = groups.lastOrNull()
+                if (lastGroup != null) {
+                    val lastMessage = lastGroup.last()
+                    if (message.timestamp - lastMessage.timestamp < Constants.TIME_GAP_FOR_HEADER) {
+                        lastGroup.add(message)
+                        foundGroup = true
+                    }
+                }
+            }
+
+            if (!foundGroup) {
+                groups.add(mutableListOf(message))
+            }
+        }
+
+        val sortedThreads = groups.map { group ->
+            val rootMsg = group.first()
+            val title = if (rootMsg.text.isNotEmpty()) {
+                rootMsg.text.take(20).plus(if (rootMsg.text.length > 20) "..." else emptyString())
+            } else {
+                "Media/Voice Thread"
+            }
+
             ThreadStat(
-                threadId = rootMsg?.id ?: msgs.first().id,
+                threadId = rootMsg.id,
                 threadTitle = title,
-                messageCount = msgs.size,
+                messageCount = group.size,
                 ratio = 0f
             )
         }.sortedByDescending { it.messageCount }.take(5)
