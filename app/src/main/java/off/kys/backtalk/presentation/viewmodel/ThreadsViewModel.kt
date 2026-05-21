@@ -46,13 +46,18 @@ class ThreadsViewModel(
      * Creates a focused thread starting from the given message, including all its descendants.
      */
     fun getSubThread(rootMessage: MessageEntity): Thread {
+        val messageSource = allMessages.ifEmpty {
+            uiState.value.threads.flatMap { listOf(it.root) + it.replies }
+        }
+
         val descendants = mutableListOf<MessageEntity>()
         val queue = mutableListOf(rootMessage.id)
         val visited = mutableSetOf(rootMessage.id)
 
         while (queue.isNotEmpty()) {
             val parentId = queue.removeAt(0)
-            val children = allMessages.filter { it.repliedToId == parentId }
+            val children = messageSource.filter { it.repliedToId == parentId }
+
             for (child in children) {
                 if (child.id !in visited) {
                     descendants.add(child)
