@@ -9,10 +9,12 @@
     <string name="common_clear">مسح</string>
     <string name="common_back">رجوع</string>
     <string name="common_more">المزيد</string>
+    <string name="common_share">مشاركة</string>
     <string name="common_ok">موافق</string>
     <string name="common_please_wait">يرجى الانتظار…</string>
     <string name="common_navigate_up">انتقال للأعلى</string>
     <string name="common_edit">تعديل</string>
+    <string name="common_attach">إرفاق</string>
     <string name="common_search">بحث</string>
     <string name="common_daily">يومياً</string>
     <string name="common_weekly">أسبوعياً</string>
@@ -45,12 +47,12 @@
     <string name="chat_input_format_monospace">ث</string>
     <string name="chat_delete_selected_title">حذف الرسائل؟</string>
     <plurals name="chat_delete_selected_count_confirmation">
-        <item quantity="zero">هل أنت متيقِّن أنك تريد حذف الرسائل المختارة؟</item>
-        <item quantity="one">هل أنت متيقِّن أنك تريد حذف الرسالة المختارة؟</item>
-        <item quantity="two">هل أنت متيقِّن أنك تريد حذف الرسالتين المختارتين؟</item>
-        <item quantity="few">هل أنت متيقِّن أنك تريد حذف %1$d رسائل مختارة؟</item>
-        <item quantity="many">هل أنت متيقِّن أنك تريد حذف %1$d رسالة مختارة؟</item>
-        <item quantity="other">هل أنت متيقِّن أنك تريد حذف %1$d رسالة مختارة؟</item>
+        <item quantity="zero">هل أنت متيقِّن أنك تريد حذف الرسائل المختارة؟</item>
+        <item quantity="one">هل أنت متيقِّن أنك تريد حذف الرسالة المختارة؟</item>
+        <item quantity="two">هل أنت متيقِّن أنك تريد حذف الرسالتين المختارتين؟</item>
+        <item quantity="few">هل أنت متيقِّن أنك تريد حذف %1$d رسائل مختارة؟</item>
+        <item quantity="many">هل أنت متيقِّن أنك تريد حذف %1$d رسالة مختارة؟</item>
+        <item quantity="other">هل أنت متيقِّن أنك تريد حذف %1$d رسالة مختارة؟</item>
     </plurals>
     <string name="chat_delete_undone_warning">لا يمكن التراجع عن هذا الإجراء لاحقًا.</string>
     <string name="link_safety_title">رابط خارجي</string>
@@ -107,6 +109,24 @@
     <string name="settings_experimental_sync_title">ميزة تجريبية</string>
     <string name="settings_experimental_sync_message">ميزة المزامنة بين الأجهزة لا تزل في مرحلتها التجريبية. قد تواجه بعض الأخطاء أو السلوكيات غير المتوقعة. استخدمها على مسؤوليتك الخاصة، وننصح بشدة بأخذ نسخة احتياطية لبياناتك أولًا.</string>
 
+    <!-- Statistics -->
+    <string name="statistics_title">الإحصائيات</string>
+    <string name="statistics_total_messages">إجمالي الرسائل</string>
+    <string name="statistics_voice_duration">مدة الصوت</string>
+    <string name="statistics_scheduled">المجدولة</string>
+    <string name="statistics_avg_length">متوسط الطول</string>
+    <string name="statistics_activity_last_7_days">النشاط (آخر 7 أيام)</string>
+    <string name="statistics_message_types">أنواع الرسائل</string>
+    <string name="statistics_voice">صوتية</string>
+    <string name="statistics_text">نصية</string>
+    <string name="statistics_images">صور</string>
+    <string name="statistics_videos">فيديوهات</string>
+    <string name="statistics_top_threads">أبرز السلاسل</string>
+    <string name="statistics_messages_count">%1$d رسالة</string>
+    <string name="statistics_total_activity_percentage">%1$d%% من إجمالي النشاط</string>
+    <string name="statistics_duration_minutes_seconds">%1$d د %2$d ث</string>
+    <string name="statistics_duration_seconds">%1$d ث</string>
+
     <!-- Updates -->
     <string name="update_dialog_title">يتوفر تحديث جديد</string>
     <string name="update_dialog_message">الإصدار %1$s متاح الآن.\n\n%2$s</string>
@@ -156,9 +176,12 @@
     <string name="threads_you">أنت</string>
     <string name="threads_at_you">\@أنت</string>
     <string name="threads_at_you_timestamp">\@أنت · %1$s</string>
-    <string name="common_share">مشاركة</string>
 
     <!-- Reminders -->
+    <string name="reminders_title">التذكيرات</string>
+    <string name="reminders_empty">لا توجد تذكيرات مجدولة</string>
+    <string name="reminders_cancel_confirm_title">إلغاء التذكير؟</string>
+    <string name="reminders_cancel_confirm_msg">هل أنت متأكد من أنك تريد إلغاء هذا التذكير المجدول؟</string>
     <string name="chat_reminder_tag">تذكير</string>
     <string name="chat_reminder_notification_channel">التذكيرات</string>
     <string name="chat_reminder_notification_title">ملاحظة لنفسي</string>
@@ -169,6 +192,14 @@
 
     <!-- Message Scheduling -->
     <string name="message_scheduling_select_time">تحديد الوقت</string>
+
+    <!-- Camera -->
+    <string name="camera_capture">التقاط</string>
+    <string name="camera_switch">تبديل الكاميرا</string>
+    <string name="camera_flash">الفلاش</string>
+    <string name="camera_retake">إعادة التقاط</string>
+    <string name="camera_send">إرسال الصورة</string>
+    <string name="camera_preview_cd">معاينة الكاميرا</string>
 
     <!-- Sync & Devices -->
     <string name="sync_title">المزامنة والأجهزة</string>
@@ -205,7 +236,7 @@
     <string name="onboarding_voice_title">الملاحظات الصوتية</string>
     <string name="onboarding_voice_desc">سجل أفكارك السريعة فور ورودها مع مِيزة الرسائل الصوتية المدمجة.</string>
     <string name="onboarding_threads_title">السلاسل والردود</string>
-    <string name="onboarding_threads_desc">حافظ على تنظيم أفكارك؛ ردُّ على أي رسالة لإنشاء سلسلة نقاش مركزة حول موضوع معين.</string>
+    <string name="onboarding_threads_desc">حافظ على تنظيم أفكارك؛ ردُّ على أي رسالة لإنشاء سلسلة نقاش مركزة حول موضوع معين.</string>
     <string name="onboarding_sync_title">المزامنة والنسخ الاحتياطي</string>
     <string name="onboarding_sync_desc">حافظ على أمان بياناتك عبر النسخ الاحتياطي اليدوي أو التلقائي، وقم بمزامنتها بين أجهزتك عبر الـ Wi-Fi.</string>
     <string name="onboarding_security_title">الخصوصية أولاً</string>
@@ -215,33 +246,20 @@
     <string name="onboarding_permission_notifications">الإشعارات</string>
     <string name="onboarding_permission_notifications_desc">ضرورية لتلقي التذكيرات والملاحظات المجدولة في وقتها.</string>
     <string name="onboarding_permission_microphone">الميكروفون</string>
-    <string name="onboarding_permission_microphone_desc">ضروري لتسجيل الملاحظات الصوتية.</string>
+    <string name="onboarding_permission_microphone_desc">مطلوب لتسجيل وإرسال الرسائل الصوتية.</string>
     <string name="onboarding_permission_alarms">التنبيهات الدقيقة</string>
-    <string name="onboarding_permission_alarms_desc">ضرورية لضمان وصول تذكيراتك المجدولة بدقة متناهية.</string>
+    <string name="onboarding_permission_alarms_desc">مطلوبة لضمان تسليم التذكيرات المجدولة بدقة في وقتها.</string>
+    <string name="onboarding_permission_camera">الكاميرا</string>
+    <string name="onboarding_permission_camera_desc">مطلوبة لالتقاط وإرسال الصور مباشرة من التطبيق.</string>
+    <string name="onboarding_permission_media">مكتبة الوسائط</string>
+    <string name="onboarding_permission_media_desc">مطلوبة لاختيار وإرسال الصور من المَعْرِض الخاص بك.</string>
     <string name="onboarding_permission_request">تفعيل</string>
     <string name="onboarding_get_started">ابدأ الآن</string>
     <string name="onboarding_next">التالي</string>
     <string name="onboarding_skip">تخطي</string>
 
-    <!-- Statistics -->
-    <string name="statistics_title">الإحصائيات</string>
-    <string name="statistics_total_messages">إجمالي الرسائل</string>
-    <string name="statistics_voice_duration">إجمالي مدة التسجيلات</string>
-    <string name="statistics_scheduled">الرسائل المجدولة</string>
-    <string name="statistics_avg_length">متوسط طول الرسالة</string>
-    <string name="statistics_activity_last_7_days">النشاط (آخر 7 أيام)</string>
-    <string name="statistics_message_types">أنواع الرسائل</string>
-    <string name="statistics_voice">صوتية</string>
-    <string name="statistics_text">نصية</string>
-    <string name="statistics_top_threads">أبرز السلاسل</string>
-    <string name="statistics_messages_count">%1$d رسالة</string>
-    <string name="statistics_total_activity_percentage">%1$d%% من إجمالي النشاط</string>
-    <string name="statistics_duration_minutes_seconds">%1$d د و %2$d ث</string>
-    <string name="statistics_duration_seconds">%1$d ث</string>
-
     <!-- Onboarding Mocks -->
-    <string name="onboarding_mock_message_1">مرحباً يا أنا! تذكير: يجب أن أشرب المزيد من الماء اليوم. 💧</string>
-    <string name="onboarding_mock_message_2">فكرة ممتازة، سأفعل ذلك حالًا!</string>
+    <string name="onboarding_mock_message_1">مرحباً يا نفسي! يجب أن أتذكر شرب المزيد من الماء اليوم.</string>
+    <string name="onboarding_mock_message_2">فكرة جيدة. على ترطيب جسمك حافظ! 💧</string>
     <string name="onboarding_mock_reminder">اضغط مطولًا على زر الإرسال لجدولة تذكير كهذا!</string>
-
 </resources>
