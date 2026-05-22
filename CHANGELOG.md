@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.5] - 2026-05-22
+
+### Added
+- **Media Attachments**: Support for attaching images from gallery or capturing directly via a new full-screen camera with flash and lens switching.
+- **Message Pinning**: Ability to pin important messages with a dedicated pinning bar for quick navigation.
+- **Reminders**: New management screen for creating and tracking message-based reminders.
+- **Hashtags**: Support for clickable hashtags and filtering messages by tags.
+- **Media Statistics**: Enhanced statistics screen with media counts and dynamic pie chart slices.
+- **Animations**: Added expressive scale animations to the send button and smooth transitions for attachment controls.
+- **Quoted Threads**: Support for quoted threads in both the main threads and detail views.
+
+### Changed
+- **UI Refinements**: Redesigned the pinned message bar with transparency and rounded icons, and removed message bubble shadows for a cleaner look.
+- **Improved Scrolling**: Implemented state-driven auto-scroll and directional visibility logic for the "scroll to bottom" button.
+- **Input Bar**: Optimized the input bar layout and integration with the message list.
+- **Onboarding**: Integrated camera and media permissions into the onboarding flow.
+
+### Fixed
+- **State Sync**: Improved preference state synchronization and parsing safety.
+- **Message Actions**: Fixed issues with copying edited messages and handling voice message previews in replies.
+- **Thread UI**: Added fallback logic for thread reconstruction and improved message grouping consistency.
+
+### Refactored
+- **Architecture**: Decoupled biometric authentication into a standalone manager with Compose support.
+- **Modernization**: Transitioned message scheduling and filtering logic to stage-based state management in ViewModels.
+- **Localization**: Updated and expanded Arabic translations for Camera, Statistics, and Reminders.
+
+### Build
+- **Dependencies**: Bumped various library versions and updated `LibraryProvider.kt`.
+- **Maintenance**: Incremented version to 0.2.5.
+
+---
+
 ## [0.1.8] - 2026-05-11
 
 ### Added

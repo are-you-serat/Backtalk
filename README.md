@@ -18,7 +18,7 @@
   <img src="https://img.shields.io/badge/Min%20SDK-23-green" alt="Min SDK">
   <img src="https://img.shields.io/badge/License-MIT-blue" alt="License">
   <img src="https://img.shields.io/badge/Architecture-MVVM-orange" alt="Architecture">
-  <img src="https://img.shields.io/badge/Version-0.1.8-informational" alt="Version">
+  <img src="https://img.shields.io/badge/Version-0.2.5-informational" alt="Version">
   <a href="https://liberapay.com/kys0ff"><img src="https://img.shields.io/badge/Liberapay-Support%20me-F6C915" alt="Liberapay"></a>
 </p>
 
@@ -43,23 +43,25 @@ yourself.*
 
 ## Features
 
+- **Media Support**: Attach images from your gallery or capture them directly with the built-in camera.
+- **Message Pinning**: Keep important notes at the top for easy access.
+- **Hashtags & Reminders**: Organize your thoughts with tags and never forget a note with reminders.
 - **Self-Chat Interface**: Write messages and reply to yourself in a familiar layout.
 - **Threaded Conversations**: Easily organize replies to specific thoughts.
 - **Biometric Security**: Protect your notes with fingerprint or face unlock.
-- **Auto-Lock**: Configurable timeout to keep your data safe when you're away.
 - **Secure Backups**: Periodic automatic backups with encryption support.
 - **Material 3 Design**: Modern, clean UI that adapts to your device.
 - **Offline-First**: All data stays on your device, no internet required.
 - **Intuitive Gestures**: Swipe to edit or reply to messages for a seamless flow.
 
-## Recent Changes (v0.1.8)
+## Recent Changes (v0.2.5)
 
-- **Voice Messages**: Record and play back audio notes with waveform visualization.
-- **Thread View Mode**: View your conversations in a structured, thread-based layout.
-- **Message Search**: Powerful new search feature to find your notes instantly.
-- **Device Sync**: Keep your data in sync across multiple devices effortlessly.
-- **Markdown Support**: Rich text formatting and interactive links/mentions.
-- **Onboarding & Stats**: Brand-new user experience and detailed usage insights.
+- **Media Attachments**: Full support for gallery images and a new custom camera interface.
+- **Pinned Messages**: Pin important thoughts and navigate through them easily.
+- **Reminders & Hashtags**: Improved organization with dedicated reminders management and tag filtering.
+- **Enhanced Statistics**: New insights into your media usage and improved chart visualizations.
+- **UI/UX Polish**: Refined animations, improved scrolling behavior, and modernized components.
+- **Quoted Threads**: Support for quoted threads in both the main threads and detail views.
 
 See the full [CHANGELOG.md](./CHANGELOG.md) for more details.
 
@@ -104,10 +106,8 @@ You can also find the latest APKs on the [Releases](../../releases/latest) page.
 
 Backtalk is built on the principle of **Privacy by Design**:
 
-- **Local Only**: Your notes never leave your device unless you manually export them.
+- **Local Only**: Your notes never leave your device unless you manually export/sync them.
 - **No Analytics**: We don't track you. No telemetry, no logs, no trackers.
-- **No Internet Permission**: The F-Droid build has no internet permission, ensuring complete
-  isolation.
 - **Encryption**: Manual and automatic exports can be encrypted for extra security.
 
 ---
