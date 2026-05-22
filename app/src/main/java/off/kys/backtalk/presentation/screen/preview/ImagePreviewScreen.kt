@@ -53,12 +53,9 @@ class ImagePreviewScreen(val imagePath: String) : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val context = LocalContext.current
 
-        // Transformation states
         var scale by remember { mutableFloatStateOf(1f) }
         var offsetX by remember { mutableFloatStateOf(0f) }
         var offsetY by remember { mutableFloatStateOf(0f) }
-
-        // Keep track of the container size to calculate strict bounds
         var size by remember { mutableStateOf(IntSize.Zero) }
 
         Scaffold(
@@ -76,7 +73,6 @@ class ImagePreviewScreen(val imagePath: String) : Screen {
                     actions = {
                         IconButton(
                             onClick = {
-                                // Checking if it's a web URL because FileProvider will crash hard on HTTP links
                                 if (URLUtil.isNetworkUrl(imagePath)) {
                                     val shareIntent = Intent(Intent.ACTION_SEND).apply {
                                         type = "text/plain"
@@ -136,11 +132,9 @@ class ImagePreviewScreen(val imagePath: String) : Screen {
                             scale = (scale * zoom).coerceIn(1f, 5f)
 
                             if (scale > 1f) {
-                                // Calculate the maximum allowable pan based on current scale and dimensions
                                 val maxOffsetX = (size.width * (scale - 1f)) / 2f
                                 val maxOffsetY = (size.height * (scale - 1f)) / 2f
 
-                                // Apply the pan delta, clamping tightly inside the bounds
                                 offsetX = (offsetX + pan.x).coerceIn(-maxOffsetX, maxOffsetX)
                                 offsetY = (offsetY + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
                             } else {

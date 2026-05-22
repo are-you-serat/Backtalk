@@ -131,10 +131,14 @@ fun Context.getAssetFile(assetFileName: String): File {
     val cacheFile = File(this.cacheDir, assetFileName)
 
     if (!cacheFile.exists()) {
-        this.assets.open(assetFileName).use { inputStream ->
-            cacheFile.outputStream().use { outputStream ->
-                inputStream.copyTo(outputStream)
+        try {
+            this.assets.open(assetFileName).use { inputStream ->
+                cacheFile.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
             }
+        } catch (e: Exception) {
+            return cacheFile
         }
     }
     return cacheFile

@@ -10,10 +10,11 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import off.kys.backtalk.presentation.activity.MainActivity
+import off.kys.backtalk.presentation.components.SplitThemeContainer
+import off.kys.backtalk.presentation.screen.license.LicenseScreen
 import off.kys.backtalk.presentation.screen.preferences.components.SettingsScreenContent
 import off.kys.backtalk.presentation.screen.sync.SyncScreen
 import off.kys.backtalk.presentation.state.SettingsUiState
-import off.kys.backtalk.presentation.theme.BacktalkTheme
 import off.kys.backtalk.presentation.viewmodel.SettingsViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -41,10 +42,13 @@ class SettingsScreen : Screen {
     }
 }
 
-@Preview
+@Preview(
+    showSystemUi = true,
+    device = "id:pixel_10",
+)
 @Composable
 private fun SettingsScreenPreview() {
-    BacktalkTheme {
+    SplitThemeContainer {
         SettingsScreenContent(
             state = SettingsUiState(),
             onEvent = {},
