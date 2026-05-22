@@ -376,7 +376,7 @@ class SyncRepositoryImpl(
         pairingResponseDeferred?.complete(true)
     }
 
-    override fun refusePairingRequest(device: DeviceInfo) {
+    override fun refusePairingRequest() {
         pairingResponseDeferred?.complete(false)
         pendingPairingDevice = null
         pendingPairingPin = null

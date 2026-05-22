@@ -55,7 +55,7 @@ class SyncViewModel(
             SyncEvent.StopDiscovery -> stopDiscovery()
             is SyncEvent.RequestPairing -> requestPairing(event.device)
             is SyncEvent.AcceptPairingRequest -> acceptRequest(event.device)
-            is SyncEvent.RefusePairingRequest -> refuseRequest(event.device)
+            is SyncEvent.RefusePairingRequest -> refuseRequest()
             is SyncEvent.VerifyPin -> verifyPin(event.device, event.pin)
             is SyncEvent.SyncNow -> syncNow(event.device)
             is SyncEvent.PullSync -> pullSync(event.device)
@@ -128,7 +128,7 @@ class SyncViewModel(
         syncRepository.acceptPairingRequest(pin)
     }
 
-    private fun refuseRequest(device: DeviceInfo) {
+    private fun refuseRequest() {
         _state.value = _state.value.copy(incomingRequest = null)
         syncRepository.refusePairingRequest()
     }

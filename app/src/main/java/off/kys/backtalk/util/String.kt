@@ -10,6 +10,7 @@ package off.kys.backtalk.util
  *
  * @return An empty string ("").
  */
+@Suppress("SameReturnValue")
 inline fun emptyString(): String = ""
 
 /**
