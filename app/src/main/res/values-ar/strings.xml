@@ -120,7 +120,6 @@
     <string name="statistics_voice">صوتية</string>
     <string name="statistics_text">نصية</string>
     <string name="statistics_images">صور</string>
-    <string name="statistics_videos">فيديوهات</string>
     <string name="statistics_top_threads">أبرز السلاسل</string>
     <string name="statistics_messages_count">%1$d رسالة</string>
     <string name="statistics_total_activity_percentage">%1$d%% من إجمالي النشاط</string>
@@ -194,12 +193,10 @@
     <string name="message_scheduling_select_time">تحديد الوقت</string>
 
     <!-- Camera -->
-    <string name="camera_capture">التقاط</string>
     <string name="camera_switch">تبديل الكاميرا</string>
     <string name="camera_flash">الفلاش</string>
     <string name="camera_retake">إعادة التقاط</string>
     <string name="camera_send">إرسال الصورة</string>
-    <string name="camera_preview_cd">معاينة الكاميرا</string>
 
     <!-- Sync & Devices -->
     <string name="sync_title">المزامنة والأجهزة</string>

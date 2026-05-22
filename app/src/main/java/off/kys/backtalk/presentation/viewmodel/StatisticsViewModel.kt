@@ -135,7 +135,10 @@ class StatisticsViewModel(
             }
         }
 
-        val sortedThreads = groups.map { group ->
+        val topFiveGroups = groups.sortedByDescending { it.size }.take(5)
+        val maxCount = topFiveGroups.firstOrNull()?.size ?: 1
+
+        return topFiveGroups.map { group ->
             val rootMsg = group.first()
             val title = if (rootMsg.text.isNotEmpty()) {
                 rootMsg.text.take(20).plus(if (rootMsg.text.length > 20) "..." else emptyString())
@@ -147,11 +150,8 @@ class StatisticsViewModel(
                 threadId = rootMsg.id,
                 threadTitle = title,
                 messageCount = group.size,
-                ratio = 0f
+                ratio = group.size.toFloat() / maxCount
             )
-        }.sortedByDescending { it.messageCount }.take(5)
-
-        val maxCount = sortedThreads.firstOrNull()?.messageCount ?: 1
-        return sortedThreads.map { it.copy(ratio = it.messageCount.toFloat() / maxCount) }
+        }
     }
 }

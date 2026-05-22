@@ -27,5 +27,5 @@ data class ThreadStat(
     val threadId: MessageId,
     val threadTitle: String,
     val messageCount: Int,
-    val ratio: Float
+    val ratio: Float = 0f
 )
