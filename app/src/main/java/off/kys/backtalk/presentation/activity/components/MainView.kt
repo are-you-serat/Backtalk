@@ -20,7 +20,7 @@ import off.kys.backtalk.presentation.viewmodel.MainViewModel
 @Composable
 fun MainView(
     viewModel: MainViewModel,
-    isLoggedIn: Boolean
+    isAuthenticated: Boolean
 ) {
     val updateState by viewModel.mainUiState.collectAsStateWithLifecycle()
     val isDarkTheme = viewModel.preferences.themeMode.isDark(isSystemInDarkTheme())
@@ -40,7 +40,7 @@ fun MainView(
                 }
             )
         } else {
-            Crossfade(targetState = isLoggedIn, label = "LoginState") { loggedIn ->
+            Crossfade(targetState = isAuthenticated, label = "LoginState") { loggedIn ->
                 if (loggedIn) {
                     Navigator(MessagesScreen()) { navigator ->
                         SlideTransition(navigator)

@@ -4,19 +4,14 @@ import android.view.Window
 import android.view.WindowManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import off.kys.backtalk.presentation.viewmodel.MainViewModel
+import off.kys.backtalk.common.pref.BacktalkPreferences
 
 @Composable
 fun AppLifecycleHandler(
-    viewModel: MainViewModel,
+    prefs: BacktalkPreferences,
     window: Window?,
-    onPreferenceChange: (lockEnabled: Boolean, secureEnabled: Boolean) -> Unit
 ) {
-    val prefs = viewModel.preferences
-
-    LaunchedEffect(prefs.lockEnabled, prefs.secureScreenEnabled) {
-        onPreferenceChange(prefs.lockEnabled, prefs.secureScreenEnabled)
-
+    LaunchedEffect(prefs.secureScreenEnabled) {
         window?.let {
             if (prefs.secureScreenEnabled) {
                 it.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
