@@ -51,6 +51,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -61,6 +62,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,6 +85,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.launch
 import off.kys.backtalk.R
 import off.kys.backtalk.domain.model.MediaItem
 import off.kys.backtalk.presentation.screen.camera.CameraCaptureScreen
@@ -97,6 +100,7 @@ fun MediaPickerSheet(
 ) {
     val navigator = LocalNavigator.currentOrThrow
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     var selectedUris by remember { mutableStateOf(emptySet<Uri>()) }
     var selectedType by remember { mutableStateOf("image/jpeg") }
     var captionText by remember { mutableStateOf(emptyString()) }
@@ -232,10 +236,14 @@ fun MediaPickerSheet(
                                         .fillMaxWidth(),
                                     onSelected = { uri, type ->
                                         selectedType = type
-                                        selectedUris = if (uri in selectedUris) {
+                                        val isAdding = uri !in selectedUris
+                                        selectedUris = if (!isAdding) {
                                             linkedSetOf<Uri>().apply { addAll(selectedUris.filter { it != uri }) }
                                         } else {
                                             linkedSetOf<Uri>().apply { addAll(selectedUris); add(uri) }
+                                        }
+                                        if (isAdding && sheetState.currentValue != SheetValue.Expanded) {
+                                            scope.launch { sheetState.expand() }
                                         }
                                     }
                                 )
@@ -253,10 +261,14 @@ fun MediaPickerSheet(
                         modifier = Modifier.aspectRatio(1f),
                         onSelected = { uri, type ->
                             selectedType = type
-                            selectedUris = if (uri in selectedUris) {
+                            val isAdding = uri !in selectedUris
+                            selectedUris = if (!isAdding) {
                                 linkedSetOf<Uri>().apply { addAll(selectedUris.filter { it != uri }) }
                             } else {
                                 linkedSetOf<Uri>().apply { addAll(selectedUris); add(uri) }
+                            }
+                            if (isAdding && sheetState.currentValue != SheetValue.Expanded) {
+                                scope.launch { sheetState.expand() }
                             }
                         }
                     )
