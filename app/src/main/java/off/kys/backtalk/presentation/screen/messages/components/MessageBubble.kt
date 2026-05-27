@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -103,7 +104,8 @@ fun MessageBubble(
     }
 
     // Determine if the content only consists of images (no text, no voice, no replies, no active metadata tags)
-    val hasImages = !messageEntity.mediaPath.isNullOrEmpty() || !messageEntity.mediaPaths.isNullOrEmpty()
+    val hasImages =
+        !messageEntity.mediaPath.isNullOrEmpty() || !messageEntity.mediaPaths.isNullOrEmpty()
     val hasText = (messageEntity.editedText ?: messageEntity.text).isNotEmpty()
     val hasVoice = messageEntity.voicePath != null
     val hasRepliedMessage = repliedMessageEntity != null
@@ -212,7 +214,12 @@ private fun MessageSurface(
                 color = Color.White.copy(alpha = 0.3f * blinkAlpha),
                 modifier = Modifier.matchParentSize()
             ) {}
-            Column(modifier = Modifier.padding(horizontal = horizontalPadding, vertical = verticalPadding)) {
+            Column(
+                modifier = Modifier.padding(
+                    horizontal = horizontalPadding,
+                    vertical = verticalPadding
+                )
+            ) {
                 content()
             }
         }
@@ -263,7 +270,7 @@ private fun MessageContent(
     }
 
     if (images.isNotEmpty()) {
-        ImageGrid(images) { imagePath -> navigator?.push(ImagePreviewScreen(imagePath)) }
+        StaggeredImageGrid(images) { imagePath -> navigator?.push(ImagePreviewScreen(imagePath)) }
         val messageText = message.editedText ?: message.text
         if (messageText.isNotEmpty() || message.voicePath != null) {
             Spacer(modifier = Modifier.height(4.dp))
@@ -313,9 +320,18 @@ private fun MessageContent(
 }
 
 @Composable
-private fun ImageGrid(images: List<String>, onImageClick: (String) -> Unit) {
-    val containerModifier = Modifier
-        .clip(MaterialTheme.shapes.medium)
+fun StaggeredImageGrid(
+    images: List<String>,
+    modifier: Modifier = Modifier,
+    onImageClick: (String) -> Unit
+) {
+    if (images.isEmpty()) return
+
+    val gridWidth = 280.dp
+    val spacing = 6.dp
+    val containerModifier = modifier
+        .width(gridWidth)
+        .clip(MaterialTheme.shapes.large)
 
     when (images.size) {
         1 -> {
@@ -323,92 +339,130 @@ private fun ImageGrid(images: List<String>, onImageClick: (String) -> Unit) {
             AsyncImage(
                 model = File(path),
                 contentDescription = null,
-                modifier = containerModifier
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.large)
                     .sizeIn(
-                        minWidth = 120.dp,
-                        maxWidth = 260.dp,
-                        minHeight = 120.dp,
-                        maxHeight = 320.dp
+                        minWidth = 140.dp, maxWidth = gridWidth,
+                        minHeight = 140.dp, maxHeight = 360.dp
                     )
-                    .aspectRatio(4f / 3f)
                     .clickable { onImageClick(path) },
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
         }
 
         2 -> {
             Row(
-                modifier = containerModifier.width(260.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                modifier = containerModifier,
+                horizontalArrangement = Arrangement.spacedBy(spacing)
             ) {
                 images.forEach { path ->
-                    AsyncImage(
-                        model = File(path),
-                        contentDescription = null,
+                    GridImage(
+                        path = path,
                         modifier = Modifier
                             .weight(1f)
-                            .aspectRatio(1f)
-                            .clickable { onImageClick(path) },
-                        contentScale = ContentScale.Crop
+                            .aspectRatio(0.75f),
+                        onClick = onImageClick
                     )
                 }
             }
         }
 
         3 -> {
-            Column(
-                modifier = containerModifier.width(260.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            Row(
+                modifier = containerModifier,
+                horizontalArrangement = Arrangement.spacedBy(spacing)
             ) {
-                val firstPath = images[0]
-                AsyncImage(
-                    model = File(firstPath),
-                    contentDescription = null,
+                GridImage(
+                    path = images[0],
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(140.dp)
-                        .clickable { onImageClick(firstPath) },
-                    contentScale = ContentScale.Crop
+                        .weight(1f)
+                        .aspectRatio(0.75f),
+                    onClick = onImageClick
                 )
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    images.drop(1).forEach { path ->
-                        AsyncImage(
-                            model = File(path),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(1f)
-                                .clickable { onImageClick(path) },
-                            contentScale = ContentScale.Crop
-                        )
-                    }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(spacing)
+                ) {
+                    GridImage(
+                        path = images[1],
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .aspectRatio(1.5f),
+                        onClick = onImageClick
+                    )
+                    GridImage(
+                        path = images[2],
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .aspectRatio(1.5f),
+                        onClick = onImageClick
+                    )
                 }
             }
         }
 
         else -> {
-            Column(
-                modifier = containerModifier.width(260.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            Row(
+                modifier = containerModifier,
+                horizontalArrangement = Arrangement.spacedBy(spacing)
             ) {
-                images.take(4).chunked(2).forEach { rowImages ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        rowImages.forEach { path ->
-                            AsyncImage(
-                                model = File(path),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                                    .clickable { onImageClick(path) },
-                                contentScale = ContentScale.Crop
-                            )
-                        }
-                    }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(spacing)
+                ) {
+                    GridImage(
+                        path = images[0],
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f),
+                        onClick = onImageClick
+                    )
+                    GridImage(
+                        path = images[2],
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1.5f),
+                        onClick = onImageClick
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(spacing)
+                ) {
+                    GridImage(
+                        path = images[1],
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1.5f),
+                        onClick = onImageClick
+                    )
+                    GridImage(
+                        path = images[3],
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .aspectRatio(1f),
+                        onClick = onImageClick
+                    )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun GridImage(
+    path: String,
+    modifier: Modifier = Modifier,
+    onClick: (String) -> Unit
+) {
+    AsyncImage(
+        model = File(path),
+        contentDescription = null,
+        modifier = modifier.clickable { onClick(path) },
+        contentScale = ContentScale.Crop
+    )
 }
 
 @Composable
