@@ -15,10 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -94,7 +91,6 @@ fun MessagesScreenContent(
     val scope = rememberCoroutineScope()
     val showScrollToBottom = rememberScrollToBottomVisibility(messagesScrollState)
     val tags = rememberHashtags(state.messages)
-    var shouldScrollToSearch by remember { mutableStateOf(false) }
 
     fun scrollToAndBlink(id: MessageId) {
         scope.launch {
@@ -134,11 +130,11 @@ fun MessagesScreenContent(
         onEvent(MessagesUiEvent.ToggleMediaPicker(false))
     }
 
-    LaunchedEffect(state.currentSearchResultIndex) {
-        if (state.isSearchActive && state.currentSearchResultIndex != -1 && shouldScrollToSearch) {
+    LaunchedEffect(state.shouldScrollToSearch) {
+        if (state.isSearchActive && state.currentSearchResultIndex != -1 && state.shouldScrollToSearch) {
             val targetId = state.searchResults[state.currentSearchResultIndex]
             scrollToAndBlink(targetId)
-            shouldScrollToSearch = false
+            onEvent(MessagesUiEvent.ConsumedScrollToSearch)
         }
     }
 
@@ -200,7 +196,6 @@ fun MessagesScreenContent(
                 },
                 onNavigateSearch = { up: Boolean ->
                     onEvent(MessagesUiEvent.NavigateSearch(up))
-                    shouldScrollToSearch = true
                 },
                 tags = tags,
                 selectedTag = state.selectedTag,

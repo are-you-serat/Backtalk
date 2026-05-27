@@ -128,6 +128,10 @@ class MessagesViewModel(
             MessagesUiEvent.ConsumedScrollToPinned -> {
                 _uiState.value = _uiState.value.copy(shouldScrollToPinned = false)
             }
+
+            MessagesUiEvent.ConsumedScrollToSearch -> {
+                _uiState.value = _uiState.value.copy(shouldScrollToSearch = false)
+            }
         }
     }
 
@@ -436,6 +440,9 @@ class MessagesViewModel(
             (state.currentSearchResultIndex - 1 + state.searchResults.size) % state.searchResults.size
         }
 
-        _uiState.value = state.copy(currentSearchResultIndex = newIndex)
+        _uiState.value = state.copy(
+            currentSearchResultIndex = newIndex,
+            shouldScrollToSearch = true
+        )
     }
 }

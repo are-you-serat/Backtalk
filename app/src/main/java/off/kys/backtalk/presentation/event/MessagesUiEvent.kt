@@ -156,4 +156,9 @@ sealed interface MessagesUiEvent {
      * UI event to notify that the scroll to a pinned message has been consumed.
      */
     data object ConsumedScrollToPinned : MessagesUiEvent
+
+    /**
+     * UI event to notify that the scroll to a search result has been consumed.
+     */
+    data object ConsumedScrollToSearch : MessagesUiEvent
 }

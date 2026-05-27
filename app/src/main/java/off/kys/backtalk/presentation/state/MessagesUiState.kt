@@ -28,6 +28,7 @@ data class MessagesUiState(
     val pinnedMessages: List<MessageEntity> = emptyList(),
     val activePinnedMessageIndex: Int = 0,
     val shouldScrollToPinned: Boolean = false,
+    val shouldScrollToSearch: Boolean = false,
     val showPinnedMessagesDialog: Boolean = false,
     val blinkMessageId: MessageId? = null,
     val filteredMessages: List<MessageEntity> = emptyList(),
