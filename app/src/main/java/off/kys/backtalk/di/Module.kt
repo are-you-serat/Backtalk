@@ -30,6 +30,7 @@ import off.kys.backtalk.domain.use_case.GetAllScheduledMessages
 import off.kys.backtalk.domain.use_case.GetMessageById
 import off.kys.backtalk.domain.use_case.ImportBackup
 import off.kys.backtalk.domain.use_case.InsertMessage
+import off.kys.backtalk.domain.use_case.RemoveImageFromMessage
 import off.kys.backtalk.domain.use_case.TogglePinMessage
 import off.kys.backtalk.domain.use_case.ScheduleMessageUseCase
 import off.kys.backtalk.domain.use_case.SyncData
@@ -115,6 +116,7 @@ private fun Module.useCaseModule() {
     single { CopyMessagesByIds(get(), get()) }
     single { ScheduleMessageUseCase(get(), get()) }
     single { TogglePinMessage(get()) }
+    single { RemoveImageFromMessage(get()) }
     single { GetAllScheduledMessages(get()) }
     single { CancelScheduledMessage(get(), get()) }
     single { CheckAppUpdate() }
@@ -132,7 +134,8 @@ private fun Module.useCaseModule() {
             scheduleMessage = get(),
             getAllScheduledMessages = get(),
             cancelScheduledMessage = get(),
-            togglePinMessage = get()
+            togglePinMessage = get(),
+            removeImageFromMessage = get()
         )
     }
     single {

@@ -308,38 +308,7 @@ class MessagesViewModel(
 
     private fun removeImageFromMessage(messageId: MessageId, imagePath: String) {
         viewModelScope.launch {
-            val message = useCases.getMessageById(messageId) ?: return@launch
-
-            val newMediaPath = if (message.mediaPath == imagePath) null else message.mediaPath
-            val newMediaPaths = message.mediaPaths
-                ?.filter { it != imagePath }
-                ?.ifEmpty { null }
-
-            val hasNoMediaLeft = newMediaPath == null && newMediaPaths.isNullOrEmpty()
-            // If all media is gone and there's no voice, delete the whole message.
-            // Text in a media message is a caption — it has no meaning without the media.
-            val hasNoContent = hasNoMediaLeft && message.voicePath == null
-
-            if (hasNoContent) {
-                // Delegate to existing use case — it handles DB delete + disk cleanup
-                useCases.deleteMessageById(messageId)
-            } else {
-                useCases.insertMessage(
-                    message.copy(
-                        mediaPath = newMediaPath,
-                        mediaPaths = newMediaPaths
-                    )
-                )
-                // Delete file from disk only if no other message still references this path
-                val allMessages = _uiState.value.messages
-                val isStillReferenced = allMessages.any { m ->
-                    m.id != messageId &&
-                            (m.mediaPath == imagePath || m.mediaPaths?.contains(imagePath) == true)
-                }
-                if (!isStillReferenced) {
-                    File(imagePath).let { if (it.exists()) it.delete() }
-                }
-            }
+            useCases.removeImageFromMessage(messageId, imagePath)
         }
     }
 
