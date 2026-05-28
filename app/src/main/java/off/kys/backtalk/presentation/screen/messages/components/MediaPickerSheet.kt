@@ -515,9 +515,11 @@ private fun fetchGalleryMedia(context: Context): List<MediaItem> {
         MediaStore.MediaColumns.MIME_TYPE
     )
     val sortOrder = "${MediaStore.MediaColumns.DATE_ADDED} DESC"
-    val queryUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+    val queryUri = MediaStore.Files.getContentUri("external")
+    val selection = "(${MediaStore.Files.FileColumns.MEDIA_TYPE} = ${MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE}) OR (${MediaStore.MediaColumns.MIME_TYPE} = ?)"
+    val selectionArgs = arrayOf("image/svg+xml")
 
-    context.contentResolver.query(queryUri, projection, null, null, sortOrder)?.use { cursor ->
+    context.contentResolver.query(queryUri, projection, selection, selectionArgs, sortOrder)?.use { cursor ->
         val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
         val mimeColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE)
         while (cursor.moveToNext()) {

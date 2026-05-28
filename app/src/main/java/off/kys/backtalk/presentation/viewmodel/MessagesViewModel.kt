@@ -1,6 +1,7 @@
 package off.kys.backtalk.presentation.viewmodel
 
 import android.app.Application
+import android.webkit.MimeTypeMap
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.net.toUri
@@ -141,7 +142,8 @@ class MessagesViewModel(
             runCatching {
                 val mediaPaths = uris.mapNotNull { uri ->
                     val sourceUri = uri.toUri()
-                    val extension = if (type.contains("video")) "mp4" else "jpg"
+                    val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(type)
+                        ?: if (type.contains("video")) "mp4" else "jpg"
                     val fileName =
                         "media_${System.currentTimeMillis()}_${sourceUri.lastPathSegment}.$extension"
                     val mediaDir = File(application.filesDir, "media").apply { mkdirs() }

@@ -111,6 +111,7 @@ dependencies {
     implementation(libs.androidx.concurrent.futures)
     implementation(libs.bundles.camerax)
     implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
     implementation(libs.gau)
     ksp(libs.room.compiler)
 

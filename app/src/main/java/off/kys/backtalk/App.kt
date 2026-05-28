@@ -1,6 +1,9 @@
 package off.kys.backtalk
 
 import android.app.Application
+import coil.ImageLoader
+import coil.ImageLoaderFactory
+import coil.decode.SvgDecoder
 import off.kys.backtalk.di.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -11,7 +14,7 @@ import org.koin.core.context.startKoin
  * This class is responsible for initializing global application state,
  * including the dependency injection framework (Koin).
  */
-class App: Application() {
+class App: Application(), ImageLoaderFactory {
 
     /**
      * Called when the application is starting, before any activity, service,
@@ -26,6 +29,14 @@ class App: Application() {
             androidContext(this@App)
             modules(appModule)
         }
+    }
+
+    override fun newImageLoader(): ImageLoader {
+        return ImageLoader.Builder(this)
+            .components {
+                add(SvgDecoder.Factory())
+            }
+            .build()
     }
 
 }
