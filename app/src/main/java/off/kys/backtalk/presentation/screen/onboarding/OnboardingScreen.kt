@@ -1,37 +1,93 @@
 package off.kys.backtalk.presentation.screen.onboarding
 
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.tooling.preview.Preview
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import kotlinx.coroutines.launch
+import off.kys.backtalk.presentation.event.OnboardingUiEvent
+import off.kys.backtalk.presentation.screen.messages.MessagesScreen
+import off.kys.backtalk.presentation.screen.onboarding.components.OnboardingBottomBar
 import off.kys.backtalk.presentation.screen.onboarding.components.OnboardingScreenContent
 import off.kys.backtalk.presentation.state.OnboardingUiState
 import off.kys.backtalk.presentation.theme.BacktalkTheme
 import off.kys.backtalk.presentation.viewmodel.OnboardingViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
-@Composable
-fun OnboardingScreen(
-    onFinished: () -> Unit
-) {
-    val viewModel = koinViewModel<OnboardingViewModel>()
-    val state by viewModel.state.collectAsState()
-    
-    OnboardingScreenContent(
-        state = state,
-        onUpdatePermissions = viewModel::updatePermissionStates,
-        onFinished = onFinished
-    )
+class OnboardingScreen : Screen {
+
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+        val viewModel = koinViewModel<OnboardingViewModel>()
+        val state by viewModel.state.collectAsState()
+        val scope = rememberCoroutineScope()
+        val pagerState = rememberPagerState { OnboardingPage.entries.size }
+
+        LaunchedEffect(Unit) {
+            viewModel.onEvent(OnboardingUiEvent.UpdatePermissions)
+        }
+
+        Scaffold(
+            bottomBar = {
+                OnboardingBottomBar(
+                    currentPage = pagerState.currentPage,
+                    pageCount = pagerState.pageCount,
+                    onNext = {
+                        if (pagerState.currentPage < pagerState.pageCount - 1) {
+                            scope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                            }
+                        } else {
+                            viewModel.onEvent(OnboardingUiEvent.CompleteOnboarding)
+                            navigator.replaceAll(MessagesScreen())
+                        }
+                    },
+                    onSkip = {
+                        viewModel.onEvent(OnboardingUiEvent.CompleteOnboarding)
+                        navigator.replaceAll(MessagesScreen())
+                    }
+                )
+            }
+        ) { paddingValues ->
+            OnboardingScreenContent(
+                pagerState = pagerState,
+                state = state,
+                onUpdatePermissions = { viewModel.onEvent(OnboardingUiEvent.UpdatePermissions) },
+                paddingValues = paddingValues
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun OnboardingScreenPreview() {
+    val pagerState = rememberPagerState { OnboardingPage.entries.size }
     BacktalkTheme {
-        OnboardingScreenContent(
-            state = OnboardingUiState(),
-            onUpdatePermissions = {},
-            onFinished = {}
-        )
+        Scaffold(
+            bottomBar = {
+                OnboardingBottomBar(
+                    currentPage = 0,
+                    pageCount = OnboardingPage.entries.size,
+                    onNext = {},
+                    onSkip = {}
+                )
+            }
+        ) { paddingValues ->
+            OnboardingScreenContent(
+                pagerState = pagerState,
+                state = OnboardingUiState(),
+                onUpdatePermissions = {},
+                paddingValues = paddingValues
+            )
+        }
     }
 }

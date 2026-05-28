@@ -156,7 +156,7 @@ private fun Module.viewModelModule() {
     viewModel { ThreadsViewModel(get()) }
     viewModel { SettingsViewModel(androidApplication(), get(), get(), get()) }
     viewModel { SyncViewModel(get()) }
-    viewModel { OnboardingViewModel(androidApplication(), get()) }
+    viewModel { OnboardingViewModel(androidApplication(), get(), get()) }
     viewModel { StatisticsViewModel(get()) }
     viewModel { RemindersViewModel(get()) }
 }

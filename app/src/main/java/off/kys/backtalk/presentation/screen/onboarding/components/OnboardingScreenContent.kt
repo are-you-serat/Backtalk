@@ -1,101 +1,74 @@
 package off.kys.backtalk.presentation.screen.onboarding.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.lerp
-import kotlinx.coroutines.launch
 import off.kys.backtalk.presentation.screen.onboarding.OnboardingPage
 import off.kys.backtalk.presentation.state.OnboardingUiState
 import kotlin.math.absoluteValue
 
 @Composable
 fun OnboardingScreenContent(
+    pagerState: PagerState,
     state: OnboardingUiState,
     onUpdatePermissions: () -> Unit,
-    onFinished: () -> Unit
+    paddingValues: PaddingValues,
+    modifier: Modifier = Modifier
 ) {
-    val pagerState = rememberPagerState { OnboardingPage.entries.size }
-    val scope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        onUpdatePermissions()
-    }
-
-    Scaffold(
-        bottomBar = {
-            OnboardingBottomBar(
-                currentPage = pagerState.currentPage,
-                pageCount = pagerState.pageCount,
-                onNext = {
-                    if (pagerState.currentPage < pagerState.pageCount - 1) {
-                        scope.launch {
-                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                        }
-                    } else {
-                        onFinished()
-                    }
-                },
-                onSkip = onFinished
-            )
-        }
-    ) { paddingValues ->
-        Column(
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+    ) {
+        HorizontalPager(
+            state = pagerState,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                verticalAlignment = Alignment.Top
-            ) { pageIndex ->
-                val page = OnboardingPage.entries[pageIndex]
-                OnboardingPageContent(
-                    page = page,
-                    state = state,
-                    onUpdatePermissions = onUpdatePermissions,
-                    modifier = Modifier.graphicsLayer {
-                        val pageOffset = (
-                                (pagerState.currentPage - pageIndex) + pagerState
-                                    .currentPageOffsetFraction
-                                )
+                .fillMaxWidth()
+                .weight(1f),
+            verticalAlignment = Alignment.Top
+        ) { pageIndex ->
+            val page = OnboardingPage.entries[pageIndex]
+            OnboardingPageContent(
+                page = page,
+                state = state,
+                onUpdatePermissions = onUpdatePermissions,
+                modifier = Modifier.graphicsLayer {
+                    val pageOffset = (
+                            (pagerState.currentPage - pageIndex) + pagerState
+                                .currentPageOffsetFraction
+                            )
 
-                        val fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
+                    val fraction = 1f - pageOffset.absoluteValue.coerceIn(0f, 1f)
 
-                        alpha = lerp(
-                            start = 0.5f,
-                            stop = 1f,
-                            fraction = fraction
-                        )
+                    alpha = lerp(
+                        start = 0.5f,
+                        stop = 1f,
+                        fraction = fraction
+                    )
 
-                        scaleX = lerp(
-                            start = 0.9f,
-                            stop = 1f,
-                            fraction = fraction
-                        )
-                        scaleY = lerp(
-                            start = 0.9f,
-                            stop = 1f,
-                            fraction = fraction
-                        )
+                    scaleX = lerp(
+                        start = 0.9f,
+                        stop = 1f,
+                        fraction = fraction
+                    )
+                    scaleY = lerp(
+                        start = 0.9f,
+                        stop = 1f,
+                        fraction = fraction
+                    )
 
-                        translationX = pageOffset * size.width * 0.1f
-                    }
-                )
-            }
+                    translationX = pageOffset * size.width * 0.1f
+                }
+            )
         }
     }
 }

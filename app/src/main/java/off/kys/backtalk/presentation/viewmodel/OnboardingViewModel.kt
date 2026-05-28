@@ -12,11 +12,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import off.kys.backtalk.common.manager.AlarmScheduler
+import off.kys.backtalk.common.pref.BacktalkPreferences
+import off.kys.backtalk.presentation.event.OnboardingUiEvent
 import off.kys.backtalk.presentation.state.OnboardingUiState
 
 class OnboardingViewModel(
     private val application: Application,
-    private val alarmScheduler: AlarmScheduler
+    private val alarmScheduler: AlarmScheduler,
+    private val preferences: BacktalkPreferences
 ) : AndroidViewModel(application) {
 
     private val _state = MutableStateFlow(OnboardingUiState())
@@ -26,7 +29,14 @@ class OnboardingViewModel(
         updatePermissionStates()
     }
 
-    fun updatePermissionStates() {
+    fun onEvent(event: OnboardingUiEvent) {
+        when (event) {
+            OnboardingUiEvent.UpdatePermissions -> updatePermissionStates()
+            OnboardingUiEvent.CompleteOnboarding -> completeOnboarding()
+        }
+    }
+
+    private fun updatePermissionStates() {
         viewModelScope.launch {
             val notificationGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 ContextCompat.checkSelfPermission(
@@ -70,5 +80,9 @@ class OnboardingViewModel(
                 )
             }
         }
+    }
+
+    private fun completeOnboarding() {
+        preferences.firstLaunch = false
     }
 }

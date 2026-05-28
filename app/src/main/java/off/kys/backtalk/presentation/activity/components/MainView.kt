@@ -4,9 +4,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
@@ -26,32 +24,24 @@ fun MainView(
     val isDarkTheme = viewModel.preferences.themeMode.isDark(isSystemInDarkTheme())
     val dynamicColor = viewModel.preferences.dynamicColorEnabled
 
-    var showOnboarding by remember { mutableStateOf(viewModel.preferences.firstLaunch) }
-
     BacktalkTheme(
         darkTheme = isDarkTheme,
         dynamicColor = dynamicColor
     ) {
-        if (showOnboarding) {
-            OnboardingScreen(
-                onFinished = {
-                    viewModel.preferences.firstLaunch = false
-                    showOnboarding = false
+        Crossfade(targetState = isAuthenticated, label = "LoginState") { loggedIn ->
+            if (loggedIn) {
+                val initialScreen = remember {
+                    if (viewModel.preferences.firstLaunch) OnboardingScreen() else MessagesScreen()
                 }
-            )
-        } else {
-            Crossfade(targetState = isAuthenticated, label = "LoginState") { loggedIn ->
-                if (loggedIn) {
-                    Navigator(MessagesScreen()) { navigator ->
-                        SlideTransition(navigator)
-                    }
-                } else {
-                    LockView()
+                Navigator(initialScreen) { navigator ->
+                    SlideTransition(navigator)
                 }
+            } else {
+                LockView()
             }
         }
 
-        if (!showOnboarding) {
+        if (!viewModel.preferences.firstLaunch) {
             (updateState as? MainUiState.UpdateAvailable)?.let { state ->
                 val url = state.result.downloadUrls.firstOrNull()?.browserDownloadUrl
                     ?: return@let
