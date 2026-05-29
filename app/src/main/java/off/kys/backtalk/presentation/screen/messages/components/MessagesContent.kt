@@ -48,10 +48,7 @@ fun MessagesContent(
     onTogglePinnedDialog: (Boolean) -> Unit,
     onTogglePin: (MessageEntity, Boolean) -> Unit,
     onScrollToMessage: (MessageId) -> Unit,
-    onImageDelete: ((MessageId, String) -> Unit)? = null,
-    onToggleImageSelect: (MessageId, String) -> Unit = { _, _ -> },
-    onDeleteSelectedImages: (MessageId) -> Unit = {},
-    onClearImageSelection: (MessageId) -> Unit = {}
+    onToggleImageSelect: (MessageId, String) -> Unit = { _, _ -> }
 ) {
     val context = LocalContext.current
 
@@ -67,11 +64,8 @@ fun MessagesContent(
             onTagClick = onTagClick,
             blinkMessageId = state.blinkMessageId,
             onScrollToMessage = onScrollToMessage,
-            onImageDelete = onImageDelete,
             selectedImagePaths = state.selectedImagePaths,
             onToggleImageSelect = onToggleImageSelect,
-            onDeleteSelectedImages = onDeleteSelectedImages,
-            onClearImageSelection = onClearImageSelection,
             contentPadding = if (state.pinnedMessages.isNotEmpty()) PaddingValues(top = 48.dp) else PaddingValues(
                 0.dp
             )

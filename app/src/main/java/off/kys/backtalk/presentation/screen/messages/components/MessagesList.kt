@@ -31,11 +31,8 @@ fun MessagesList(
     onTagClick: (String) -> Unit = {},
     blinkMessageId: MessageId? = null,
     onScrollToMessage: (MessageId) -> Unit = {},
-    onImageDelete: ((MessageId, String) -> Unit)? = null,
     selectedImagePaths: Map<MessageId, Set<String>> = emptyMap(),
-    onToggleImageSelect: (MessageId, String) -> Unit = { _, _ -> },
-    onDeleteSelectedImages: (MessageId) -> Unit = {},
-    onClearImageSelection: (MessageId) -> Unit = {}
+    onToggleImageSelect: (MessageId, String) -> Unit = { _, _ -> }
 ) {
     val selectionMode = selectedMessageIds.isNotEmpty() || selectedImagePaths.isNotEmpty()
 
